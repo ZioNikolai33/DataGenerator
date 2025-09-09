@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>TrainingDataGenerator</Name>
     <RootNamespace>TrainingDataGenerator</RootNamespace>
+    <InterpreterId>Global|PythonCore|3.12</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +23,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="TrainingDataGenerator.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CR_Samples\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="config.json" />
+    <Content Include="CR_Samples\Deadly.json" />
+    <Content Include="CR_Samples\Easy.json" />
+    <Content Include="CR_Samples\Hard.json" />
+    <Content Include="CR_Samples\Normal.json" />
+    <Content Include="CR_Samples\SuperDeadly.json" />
+    <Content Include="CR_Samples\SuperEasy.json" />
+    <Content Include="Encounter_Schema.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.12" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
