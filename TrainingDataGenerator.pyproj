@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>31de24b6-d2ed-4f32-8376-93226555bf5f</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>TrainingDataGenerator.py</StartupFile>
+    <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -12,6 +12,7 @@
     <Name>TrainingDataGenerator</Name>
     <RootNamespace>TrainingDataGenerator</RootNamespace>
     <InterpreterId>Global|PythonCore|3.12</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,11 +24,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="database.py" />
-    <Compile Include="difficulty.py" />
-    <Compile Include="TrainingDataGenerator.py" />
+    <Compile Include="generator\generator.py" />
+    <Compile Include="utilities\dataManipulation.py" />
+    <Compile Include="utilities\difficulty.py" />
+    <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CR_Samples\" />
+    <Folder Include="data\" />
+    <Folder Include="generator\" />
+    <Folder Include="generator\logs\" />
+    <Folder Include="generator\output\" />
+    <Folder Include="utilities\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.json" />
