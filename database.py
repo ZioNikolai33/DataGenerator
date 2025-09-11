@@ -36,3 +36,6 @@ class database:
             "Traits": self.db["Traits"].find(),
             "WeaponProperties": self.db["WeaponProperties"].find(),
         }
+
+    def getAllMonsters(self):
+        return self.db["Monsters"].find()
