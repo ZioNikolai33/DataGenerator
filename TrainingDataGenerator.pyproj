@@ -31,12 +31,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="config.json" />
-    <Content Include="CR_Samples\Deadly.json" />
-    <Content Include="CR_Samples\Easy.json" />
-    <Content Include="CR_Samples\Hard.json" />
-    <Content Include="CR_Samples\Normal.json" />
-    <Content Include="CR_Samples\SuperDeadly.json" />
-    <Content Include="CR_Samples\SuperEasy.json" />
+    <Content Include="data\expMonsterMultiplier.json" />
+    <Content Include="data\expThreshold.json" />
     <Content Include="Encounter_Schema.json" />
     <Content Include="README.txt" />
   </ItemGroup>
