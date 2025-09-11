@@ -25,7 +25,7 @@
   <ItemGroup>
     <Compile Include="database.py" />
     <Compile Include="generator\generator.py" />
-    <Compile Include="types\difficulty.py" />
+    <Compile Include="entities\difficulty.py" />
     <Compile Include="utilities\dataManipulation.py" />
     <Compile Include="utilities\expOperations.py" />
     <Compile Include="main.py" />
@@ -35,7 +35,7 @@
     <Folder Include="generator\" />
     <Folder Include="generator\logs\" />
     <Folder Include="generator\output\" />
-    <Folder Include="types\" />
+    <Folder Include="entities\" />
     <Folder Include="utilities\" />
   </ItemGroup>
   <ItemGroup>
