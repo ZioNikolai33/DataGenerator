@@ -24,8 +24,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="database.py" />
+    <Compile Include="entities\CRRatios.py" />
+    <Compile Include="entities\party.py" />
     <Compile Include="generator\generator.py" />
     <Compile Include="entities\difficulty.py" />
+    <Compile Include="generator\random.py" />
     <Compile Include="utilities\dataManipulation.py" />
     <Compile Include="utilities\expOperations.py" />
     <Compile Include="main.py" />

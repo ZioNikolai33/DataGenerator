@@ -4,41 +4,36 @@ from entities.difficulty import Difficulty
 
 # Load Exp Points thresholds for each level
 with open("data/expThreshold.json") as f:
-    expPointsList = pd.DataFrame(json.load(f))
+    expPointsList = json.load(f)
 
 # Load Multipliers for number of monsters
 with open("data/expMonsterMultiplier.json") as f:
-    multiplierList = pd.DataFrame(json.load(f))
+    multiplierList = json.load(f)
 
 def calculateDifficultiesExp(partyLevels):
     totalExpPoints = Difficulty(easy=0, medium=0, hard=0, deadly=0)
 
     for level in partyLevels:
-        if level in expPointsList["level"].to_list():
-            totalExpPoints.easy += expPointsList["easy"][level]
-            totalExpPoints.medium += expPointsList["medium"][level]
-            totalExpPoints.hard += expPointsList["hard"][level]
-            totalExpPoints.deadly += expPointsList["deadly"][level]
+        levelExps = next((entry for entry in expPointsList if entry["level"] == level), None)
+
+        if any(entry["level"] == level for entry in expPointsList):
+            totalExpPoints.easy += levelExps["easy"]
+            totalExpPoints.medium += levelExps["medium"]
+            totalExpPoints.hard += levelExps["hard"]
+            totalExpPoints.deadly += levelExps["deadly"]
         else:
-            raise ValueError(f"Level {level} is out of range. Valid levels are 1 to 20.")
+            raise ValueError(f"Level {level} not found in expPointsList.")
 
     return totalExpPoints
 
 def calculateAdjustedExp(monsterExps):
-    numMonsters = len(monsterExps)
-
-    if numMonsters == 0:
-        return 0
-
     totalExp = sum(monsterExps)
+    numMonsters = len(monsterExps)
+    numMultiplier = next((entry for entry in multiplierList if entry["number"] == numMonsters), None)
 
-    if numMonsters in multiplierList["number"]:
-        multiplier = multiplierList["number"][numMonsters]
-    elif numMonsters > 15:
-        multiplier = 4
-    else:
+    if numMultiplier is None:
         raise ValueError(f"Number of monsters {numMonsters} is out of range. Valid range is 1 to 15 or more.")
 
-    adjustedExp = int(totalExp * multiplier)
+    adjustedExp = int(totalExp * numMultiplier["multiplier"])
 
     return adjustedExp

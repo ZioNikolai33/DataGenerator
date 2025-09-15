@@ -1,11 +1,12 @@
-import pandas as pd
+from database import *
 
-def getMonstersDifficultiesList(db):
-    allMonsters = db.getAllMonsters()
-    df = pd.DataFrame(allMonsters)
+def getMonstersDifficultiesList():
+    allMonsters = Database.getAllMonsters(db)
+    filteredMonster = [{item["index"], item["name"], item["challenge_rating"], item["xp"]} for item in allMonsters]
 
-    monstersList = df[["index", "name", "challenge_rating", "xp"]].rename(
-        columns={"challenge_rating": "cr"}
-    ).to_dict(orient="records")
+    print([item for item in allMonsters])
+    #print(filteredMonster)
+
+    return allMonsters
     
-    return monstersList
+    return allMonsters

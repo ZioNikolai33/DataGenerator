@@ -1,8 +1,13 @@
 from utilities.dataManipulation import *
-from database import *
+from entities.CRRatios import *
+from generator.random import *
+
 import pandas as pd
+import random
 import json
 
 def generate():
-    db = database()
-    monstersList = getMonstersDifficultiesList(db)
+    # Select a random difficulty bucket - bucket.value to get number
+    bucket = random.choice(list(CRRatios))    
+    party = getRandomParty()
+    monstersList = getMonstersDifficultiesList()
