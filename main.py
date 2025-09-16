@@ -5,6 +5,4 @@ from database import *
 
 Database()
 
-print([(item.name, item.hp, item.subclasses) for item in classStats])
-
-#generate()
+generate()
