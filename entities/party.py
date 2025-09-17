@@ -3,7 +3,7 @@ from database import *
 
 import random
 
-classes = Database.getAllClasses(db)
+classes = list(Database.getAllClasses(db))
 proficiencyChoices = {}
 
 for item in classes:
@@ -16,21 +16,29 @@ for item in classes:
                         
     proficiencyChoices[class_index] = profs
 
-print(proficiencyChoices)
-
-class Class:
-    def __init__(self, classe):
-        self.name = classe["index"]
-        self.hp = classe["hit_die"]
-        self.subclasses = classe["subclasses"]
-
 class Attribute:
     def __init__(self, value):
         self.value = value
         self.modifier = (value - 10) // 2
         self.save = (value - 10) // 2
 
+class Equipment:
+    def __init__(self, equipment):
+        self.name = equipment["equipment"]["index"]
+        self.quantity = equipment["quantity"]
+
+class Class:
+    def __init__(self, classe):
+        self.name = classe["index"]
+        self.hp = classe["hit_die"]
+        self.subclasses = [item["index"] for item in classe["subclasses"]]
+        self.proficiencyChoices = proficiencyChoices[classe["index"]]
+        self.savingThrows = [item["index"] for item in classe["saving_throws"]]
+        self.proficiencies = [item["index"] for item in classe["proficiencies"]]
+        self.startingEquipments = [Equipment(item) for item in classe["starting_equipment"]]
+
 classStats = [Class(item) for item in classes]
+#print([(item.name, item.hp, item.subclasses, item.proficiencyChoices, item.savingThrows, item.proficiencies) for item in classStats])
 
 class Member:
     def __init__(self, id, level):
@@ -49,6 +57,7 @@ class Member:
         self.charisma = Attribute(attributes[5])
         self.hp = self.calculateRandomHp(randomClass.hp) + ((self.level - 1) * (self.constitution.modifier - 10) // 2)
         self.subclass = random.choice(randomClass.subclasses)
+        self.initiative = self.dexterity.modifier
         
 
     def calculateRandomHp(self, hitDie):
