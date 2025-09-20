@@ -23,10 +23,35 @@
                         "isRequired": true
                     },
                     "level": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 20,
-                        "isRequired": true
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 20,
+                      "isRequired": true
+                    },
+                    "race": {
+                      "type": "string",
+                      "enum": [
+                        "Human",
+                        "Elf",
+                        "Dwarf",
+                        "Halfling",
+                        "Dragonborn",
+                        "Gnome",
+                        "Half-Elf",
+                        "Half-Orc",
+                        "Tiefling"
+                      ],
+                      "isRequired": true
+                    },
+                    "subrace": {
+                      "type": "string",
+                      "enum": [
+                        "hill-dwarf",
+                        "high-elf",
+                        "lightfoot-halfling",
+                        "rock-gnome"
+                      ],
+                      "isRequired": false
                     },
                     "class": {
                         "type": "string",

@@ -43,11 +43,19 @@ class Database:
         return self.db["Classes"].find()
 
     @staticmethod
+    def getAllRaces(self):
+        return self.db["Races"].find()
+
+    @staticmethod
     def getAllSubclasses(self):
         return self.db["Subclasses"].find()
 
     @staticmethod
     def getAllMonsters(self):
         return self.db["Monsters"].find()
+
+    @staticmethod
+    def getAllFeatures(self):
+        return self.db["Features"].find()
 
 db = Database()
