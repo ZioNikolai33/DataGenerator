@@ -6,6 +6,10 @@ import random
 classes = list(Database.getAllClasses(db))
 races = list(Database.getAllRaces(db))
 features = list(Database.getAllFeatures(db))
+weapons = list(Database.getAllWeapons(db))
+
+weaponNames = [item["index"] for item in weapons]
+print(weaponNames)
 
 proficiencyChoices = {}
 
@@ -23,7 +27,7 @@ class Feature:
     def __init__(self, feature):
         self.name = feature["index"]
         self.classe = feature["class"]["index"]
-        self.subclass = feature["subclass"]["index"] if feature["subclass"] else None
+        self.subclass = feature["subclass"]["index"] if "subclass" in feature else None
         self.level = feature["level"]
         self.prerequisites = feature["prerequisites"]
         self.featureNumChoices, self.featureSpecific = self.getFeatureSpecific(feature)
@@ -32,21 +36,32 @@ class Feature:
         numChoices = 0
         featureSpecific = []
 
-        if feature["feature_specific"]["expertise_options"]:
-            numChoices = feature["feature_specific"]["expertise_options"]["choose"]
-            featureSpecific = [item["item"]["index"] for item in feature["feature_specific"]["expertise_options"]["from"]["options"]]
-        elif feature["feature_specific"]["subfeature_options"]:
-            numChoices = feature["feature_specific"]["subfeature_options"]["choose"]
-            featureSpecific = [item["item"]["index"] for item in feature["feature_specific"]["subfeature_options"]["from"]["options"]]
-        elif feature["feature_specific"]["enemy_type_options"]:
-            numChoices = feature["feature_specific"]["enemy_type_options"]["choose"]
-            featureSpecific = [item["item"]["index"] for item in feature["feature_specific"]["enemy_type_options"]["from"]["options"]]
-        elif feature["feature_specific"]["terrain_type_options"]:
-            numChoices = feature["feature_specific"]["terrain_type_options"]["choose"]
-            featureSpecific = [item["item"]["index"] for item in feature["feature_specific"]["terrain_type_options"]["from"]["options"]]
-        elif feature["feature_specific"]["invocations"]:
-            numChoices = self.getInvocationsNum()
-            featureSpecific = [item["item"]["index"] for item in feature["feature_specific"]["invocations"]["from"]["options"]]
+        if "feature_specific" in feature:
+            if "expertise_options" in feature["feature_specific"]:
+                expertiseOptions = feature["feature_specific"]["expertise_options"]["from"]["options"]
+
+                if "items" in expertiseOptions[1] and "choice" in expertiseOptions[0]:
+                    numChoices = [expertiseOptions[0]["choice"]["choose"]]
+                    numChoices += [expertiseOptions[1]["items"][0]["choice"]["choose"]]
+
+                    featureSpecific = [item["item"]["index"] for item in expertiseOptions[0]["choice"]["from"]["options"]]
+                    featureSpecific += [item["item"]["index"] for item in expertiseOptions[1]["items"][0]["choice"]["from"]["options"]]
+                    featureSpecific[1] += expertiseOptions[1]["items"][1]["item"]["index"]
+                else:
+                    numChoices = feature["feature_specific"]["expertise_options"]["choose"]
+                    featureSpecific = [item["item"]["index"] for item in expertiseOptions]
+            elif "subfeature_options" in feature["feature_specific"]:
+                numChoices = feature["feature_specific"]["subfeature_options"]["choose"]
+                featureSpecific = [item["item"]["index"] for item in feature["feature_specific"]["subfeature_options"]["from"]["options"]]
+            elif "enemy_type_options" in feature["feature_specific"]:
+                numChoices = feature["feature_specific"]["enemy_type_options"]["choose"]
+                featureSpecific = [item for item in feature["feature_specific"]["enemy_type_options"]["from"]["options"]]
+            elif "terrain_type_options" in feature["feature_specific"]:
+                numChoices = feature["feature_specific"]["terrain_type_options"]["choose"]
+                featureSpecific = [item for item in feature["feature_specific"]["terrain_type_options"]["from"]["options"]]
+            elif "invocations" in feature["feature_specific"]:
+                numChoices = self.getInvocationsNum()
+                featureSpecific = [item["index"] for item in feature["feature_specific"]["invocations"]]
 
         return numChoices, featureSpecific
 
@@ -106,13 +121,15 @@ class Class:
         self.savingThrows = [item["index"] for item in classe["saving_throws"]]
         self.proficiencies = [item["index"] for item in classe["proficiencies"]]
         self.features = [feature for feature in featureStats if feature.classe == self.name]
-        
+        self.startingEquipments = [Equipment(item) for item in classe["starting_equipment"] if item["equipment"]["index"] in weapons] #Continue StartingEquipment and Choices
 
+featureStats = [Feature(item) for item in features]
 classStats = [Class(item) for item in classes]
 raceStats = [Race(item) for item in races]
-featureStats = [Feature(item) for item in features]
 
-print([item for item in classStats])
+print([item.__str__() for item in classStats])
+print([item.__str__() for item in raceStats])
+print([item.__str__() for item in featureStats])
 
 class Member:
     def __init__(self, id, level):
