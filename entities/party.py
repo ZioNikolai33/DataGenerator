@@ -9,7 +9,7 @@ features = list(Database.getAllFeatures(db))
 weapons = list(Database.getAllWeapons(db))
 
 weaponNames = [item["index"] for item in weapons]
-print(weaponNames)
+print(weapons)
 
 proficiencyChoices = {}
 
@@ -102,6 +102,22 @@ class Equipment:
         self.name = equipment["equipment"]["index"]
         self.quantity = equipment["quantity"]
 
+        for item in weapons:
+            if item["index"] == self.name:
+                weapon = item
+                break
+
+        self.equipmentCategory = item["equipment_category"]["index"]
+        self.weaponCategory = item["weapon_category"] if "weapon_category" in item else None
+        self.weaponRange = item["weapon_range"]
+        self.categoryRange = item["category_range"]
+        self.cost = item["cost"]["quantity"]
+        self.costUnit = item["cost"]["unit"]
+        self.damage = item["damage"]["damage_dice"] if "damage" in item else None
+        self.damageType = item["damage"]["damage_type"]["index"] if "damage" in item else None
+        self.rangeNormal = item["range"]["normal"] if "range" in item else None
+        self.properties = [item["index"] for item in item["properties"]]
+
 class Race:
     def __init__(self, race):
         self.name = race["index"]
@@ -121,7 +137,7 @@ class Class:
         self.savingThrows = [item["index"] for item in classe["saving_throws"]]
         self.proficiencies = [item["index"] for item in classe["proficiencies"]]
         self.features = [feature for feature in featureStats if feature.classe == self.name]
-        self.startingEquipments = [Equipment(item) for item in classe["starting_equipment"] if item["equipment"]["index"] in weapons] #Continue StartingEquipment and Choices
+        self.startingEquipments = [Equipment(item) for item in classe["starting_equipment"] if item["equipment"]["index"] in weapons]
 
 featureStats = [Feature(item) for item in features]
 classStats = [Class(item) for item in classes]
