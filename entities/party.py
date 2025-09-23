@@ -7,6 +7,8 @@ classes = list(Database.getAllClasses(db))
 races = list(Database.getAllRaces(db))
 features = list(Database.getAllFeatures(db))
 weapons = list(Database.getAllWeapons(db))
+categories = list(Database.getAllCategories(db))
+spells = list(Database.getAllSpells(db))
 
 weaponNames = [item["index"] for item in weapons]
 print(weapons)
@@ -98,9 +100,9 @@ class AbilityBonus:
         self.bonus = item["bonus"]
 
 class Equipment:
-    def __init__(self, equipment):
-        self.name = equipment["equipment"]["index"]
-        self.quantity = equipment["quantity"]
+    def __init__(self, index, quantity):
+        self.name = index
+        self.quantity = quantity
 
         for item in weapons:
             if item["index"] == self.name:
@@ -127,6 +129,47 @@ class Race:
         self.subraces = [item["index"] for item in race["subraces"]]
         self.speed = race["speed"]
 
+class Multiclass:
+    def __init__(self, classe):
+        self.prerequisitiesAttribute = [item["ability_scores"]["index"] for item in classe["prerequisities"]]
+        self.prerequisitiesValue = [item["minimum_score"] for item in classe["prerequisities"]]
+        self.proficiencies = [item["index"] for item in classe["proficiencies"]]
+        self.proficiencyChoices = [prof["index"] for prof in [item["from"]["options"] for item in classe["proficiencies_choices"]]]
+        self.proficiencyChoicesNum = [item["choose"] for item in classe["proficiencies_choices"]["choose"]]
+
+class Area:
+    def _init_(self, area):
+        self.type = area["type"]
+        self.size = area["size"]
+
+class SpellDamage:
+    def _init_(self, damage):
+        self.damageType = damage["damage_type"]["index"]
+        self.damageSlots = damage["damage_at_slot_level"]
+        self.damageAtCharacterLevel = damage["damage_at_character_level"]
+
+class Dc:
+    def _init_(self, dc):
+        self.dcType = dc["dc_type"]
+        self.dcSuccess = dc["dc_success"]
+
+class Spell:
+    def __init__(self, spell):
+        self.name = spell["index"]
+        self.range = spell["range"]
+        self.ritual = spell["ritual"]
+        self.duration = spell["duration"]
+        self.concentration = spell["concentration"]
+        self.castingTime = spell["casting_time"]
+        self.healAtSlotLevel = spell["heal_at_slot_level"] if "heal_at_slot_level" in spell else None
+        self.school = spell["school"]["index"]
+        self.classes = [item["index"] for item in spell["classes"]]
+        self.subclasses = [item["index"] for item in spell["subclasses"]] if "subclasses" in spell else None
+        self.areaEffect = Area(spell["area_of_effect"]) if "area_of_effect" in spell else None
+        self.dc = Dc(spell["dc"]) if "dc" in spell else None
+        self.damage = SpellDamage(spell["damage"]) if "damage" in spell else None
+        self.attackType = spell["attack_type"] if "attack_type" in spell else None
+
 class Class:
     def __init__(self, classe):
         self.name = classe["index"]
@@ -137,11 +180,36 @@ class Class:
         self.savingThrows = [item["index"] for item in classe["saving_throws"]]
         self.proficiencies = [item["index"] for item in classe["proficiencies"]]
         self.features = [feature for feature in featureStats if feature.classe == self.name]
-        self.startingEquipments = [Equipment(item) for item in classe["starting_equipment"] if item["equipment"]["index"] in weapons]
+        self.startingEquipments = [Equipment(item["equipment"]["index"], item["equipment"]["quantity"]) for item in classe["starting_equipment"] if item["equipment"]["index"] in weapons]
+        self.startingEquipmentsOptions = self.getEquipmentOptions(classe["starting_equipment_options"])
+        self.multiclassing = Multiclass(classe["multi_classing"])
+        self.spellcastingAbility = classe["spellcasting"]["spellcasting_ability"]["index"] if "spellcasting" in classe else None
+        self.spells = [Spell(item) for item in spellStats if self.name in item["classes"]]
+
+    def getEquipmentOptions(self, startingEquip):
+        equipmentOptions = []
+
+        for item in startingEquip:
+            numChoices = item["choose"]
+            optionList = []
+
+            for option in item["from"]["options"]:
+                if option["option_type"] == "counted_reference" and option["of"]["index"] in weapons:
+                    optionList.append(Equipment(option["of"]["index"], option["count"]))
+                elif option["option_type"] == "choice":
+                    choiceNum = option["choice"]["choose"]
+                    if options["choice"]["from"]["option_set_type"] == "equipment_category":
+                        toChooseEquip = [item for item in categories if item["index"] == option["choice"]["from"]["equipment_category"]["index"]]
+                        optionList.append([Equipment(item["index"], 1) for item in toChooseEquip if item["index"] in weapons])
+
+            equipmentOptions.append(optionList)
+
+        return equipmentOptions
 
 featureStats = [Feature(item) for item in features]
 classStats = [Class(item) for item in classes]
 raceStats = [Race(item) for item in races]
+spellStats = [Spell(item) for item in spells]
 
 print([item.__str__() for item in classStats])
 print([item.__str__() for item in raceStats])

@@ -66,4 +66,12 @@ class Database:
     def getAllWeapons(self):
         return self.db["Equipment"].find({'weapon_category': {'$exists': True}})
 
+    @staticmethod
+    def getAllCategories(self):
+        return self.db["EquipmentCategories"].find()
+
+    @staticmethod
+    def getAllSpells(self):
+        return self.db["Spells"].find()
+
 db = Database()
