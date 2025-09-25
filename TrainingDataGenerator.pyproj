@@ -24,8 +24,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="database.py" />
+    <Compile Include="entities\AbilityBonus.py" />
+    <Compile Include="entities\Area.py" />
+    <Compile Include="entities\Attribute.py" />
+    <Compile Include="entities\Class.py" />
     <Compile Include="entities\CRRatios.py" />
+    <Compile Include="entities\DifficultyClass.py" />
+    <Compile Include="entities\Equipment.py" />
+    <Compile Include="entities\Feature.py" />
+    <Compile Include="entities\Multiclass.py" />
     <Compile Include="entities\party.py" />
+    <Compile Include="entities\Race.py" />
+    <Compile Include="entities\Spell.py" />
     <Compile Include="generator\generator.py" />
     <Compile Include="entities\difficulty.py" />
     <Compile Include="generator\random.py" />
