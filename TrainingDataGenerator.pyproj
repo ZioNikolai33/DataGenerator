@@ -27,6 +27,7 @@
     <Compile Include="entities\AbilityBonus.py" />
     <Compile Include="entities\Area.py" />
     <Compile Include="entities\Attribute.py" />
+    <Compile Include="entities\Choice.py" />
     <Compile Include="entities\Class.py" />
     <Compile Include="entities\CRRatios.py" />
     <Compile Include="entities\DifficultyClass.py" />

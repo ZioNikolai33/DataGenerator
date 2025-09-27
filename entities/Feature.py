@@ -1,4 +1,5 @@
 from database import *
+from entities.Choice import *
 import random
 
 class Feature:
@@ -8,40 +9,36 @@ class Feature:
         self.subclass = feature["subclass"]["index"] if "subclass" in feature else None
         self.level = feature["level"]
         self.prerequisites = feature["prerequisites"]
-        self.featureNumChoices, self.featureSpecific = self.getFeatureSpecific(feature)
+        self.featureSpecificChoices, self.featureSpecificType = self.getFeatureSpecific(feature)
 
     def getFeatureSpecific(self, feature):
-        numChoices = 0
-        featureSpecific = []
+        featureSpecificType = ""
+        featureSpecificChoices = []
 
         if "feature_specific" in feature:
             if "expertise_options" in feature["feature_specific"]:
+                featureSpecificType = "expertise"
                 expertiseOptions = feature["feature_specific"]["expertise_options"]["from"]["options"]
 
                 if "items" in expertiseOptions[1] and "choice" in expertiseOptions[0]:
-                    numChoices = [expertiseOptions[0]["choice"]["choose"]]
-                    numChoices += [expertiseOptions[1]["items"][0]["choice"]["choose"]]
-
-                    featureSpecific = [item["item"]["index"] for item in expertiseOptions[0]["choice"]["from"]["options"]]
-                    featureSpecific += [item["item"]["index"] for item in expertiseOptions[1]["items"][0]["choice"]["from"]["options"]]
-                    featureSpecific[1] += expertiseOptions[1]["items"][1]["item"]["index"]
+                    featureSpecificChoices.append(Choice(expertiseOptions[0]["choice"]["choose"], [item["item"]["index"] for item in expertiseOptions[0]["choice"]["from"]["options"]]))
+                    featureSpecificChoices.append(Choice(expertiseOptions[1]["items"][0]["choice"]["choose"], [item["item"]["index"] for item in expertiseOptions[1]["items"][0]["choice"]["from"]["options"]].append([item["item"]["index"] for item in expertiseOptions[1]["items"][0]["choice"]["from"]["options"]])))
                 else:
-                    numChoices = feature["feature_specific"]["expertise_options"]["choose"]
-                    featureSpecific = [item["item"]["index"] for item in expertiseOptions]
+                    featureSpecificChoices.append(Choice(feature["feature_specific"]["expertise_options"]["choose"], [item["item"]["index"] for item in expertiseOptions]))
             elif "subfeature_options" in feature["feature_specific"]:
-                numChoices = feature["feature_specific"]["subfeature_options"]["choose"]
-                featureSpecific = [item["item"]["index"] for item in feature["feature_specific"]["subfeature_options"]["from"]["options"]]
+                featureSpecificType = "subfeature_options"
+                featureSpecificChoices.append(Choice(feature["feature_specific"]["subfeature_options"]["choose"], [item["item"]["index"] for item in feature["feature_specific"]["subfeature_options"]["from"]["options"]]))
             elif "enemy_type_options" in feature["feature_specific"]:
-                numChoices = feature["feature_specific"]["enemy_type_options"]["choose"]
-                featureSpecific = [item for item in feature["feature_specific"]["enemy_type_options"]["from"]["options"]]
+                featureSpecificType = "enemy_type_options"
+                featureSpecificChoices.append(Choice(feature["feature_specific"]["enemy_type_options"]["choose"], [item for item in feature["feature_specific"]["enemy_type_options"]["from"]["options"]]))
             elif "terrain_type_options" in feature["feature_specific"]:
-                numChoices = feature["feature_specific"]["terrain_type_options"]["choose"]
-                featureSpecific = [item for item in feature["feature_specific"]["terrain_type_options"]["from"]["options"]]
+                featureSpecificType = "terrain_type_options"
+                featureSpecificChoices.append(Choice(feature["feature_specific"]["terrain_type_options"]["choose"], [item for item in feature["feature_specific"]["terrain_type_options"]["from"]["options"]]))
             elif "invocations" in feature["feature_specific"]:
-                numChoices = self.getInvocationsNum()
-                featureSpecific = [item["index"] for item in feature["feature_specific"]["invocations"]]
+                featureSpecificType = "invocations"
+                featureSpecificChoices.append(Choice(self.getInvocationsNum(), [item["index"] for item in feature["feature_specific"]["invocations"]]))
 
-        return numChoices, featureSpecific
+        return featureSpecificChoices, featureSpecificType
 
     def getInvocationsNum(self):
         if self.level > 17:
@@ -60,8 +57,5 @@ class Feature:
             return 2
         else:
             return 0
-
-    def randomizeFeature(self):
-        self.featureSpecific = random.sample(self.featureSpecific, self.featureNumChoices) if self.featureNumChoices > 0 else self.featureSpecific
 
 featureStats = [Feature(item) for item in list(Database.getAllFeatures(db))]

@@ -518,90 +518,6 @@
                 }
             }
         },
-        "rounds": {
-            "type": "array",
-            "properties": {
-                "round": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "autoIncrement": true
-                },
-                "turns": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "entity": {
-                                "type": "string",
-                                "isRequired": true
-                            },
-                            "action": {
-                                "type": "string",
-                                "isRequired": true
-                            },
-                            "damageDealt": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "target": {
-                                            "type": "string",
-                                            "isRequired": true
-                                        },
-                                        "amount": {
-                                            "type": "integer",
-                                            "minimum": 0,
-                                            "default": 0
-                                        },
-                                        "damageType": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Acid",
-                                                "Cold",
-                                                "Thunder",
-                                                "Necrotic",
-                                                "Piercing",
-                                                "Psychic",
-                                                "Fire",
-                                                "Radiant",
-                                                "Slashing",
-                                                "Bludgeoning",
-                                                "Force",
-                                                "Lightning",
-                                                "Poison"
-                                            ],
-                                            "default": ""
-                                        }
-                                    }
-                                },
-                                "default": []
-                            },
-                            "healingDone": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "target": {
-                                            "type": "string",
-                                            "isRequired": true
-                                        },
-                                        "amount": {
-                                            "type": "integer",
-                                            "minimum": 0,
-                                            "default": 0
-                                        }
-                                    }
-                                },
-                                "default": []
-                            },
-                            "notes": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "outcome": {
             "type": "object",
             "properties": {
@@ -880,7 +796,6 @@
         "encounterId",
         "party",
         "monsters",
-        "rounds",
         "outcome"
     ]
 }

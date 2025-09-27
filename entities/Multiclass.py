@@ -1,3 +1,5 @@
+from entities.Choice import *
+
 class Multiclass:
     def __init__(self, classe):
         if "prerequisities" in classe:
@@ -10,10 +12,7 @@ class Multiclass:
             self.numChoices = classe["prerequisite_options"]["choose"]
         self.proficiencies = [item["index"] for item in classe["proficiencies"]]
         self.proficiencyChoices = []
-        self.proficiencyChoicesNum = []
 
         if "proficiency_choices" in classe:
             for prof in classe["proficiency_choices"]:
-                for item in prof["from"]["options"]:
-                    self.proficiencyChoices.append(item["item"]["index"])
-            self.proficiencyChoicesNum = [item["choose"] for item in classe["proficiency_choices"]]
+                self.proficiencyChoices.append(Choice(prof["choose"], [item["item"]["index"] for item in prof["from"]["options"]]))

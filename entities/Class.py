@@ -3,6 +3,7 @@ from entities.Equipment import *
 from entities.Multiclass import *
 from entities.Spell import *
 from entities.Feature import *
+from entities.Choice import *
 
 categories = list(Database.getAllCategories(db))
 weapons = list(Database.getAllWeapons(db))
@@ -25,8 +26,7 @@ class Class:
         self.name = classe["index"]
         self.hp = classe["hit_die"]
         self.subclasses = [item["index"] for item in classe["subclasses"]]
-        self.numProficiencies = classe["proficiency_choices"][0]["choose"]
-        self.proficiencyChoices = proficiencyChoices[classe["index"]]
+        self.proficiencyChoices = [Choice(classe["proficiency_choices"][0]["choose"], proficiencyChoices[classe["index"]])]
         self.savingThrows = [item["index"] for item in classe["saving_throws"]]
         self.proficiencies = [item["index"] for item in classe["proficiencies"]]
         self.features = [feature for feature in featureStats if feature.classe == self.name]
@@ -46,14 +46,12 @@ class Class:
             if "options" in item["from"]:
                 for option in item["from"]["options"]:
                     if option["option_type"] == "counted_reference" and option["of"]["index"] in weapons:
-                        optionList.append(Equipment(option["of"]["index"], option["count"]))
+                        equipmentOptions.append(numChoices, Equipment(option["of"]["index"], option["count"]))
                     elif option["option_type"] == "choice":
                         choiceNum = option["choice"]["choose"]
                         if option["choice"]["from"]["option_set_type"] == "equipment_category":
                             toChooseEquip = [item for item in categories if item["index"] == option["choice"]["from"]["equipment_category"]["index"]]
-                            optionList.append([Equipment(item["index"], 1) for item in toChooseEquip if item["index"] in weapons])
-
-            equipmentOptions.append(optionList)
+                            equipmentOptions.append(Choice(choiceNum, [Equipment(item["index"], 1) for item in toChooseEquip if item["index"] in weapons]))
 
         return equipmentOptions
 
