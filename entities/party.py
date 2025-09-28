@@ -31,8 +31,8 @@ class Member:
         self.initiative = self.dexterity.modifier
         self.proficiencyBonus = self.getProfBonus()
         self.proficiencies = randomClass.proficiencies
-        self.proficiencies.append(randomRace.proficiencies)
-        self.proficiencies.append(random.sample(item.choices, item.number) for item in randomClass.proficiencyChoices)
+        self.proficiencies.extend(randomRace.proficiencies)
+        self.proficiencies.extend(random.sample(item.choices, item.number) for item in randomClass.proficiencyChoices)
         self.features = [item for item in randomClass.features if item.level == self.level]
         self.featureSpecifics = []
         self.masteries = []
@@ -41,7 +41,7 @@ class Member:
         self.immunities = []
 
         for item in randomClass.proficiencyChoices:
-            self.proficiencies.append(random.sample(item.choices, item.number))
+            self.proficiencies.extend(random.sample(item.choices, item.number))
 
         for feature in self.features:
             for item in feature.featureSpecificChoices:
@@ -68,8 +68,7 @@ class Member:
         return hp
 
     def assumeAttributes(self, randomClass):
-        # Just assume standard array
-        attributes = [15, 14, 13, 12, 10, 8]
+        attributes = [15, 14, 13, 12, 10, 8] # Just assume standard array
         random.shuffle(attributes)
 
         return attributes

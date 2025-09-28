@@ -46,7 +46,7 @@ class Class:
             if "options" in item["from"]:
                 for option in item["from"]["options"]:
                     if option["option_type"] == "counted_reference" and option["of"]["index"] in weapons:
-                        equipmentOptions.append(numChoices, Equipment(option["of"]["index"], option["count"]))
+                        equipmentOptions.append(Choice(numChoices, Equipment(option["of"]["index"], option["count"])))
                     elif option["option_type"] == "choice":
                         choiceNum = option["choice"]["choose"]
                         if option["choice"]["from"]["option_set_type"] == "equipment_category":
