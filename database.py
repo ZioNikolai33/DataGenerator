@@ -78,4 +78,52 @@ class Database:
     def getAllSpells(self):
         return self.db["Spells"].find()
 
+    @staticmethod
+    def getAllMeleeWeapons(self):
+        return self.db["Equipment"].find({'index': "melee-weapons"})
+
+    @staticmethod
+    def getAllRangedWeapons(self):
+        return self.db["Equipment"].find({'index': "ranged-weapons"})
+
+    @staticmethod
+    def getAllLightArmors(self):
+        return self.db["Equipment"].find({'index': "light-armor"})
+
+    @staticmethod
+    def getAllMediumArmors(self):
+        return self.db["Equipment"].find({'index': "medium-armor"})
+
+    @staticmethod
+    def getAllHeavyArmors(self):
+        return self.db["Equipment"].find({'index': "heavy-armor"})
+
+    @staticmethod
+    def getAllShields(self):
+        return self.db["Equipment"].find({'index': "shields"})
+
+    @staticmethod
+    def getAllSimpleWeapons(self):
+        return self.db["Equipment"].find({'index': "simple-weapons"})
+
+    @staticmethod
+    def getAllSimpleMeleeWeapons(self):
+        return self.db["Equipment"].find({'index': "simple-melee-weapons"})
+
+    @staticmethod
+    def getAllMartialMeleeWeapons(self):
+        return self.db["Equipment"].find({'index': "martial-melee-weapons"})
+
+    @staticmethod
+    def getAllMartialWeapons(self):
+        return self.db["Equipment"].find({'index': "martial-weapons"})
+
+    @staticmethod
+    def getAllSimpleRangedWeapons(self):
+        return self.db["Equipment"].find({'index': "simple-ranged-weapons"})
+
+    @staticmethod
+    def getAllMartialRangedWeapons(self):
+        return self.db["Equipment"].find({'index': "martial-ranged-weapons"})
+
 db = Database()

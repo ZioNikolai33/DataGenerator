@@ -32,7 +32,13 @@ class Member:
         self.proficiencyBonus = self.getProfBonus()
         self.proficiencies = randomClass.proficiencies
         self.proficiencies.extend(randomRace.proficiencies)
-        self.proficiencies.extend(random.sample(item.choices, item.number) for item in randomClass.proficiencyChoices)
+
+        for item in randomClass.proficiencyChoices:
+            chosen = item.getRandomChoice(self.proficiencies)
+            self.proficiencies.extend(chosen)
+
+        self.equipments = randomClass.startingEquipments
+
         self.features = [item for item in randomClass.features if item.level == self.level]
         self.featureSpecifics = []
         self.masteries = []
