@@ -43,6 +43,7 @@
     <Compile Include="utilities\dataManipulation.py" />
     <Compile Include="utilities\expOperations.py" />
     <Compile Include="main.py" />
+    <Compile Include="utilities\lists.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="data\" />

@@ -39,6 +39,10 @@ class Member:
 
         self.equipments = randomClass.startingEquipments
 
+        if len(randomClass.startingEquipmentsOptions) > 0:
+            for item in randomClass.startingEquipmentsOptions:
+                self.equipments.append(item)
+
         self.features = [item for item in randomClass.features if item.level == self.level]
         self.featureSpecifics = []
         self.masteries = []
@@ -148,7 +152,17 @@ class Member:
         string += f"Saving Throws: STR {self.strength.save}, DEX {self.dexterity.save}, CON {self.constitution.save}, INT {self.intelligence.save}, WIS {self.wisdom.save}, CHA {self.charisma.save}\n"
         string += f"Skills: {', '.join([f'{key.replace('_', ' ').title()} {value}' for key, value in self.skills.items()])}\n"
         string += f"Proficiencies: {', '.join([item if isinstance(item, str) else ', '.join(item) for item in self.proficiencies])}\n"
+        if len(self.masteries) > 0:
+            string += f"Masteries: {', '.join([item if isinstance(item, str) else ', '.join(item) for item in self.masteries])}\n"
+        string += f"Traits: {', '.join(self.subrace.traits) if self.subrace != '' else 'None'}\n"
         string += f"Features: {', '.join([item.name for item in self.features])}\n"
+        string += f"Equipments: {', '.join([f'{item.quantity} x {item.name.replace('-', ' ').title()}' for item in self.equipments])}\n"
+        if len(self.vulnerabilies) > 0:
+            string += f"Vulnerabilities: {', '.join(self.vulnerabilies)}\n"
+        if len(self.resistances) > 0:
+            string += f"Resistances: {', '.join(self.resistances)}\n"
+        if len(self.immunities) > 0:
+            string += f"Immunities: {', '.join(self.immunities)}\n"
         string += "\n------------------------------------------------------------------------------------------------------------------------\n"
 
         return string

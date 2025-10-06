@@ -5,7 +5,13 @@ class Choice:
         self.number = number
         self.choices = choices
 
-    def getRandomChoice(self, proficiencies):
-        filtered_choices = [choice for choice in self.choices if choice not in proficiencies]
+    def getRandomChoice(self, items = None):
+        if items is not None:
+            filtered_choices = [choice for choice in self.choices if choice not in items]
+        else:
+            filtered_choices = self.choices
 
         return random.sample(filtered_choices, self.number)
+
+    def __str__(self):
+        return f"{self.number} - {', '.join(str(choice) for choice in self.choices)}"
