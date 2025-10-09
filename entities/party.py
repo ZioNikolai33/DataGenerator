@@ -68,6 +68,7 @@ class Member:
 
         self.addProfToSavings(randomClass)
         self.skills = self.getSkillsDict()
+        self.spellSlots = randomClass.getSpellSlots(self.level)
 
     def calculateRandomHp(self, hitDie):
         hp = hitDie + self.constitution.modifier
@@ -157,12 +158,13 @@ class Member:
         string += f"Traits: {', '.join(self.subrace.traits) if self.subrace != '' else 'None'}\n"
         string += f"Features: {', '.join([item.name for item in self.features])}\n"
         string += f"Equipments: {', '.join([f'{item.quantity} x {item.name.replace('-', ' ').title()}' for item in self.equipments])}\n"
-        if len(self.vulnerabilies) > 0:
+        if len(self.vulnerabilities) > 0:
             string += f"Vulnerabilities: {', '.join(self.vulnerabilies)}\n"
         if len(self.resistances) > 0:
             string += f"Resistances: {', '.join(self.resistances)}\n"
         if len(self.immunities) > 0:
             string += f"Immunities: {', '.join(self.immunities)}\n"
+        string += str(self.spellSlots) if self.spellSlots.first > 0 else ""
         string += "\n------------------------------------------------------------------------------------------------------------------------\n"
 
         return string

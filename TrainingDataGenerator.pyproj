@@ -34,11 +34,12 @@
     <Compile Include="entities\Equipment.py" />
     <Compile Include="entities\Feature.py" />
     <Compile Include="entities\Multiclass.py" />
-    <Compile Include="entities\party.py" />
+    <Compile Include="entities\Party.py" />
     <Compile Include="entities\Race.py" />
+    <Compile Include="entities\Slots.py" />
     <Compile Include="entities\Spell.py" />
     <Compile Include="generator\generator.py" />
-    <Compile Include="entities\difficulty.py" />
+    <Compile Include="entities\Difficulty.py" />
     <Compile Include="generator\random.py" />
     <Compile Include="utilities\dataManipulation.py" />
     <Compile Include="utilities\expOperations.py" />
@@ -57,6 +58,7 @@
     <Content Include="config.json" />
     <Content Include="data\expMonsterMultiplier.json" />
     <Content Include="data\expThreshold.json" />
+    <Content Include="data\spellSlots.json" />
     <Content Include="Encounter_Schema.json" />
     <Content Include="README.txt" />
   </ItemGroup>

@@ -1,3 +1,4 @@
+from math import e
 from tkinter import SEL
 from database import *
 from entities.Equipment import *
@@ -5,6 +6,7 @@ from entities.Multiclass import *
 from entities.Spell import *
 from entities.Feature import *
 from entities.Choice import *
+from entities.Slots import *
 from utilities.lists import *
 
 for item in classes:
@@ -31,17 +33,6 @@ class Class:
         self.multiclassing = Multiclass(classe["multi_classing"])
         self.spellcastingAbility = classe["spellcasting"]["spellcasting_ability"]["index"] if "spellcasting" in classe else None
         self.spells = [item for item in spellStats if self.name in item.classes]
-        self.spellSlots = {
-            "1": 0,
-            "2": 0,
-            "3": 0,
-            "4": 0,
-            "5": 0,
-            "6": 0,
-            "7": 0,
-            "8": 0,
-            "9": 0
-        }
 
     def getEquipmentOptions(self):
         equipmentOptions = []
@@ -223,6 +214,68 @@ class Class:
         return equipmentOptions
 
     def getSpellSlots(self, level):
-        return
+        spellSlots = Slots()
+
+        if self.name in ["bard", "cleric", "druid", "sorcerer", "wizard"]:
+            if level == 1:
+                spellSlots = Slots(2)
+            elif level == 2:
+                spellSlots = Slots(3)
+            elif level == 3:
+                spellSlots = Slots(4, 2)
+            elif level == 4:
+                spellSlots = Slots(4, 3)
+            elif level == 5:
+                spellSlots = Slots(4, 3, 2)
+            elif level == 6:
+                spellSlots = Slots(4, 3, 3)
+            elif level == 7:
+                spellSlots = Slots(4, 3, 3, 1)
+            elif level == 8:
+                spellSlots = Slots(4, 3, 3, 2)
+            elif level == 9:
+                spellSlots = Slots(4, 3, 3, 3, 1)
+            elif level == 10:
+                spellSlots = Slots(4, 3, 3, 3, 2)
+            elif level == 11 or level == 12:
+                spellSlots = Slots(4, 3, 3, 3, 2, 1)
+            elif level == 13 or level == 14:
+                spellSlots = Slots(4, 3, 3, 3, 2, 1, 1)
+            elif level == 15 or level == 16:
+                spellSlots = Slots(4, 3, 3, 3, 2, 1, 1, 1)
+            elif level == 17:
+                spellSlots = Slots(4, 3, 3, 3, 2, 1, 1, 1, 1)
+            elif level == 18:
+                spellSlots = Slots(4, 3, 3, 3, 3, 1, 1, 1, 1)
+            elif level == 19:
+                spellSlots = Slots(4, 3, 3, 3, 3, 2, 1, 1, 1)
+            elif level == 20:
+                spellSlots = Slots(4, 3, 3, 3, 3, 2, 2, 1, 1)
+        elif self.name in ["paladin", "ranger"]:
+            if level == 2:
+                spellSlots = Slots(2)
+            elif level == 3:
+                spellSlots = Slots(3)
+            elif level == 4:
+                spellSlots = Slots(3)
+            elif level == 5 or level == 6:
+                spellSlots = Slots(4, 2)
+            elif level == 7 or level == 8:
+                spellSlots = Slots(4, 3)
+            elif level == 9 or level == 10:
+                spellSlots = Slots(4, 3, 2)
+            elif level == 11 or level == 12:
+                spellSlots = Slots(4, 3, 3)
+            elif level == 13 or level == 14:
+                spellSlots = Slots(4, 3, 3, 1)
+            elif level == 15 or level == 16:
+                spellSlots = Slots(4, 3, 3, 2)
+            elif level == 17 or level == 18:
+                spellSlots = Slots(4, 3, 3, 3, 1)
+            elif level == 19 or level == 20:
+                spellSlots = Slots(4, 3, 3, 3, 2)
+
+        return spellSlots
+
 
 classStats = [Class(item) for item in classes]
