@@ -44,6 +44,7 @@ class Member:
                 self.equipments.append(item)
 
         self.features = [item for item in randomClass.features if item.level == self.level]
+
         self.featureSpecifics = []
         self.masteries = []
         self.vulnerabilities = []
@@ -53,22 +54,11 @@ class Member:
         for item in randomClass.proficiencyChoices:
             self.proficiencies.extend(random.sample(item.choices, item.number))
 
-        for feature in self.features:
-            for item in feature.featureSpecificChoices:
-                if feature.featureSpecificType == "subfeature_options":
-                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
-                elif feature.featureSpecificType == "expertise":
-                    self.masteries.extend(random.sample(item.choices, item.number))
-                elif feature.featureSpecificType == "enemy_type_options":
-                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
-                elif feature.featureSpecificType == "terrain_type_options":
-                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
-                elif feature.featureSpecificType == "invocations":
-                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
-
+        self.setFeatureSpecifics()
         self.addProfToSavings(randomClass)
         self.skills = self.getSkillsDict()
         self.spellSlots = randomClass.getSpellSlots(self.level)
+        self.spells = [item for item in randomClass.spells if self.spellSlots[item.level] > 0]
 
     def calculateRandomHp(self, hitDie):
         hp = hitDie + self.constitution.modifier
@@ -143,6 +133,183 @@ class Member:
                 skills[item] += self.proficiencyBonus
 
         return skills
+
+    def setFeatureSpecifics(self):
+        for feature in self.features:
+            for item in feature.featureSpecificChoices:
+                if feature.featureSpecificType == "subfeature_options":
+                    choices = item.choices
+
+                    for choice in item.choices:
+                        if choice in self.featureSpecifics:
+                            choices = [item for item in choices if item != choice]
+
+                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
+                elif feature.featureSpecificType == "expertise":
+                    choices = item.choices
+
+                    for choice in item.choices:
+                        if choice in self.masteries:
+                            choices = [item for item in choices if item != choice]
+
+                    self.masteries.extend(random.sample(item.choices, item.number))
+                elif feature.featureSpecificType == "enemy_type_options":
+                    choices = item.choices
+
+                    for choice in item.choices:
+                        if choice in self.featureSpecifics:
+                            choices = [item for item in choices if item != choice]
+
+                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
+                elif feature.featureSpecificType == "terrain_type_options":
+                    choices = item.choices
+
+                    for choice in item.choices:
+                        if choice in self.featureSpecifics:
+                            choices = [item for item in choices if item != choice]
+
+                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
+                elif feature.featureSpecificType == "invocations":
+                    choices = item.choices
+
+                    for choice in item.choices:
+                        if choice in self.featureSpecifics:
+                            choices = [item for item in choices if item != choice]
+
+                    self.featureSpecifics.extend(random.sample(item.choices, item.number))
+
+    def removeNotUsedFeature(self):
+        if self.classe == "bard":
+            self.features = [feature for feature in self.features if feature.name != "spellcasting-bard"]
+
+            if self.level >= 15:
+                self.features = [feature for feature in self.features if feature.name != "bardic-inspiration-d10" and feature.name != "bardic-inspiration-d8" and feature.name != "bardic-inspiration-d6"]
+            elif self.level >= 10:
+                self.features = [feature for feature in self.features if feature.name != "bardic-inspiration-d8" and feature.name != "bardic-inspiration-d6"]
+            elif self.level >= 5:
+                self.features = [feature for feature in self.features if feature.name != "bardic-inspiration-d6"]
+
+            if self.level >= 17:
+                self.features = [feature for feature in self.features if feature.name != "song-of-rest-d10" and feature.name != "song-of-rest-d8" and feature.name != "song-of-rest-d6"]
+            elif self.level >= 13:
+                self.features = [feature for feature in self.features if feature.name != "song-of-rest-d8" and feature.name != "song-of-rest-d6"]
+            elif self.level >= 9:
+                self.features = [feature for feature in self.features if feature.name != "song-of-rest-d6"]
+
+        if self.classe == "cleric":
+            self.features = [feature for feature in self.features if feature.name != "spellcasting-cleric"]
+
+            if self.level >= 18:
+                self.features = [feature for feature in self.features if feature.name != "channel-divinity-2-rest" and feature.name != "channel-divinity-1-rest"]
+            elif self.level >= 6:
+                self.features = [feature for feature in self.features if feature.name != "channel-divinity-1-rest"]
+
+            if self.level >= 17:
+                self.features = [feature for feature in self.features if feature.name != "destroy-undead-cr-3-or-below" and feature.name != "destroy-undead-cr-2-or-below" and feature.name != "destroy-undead-cr-1-or-below" and feature.name != "destroy-undead-cr-1-2-or-below"]
+            elif self.level >= 14:
+                self.features = [feature for feature in self.features if feature.name != "destroy-undead-cr-2-or-below" and feature.name != "destroy-undead-cr-1-or-below" and feature.name != "destroy-undead-cr-1-2-or-below"]
+            elif self.level >= 11:
+                self.features = [feature for feature in self.features if feature.name != "destroy-undead-cr-1-or-below" and feature.name != "destroy-undead-cr-1-2-or-below"]
+            elif self.level >= 8:
+                self.features = [feature for feature in self.features if feature.name != "destroy-undead-cr-1-2-or-below"]
+
+        if self.classe == "druid":
+            self.features = [feature for feature in self.features if feature.name != "spellcasting-druid"]
+
+            if self.level >= 2:
+                self.features = [feature for feature in self.features if feature.name != "circle-of-the-land-arctic" and feature.name != "circle-of-the-land-coast" and feature.name != "circle-of-the-land-desert" and feature.name != "circle-of-the-land-forest" and feature.name != "circle-of-the-land-grassland" and feature.name != "circle-of-the-land-mountain" and feature.name != "circle-of-the-land-swamp"]
+
+            if self.level >= 8:
+                self.features = [feature for feature in self.features if feature.name != "wild-shape-cr-1-2-or-below-no-flying-speed" and feature.name != "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed"]
+            elif self.level >= 4:
+                self.features = [feature for feature in self.features if feature.name != "wild-shape-cr-1-2-or-below-no-flying-speed"]
+
+        if self.classe == "fighter":
+            self.features = [feature for feature in self.features if feature.name != "fighter-fighting-style-archery" and feature.name != "fighter-fighting-style-defense" and feature.name != "fighter-fighting-style-dueling" and feature.name != "fighter-fighting-style-great-weapon-fighting" and feature.name != "fighter-fighting-style-protection" and feature.name != "fighter-fighting-style-two-weapon-fighting"]
+
+            if self.level >= 17:
+                self.features = [feature for feature in self.features if feature.name != "action-surge-1-use"]
+
+            if self.level >= 20:
+                self.features = [feature for feature in self.features if feature.name != "extra-attack-2" and feature.name != "extra-attack-1"]
+            elif self.level >= 11:
+                self.features = [feature for feature in self.features if feature.name != "extra-attack-1"]
+
+            if self.level >= 17:
+                self.features = [feature for feature in self.features if feature.name != "indomitable-2-uses" and feature.name != "indomitable-1-use"]
+            elif self.level >= 13:
+                self.features = [feature for feature in self.features if feature.name != "indomitable-1-use"]
+
+        if self.classe == "monk":
+            if self.level >= 9:
+                self.features = [feature for feature in self.features if feature.name != "unarmored-movement-1"]
+
+        if self.classe == "paladin":
+            if self.level >= 2:
+                self.features = [feature for feature in self.features if feature.name != "spellcasting-paladin"]
+
+            self.features = [feature for feature in self.features if feature.name != "fighting-style-defense" and feature.name != "fighting-style-dueling" and feature.name != "fighting-style-great-weapon-fighting" and feature.name != "fighting-style-protection"]
+
+            if self.level >= 11:
+                self.features = [feature for feature in self.features if feature.name != "divine-smite"]
+
+        if self.classe == "ranger":
+            if self.level >= 2:
+                self.features = [feature for feature in self.features if feature.name != "spellcasting-ranger"]
+
+            if self.level >= 2:
+                self.features = [feature for feature in self.features if feature.name != "ranger-fighting-style-archery" and feature.name != "ranger-fighting-style-defense" and feature.name != "ranger-fighting-style-dueling" and feature.name != "ranger-fighting-style-two-weapon-fighting"]
+
+            if self.level >= 3:
+                self.features = [feature for feature in self.features if feature.name != "hunters-prey-colossus-slayer" and feature.name != "hunters-prey-giant-killer" and feature.name != "hunters-prey-horde-breaker"]
+
+            if self.level >= 14:
+                self.features = [feature for feature in self.features if feature.name != "favored-enemy-2-enemies" and feature.name != "favored-enemy-1-enemies"]
+            elif self.level >= 6:
+                self.features = [feature for feature in self.features if feature.name != "favored-enemy-1-enemies"]
+
+            if self.level >= 10:
+                self.features = [feature for feature in self.features if feature.name != "natural-explorer-2-terrain-types" and feature.name != "natural-explorer-1-terrain-types"]
+            elif self.level >= 6:
+                self.features = [feature for feature in self.features if feature.name != "natural-explorer-1-terrain-types"]
+
+            if self.level >= 7:
+                self.features = [feature for feature in self.features if feature.name != "defensive-tactics-escape-the-horde" and feature.name != "defensive-tactics-multiattack-defense" and feature.name != "defensive-tactics-steel-will"]
+
+            if self.level >= 11:
+                self.features = [feature for feature in self.features if feature.name != "multiattack-volley" and feature.name != "multiattack-whirlwind-attack"]
+
+            if self.level >= 15:
+                self.features = [feature for feature in self.features if feature.name != "superior-hunters-defense-evasion" and feature.name != "superior-hunters-defense-stand-against-the-tide" and feature.name != "superior-hunters-defense-uncanny-dodge"]
+
+        if self.classe == "sorcerer":
+            self.features = [feature for feature in self.features if feature.name != "spellcasting-sorcerer"]
+            self.features = [feature for feature in self.features if feature.name != "dragon-ancestor-black---acid-damage" and feature.name != "dragon-ancestor-blue---lightning-damage" and feature.name != "dragon-ancestor-brass---fire-damage" and feature.name != "dragon-ancestor-bronze---lightning-damage" and feature.name != "dragon-ancestor-copper---acid-damage" and feature.name != "dragon-ancestor-gold---fire-damage" and feature.name != "dragon-ancestor-green---poison-damage" and feature.name != "dragon-ancestor-red---fire-damage" and feature.name != "dragon-ancestor-silver---cold-damage" and feature.name != "dragon-ancestor-white---cold-damage"]
+            
+            if self.level >= 3:
+                self.features = [feature for feature in self.features if feature.name != "metamagic-careful-spell" and feature.name != "metamagic-distant-spell" and feature.name != "metamagic-empowered-spell" and feature.name != "metamagic-extended-spell" and feature.name != "metamagic-heightened-spell" and feature.name != "metamagic-quickened-spell" and feature.name != "metamagic-subtle-spell" and feature.name != "metamagic-twinned-spell" ]
+
+        if self.classe == "warlock":
+            self.features = [feature for feature in self.features if feature.name != "spellcasting-warlock"]
+
+            if self.level >= 2:
+                self.features = [feature for feature in self.features if feature.name != "eldritch-invocation-agonizing-blast" and feature.name != "eldritch-invocation-armor-of-shadows" and feature.name != "eldritch-invocation-beast-speech" and feature.name != "eldritch-invocation-beguiling-influence" and feature.name != "eldritch-invocation-book-of-ancient-secrets" and feature.name != "eldritch-invocation-devils-sight" and feature.name != "eldritch-invocation-eldritch-sight" and feature.name != "eldritch-invocation-eldritch-spear" and feature.name != "eldritch-invocation-eyes-of-the-rune-keeper" and feature.name != "eldritch-invocation-fiendish-vigor"]
+                self.features = [feature for feature in self.features if feature.name != "eldritch-invocation-gaze-of-two-minds" and feature.name != "eldritch-invocation-mask-of-many-faces" and feature.name != "eldritch-invocation-misty-visions" and feature.name != "eldritch-invocation-repelling-blast" and feature.name != "eldritch-invocation-thief-of-five-fates" and feature.name != "eldritch-invocation-agonizing-blast" and feature.name != "eldritch-invocation-voice-of-the-chain-master" and feature.name != "eldritch-invocation-mire-the-mind" and feature.name != "eldritch-invocation-armor-of-shadows" and feature.name != "eldritch-invocation-one-with-shadows"]
+                self.features = [feature for feature in self.features if feature.name != "eldritch-invocation-sign-of-ill-omen" and feature.name != "eldritch-invocation-thirsting-blade" and feature.name != "eldritch-invocation-bewitching-whispers" and feature.name != "eldritch-invocation-dreadful-word" and feature.name != "eldritch-invocation-sculptor-of-flesh" and feature.name != "eldritch-invocation-agonizing-blast" and feature.name != "eldritch-invocation-ascendant-step" and feature.name != "eldritch-invocation-minions-of-chaos" and feature.name != "eldritch-invocation-otherworldly-leap" and feature.name != "eldritch-invocation-whispers-of-the-grave"]
+                self.features = [feature for feature in self.features if feature.name != "eldritch-invocation-lifedrinker" and feature.name != "eldritch-invocation-chains-of-carceri" and feature.name != "eldritch-invocation-master-of-myriad-forms" and feature.name != "eldritch-invocation-visions-of-distant-realms" and feature.name != "eldritch-invocation-witch-sight"]
+            
+            if self.level >= 3:
+                self.features = [feature for feature in self.features if feature.name != "pact-of-the-chain" and feature.name != "pact-of-the-blade" and feature.name != "pact-of-the-tome"]
+
+            if self.level >= 17:
+                self.features = [feature for feature in self.features if feature.name != "mystic-arcanum-8th-level" and feature.name != "mystic-arcanum-7th-level" and feature.name != "mystic-arcanum-6th-level"]
+            elif self.level >= 15:
+                self.features = [feature for feature in self.features if feature.name != "mystic-arcanum-7th-level" and feature.name != "mystic-arcanum-6th-level"]
+            elif self.level >= 13:
+                self.features = [feature for feature in self.features if feature.name != "mystic-arcanum-6th-level"]
+
+        if self.classe == "wizard":
+            self.features = [feature for feature in self.features if feature.name != "spellcasting-wizard"]
 
     def __str__(self):
         subrace_str = f" {self.subrace.name}" if self.subrace != "" else ""

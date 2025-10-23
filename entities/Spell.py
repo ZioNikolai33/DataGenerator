@@ -13,6 +13,7 @@ class Spell:
         self.name = spell["index"]
         self.range = spell["range"]
         self.ritual = spell["ritual"]
+        self.level = spell["level"]
         self.duration = spell["duration"]
         self.concentration = spell["concentration"]
         self.castingTime = spell["casting_time"]

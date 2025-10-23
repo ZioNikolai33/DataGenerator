@@ -27,7 +27,7 @@ class Class:
         self.proficiencyChoices = [Choice(classe["proficiency_choices"][0]["choose"], proficiencyChoices[classe["index"]])]
         self.savingThrows = [item["index"] for item in classe["saving_throws"]]
         self.proficiencies = [item["index"] for item in classe["proficiencies"]]
-        self.features = [feature for feature in featureStats if feature.classe == self.name]
+        self.features = [feature for feature in featureStats if feature.classe == self.name and (feature.subclass is None or feature.subclass == self.subclass)]
         self.startingEquipments = [Equipment(item["equipment"]["index"], item["equipment"]["quantity"]) for item in classe["starting_equipment"] if item["equipment"]["index"] in weapons]
         self.startingEquipmentsOptions = self.getEquipmentOptions()
         self.multiclassing = Multiclass(classe["multi_classing"])

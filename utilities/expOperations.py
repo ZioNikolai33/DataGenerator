@@ -1,6 +1,6 @@
 import pandas as pd
 import json
-from entities.Difficulty import Difficulty
+from entities.difficulty import *
 
 # Load Exp Points thresholds for each level
 with open("data/expThreshold.json") as f:
