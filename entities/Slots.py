@@ -10,6 +10,28 @@ class Slots():
         self.eighth = eighth
         self.nineth = nineth
 
+    def hasEnoughSlots(self, level, numberToCheck):
+        if level == 1:
+            return self.first >= numberToCheck
+        elif level == 2:
+            return self.second >= numberToCheck
+        elif level == 3:
+            return self.third >= numberToCheck
+        elif level == 4:
+            return self.fourth >= numberToCheck
+        elif level == 5:
+            return self.fifth >= numberToCheck
+        elif level == 6:
+            return self.sixth >= numberToCheck
+        elif level == 7:
+            return self.seventh >= numberToCheck
+        elif level == 8:
+            return self.eighth >= numberToCheck
+        elif level == 9:
+            return self.nineth >= numberToCheck
+        else:
+            return False
+
     def __str__(self):
         string = "Spell Slots:\n"
         string += f" 1st Level: {self.first}\n" if self.first > 0 else ""

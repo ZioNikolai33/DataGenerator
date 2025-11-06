@@ -27,7 +27,7 @@ class Class:
         self.proficiencyChoices = [Choice(classe["proficiency_choices"][0]["choose"], proficiencyChoices[classe["index"]])]
         self.savingThrows = [item["index"] for item in classe["saving_throws"]]
         self.proficiencies = [item["index"] for item in classe["proficiencies"]]
-        self.features = [feature for feature in featureStats if feature.classe == self.name and (feature.subclass is None or feature.subclass == self.subclass)]
+        self.features = [feature for feature in featureStats if feature.classe == self.name and (feature.subclass is None or feature.subclass in self.subclasses)]
         self.startingEquipments = [Equipment(item["equipment"]["index"], item["equipment"]["quantity"]) for item in classe["starting_equipment"] if item["equipment"]["index"] in weapons]
         self.startingEquipmentsOptions = self.getEquipmentOptions()
         self.multiclassing = Multiclass(classe["multi_classing"])
@@ -37,6 +37,7 @@ class Class:
     def getEquipmentOptions(self):
         equipmentOptions = []
         choices = []
+        listEquip = []
 
         if self.name == "barbarian":
             selection = random.randint(0, 1)
@@ -44,14 +45,19 @@ class Class:
                 equipmentOptions.append(Equipment("greataxe", 1))
             else:
                 for item in martialMeleeWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                
+                choices.append(Choice(1, listEquip))
 
             selection = random.randint(0, 1)
+            listEquip = []
             if selection == 0:
                 equipmentOptions.append(Equipment("handaxe", 2))
             else:
                 for item in simpleWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
         if self.name == "bard":
             selection = random.randint(0, 2)
@@ -61,7 +67,9 @@ class Class:
                 equipmentOptions.append(Equipment("longsword", 1))
             else:
                 for item in simpleWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
         if self.name == "cleric":
             selection = random.randint(0, 1)
@@ -84,7 +92,9 @@ class Class:
                 equipmentOptions.append(Equipment("crossbow-bolt", 20))
             else:
                 for item in simpleWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
         if self.name == "druid":
             selection = random.randint(0, 1)
@@ -92,14 +102,19 @@ class Class:
                 equipmentOptions.append(Equipment("wooden-shield", 1))
             else:
                 for item in simpleWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
             selection = random.randint(0, 1)
+            listEquip = []
             if selection == 0:
                 equipmentOptions.append(Equipment("scimitar", 1))
             else:
                 for item in simpleMeleeWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
         if self.name == "fighter":
             selection = random.randint(0, 1)
@@ -113,11 +128,15 @@ class Class:
             selection = random.randint(0, 1)
             if selection == 0:
                 for item in martialWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
                 equipmentOptions.append(Equipment("shield", 1))
             else:
                 for item in martialWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 2)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(2, listEquip))
 
             selection = random.randint(0, 1)
             if selection == 0:
@@ -132,24 +151,33 @@ class Class:
                 equipmentOptions.append(Equipment("shortsword", 1))
             else:
                 for item in simpleWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
         if self.name == "paladin":
             selection = random.randint(0, 1)
             if selection == 0:
                 for item in martialWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
                 equipmentOptions.append(Equipment("shield", 1))
             else:
                 for item in martialWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 2)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(2, listEquip))
 
             selection = random.randint(0, 1)
+            listEquip = []
             if selection == 0:
                 equipmentOptions.append(Equipment("javelin", 5))
             else:
                 for item in simpleMeleeWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                   listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
         if self.name == "ranger":
             selection = random.randint(0, 1)
@@ -163,7 +191,9 @@ class Class:
                 equipmentOptions.append(Equipment("shortsword", 2))
             else:
                 for item in simpleMeleeWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 2)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(2, listEquip))
             
         if self.name == "rogue":
             selection = random.randint(0, 1)
@@ -186,7 +216,9 @@ class Class:
                 equipmentOptions.append(Equipment("crossbow-bolt", 20))
             else:
                 for item in simpleWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
         if self.name == "warlock":
             selection = random.randint(0, 1)
@@ -195,10 +227,15 @@ class Class:
                 equipmentOptions.append(Equipment("crossbow-bolt", 20))
             else:
                 for item in simpleWeapons:
-                    choices.append(Choice(Equipment(item["index"], 1)), 1)
+                    listEquip.append(Equipment(item["index"], 1))
+                    
+                choices.append(Choice(1, listEquip))
 
+            listEquip = []
             for item in simpleWeapons:
-                choices.append(Choice(Equipment(item["index"], 1)), 1)
+                listEquip.append(Equipment(item["index"], 1))
+                    
+            choices.append(Choice(1, listEquip))
 
         if self.name == "wizard":
             selection = random.randint(0, 1)
@@ -209,7 +246,7 @@ class Class:
 
         if len(choices) > 0:
             for choice in choices:
-                equipmentOptions.extend(choice.getRandomChoice(equipmentOptions))
+                equipmentOptions.extend(choice.getRandomChoiceWithoutCheck())
 
         return equipmentOptions
 

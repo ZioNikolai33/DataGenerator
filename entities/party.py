@@ -58,7 +58,7 @@ class Member:
         self.addProfToSavings(randomClass)
         self.skills = self.getSkillsDict()
         self.spellSlots = randomClass.getSpellSlots(self.level)
-        self.spells = [item for item in randomClass.spells if self.spellSlots[item.level] > 0]
+        self.spells = [item for item in randomClass.spells if self.spellSlots.hasEnoughSlots(item.level, 0)]
 
     def calculateRandomHp(self, hitDie):
         hp = hitDie + self.constitution.modifier
