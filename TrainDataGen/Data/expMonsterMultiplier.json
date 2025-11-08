@@ -1,0 +1,62 @@
+[
+  {
+    "number": 1,
+    "multiplier": 1
+  },
+  {
+    "number": 2,
+    "multiplier": 1.5
+  },
+  {
+    "number": 3,
+    "multiplier": 2
+  },
+  {
+    "number": 4,
+    "multiplier": 2
+  },
+  {
+    "number": 5,
+    "multiplier": 2
+  },
+  {
+    "number": 6,
+    "multiplier": 2
+  },
+  {
+    "number": 7,
+    "multiplier": 2.5
+  },
+  {
+    "number": 8,
+    "multiplier": 2.5
+  },
+  {
+    "number": 9,
+    "multiplier": 2.5
+  },
+  {
+    "number": 10,
+    "multiplier": 2.5
+  },
+  {
+    "number": 11,
+    "multiplier": 3
+  },
+  {
+    "number": 12,
+    "multiplier": 3
+  },
+  {
+    "number": 13,
+    "multiplier": 3
+  },
+  {
+    "number": 14,
+    "multiplier": 3
+  },
+  {
+    "number": 15,
+    "multiplier": 4
+  }
+]
