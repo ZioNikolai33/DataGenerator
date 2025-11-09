@@ -1,15 +1,17 @@
-﻿namespace TrainDataGen.Entities;
+﻿using TrainDataGen.Entities.Mappers;
 
-public class Attribute
+namespace TrainDataGen.Entities;
+
+public class Attribute: BaseEntity
 {
     public byte Value { get; set; }
     public byte Modifier { get; set; }
     public byte Save { get; set; }
 
-    public Attribute(int value)
+    public Attribute(byte value, string index, string name) : base(index, name)
     {
         Value = value;
-        Modifier = (value - 10) / 2;
-        Save = (value - 10) / 2;
+        Modifier = (byte)((value - 10) / 2);
+        Save = (byte)((value - 10) / 2);
     }
 }

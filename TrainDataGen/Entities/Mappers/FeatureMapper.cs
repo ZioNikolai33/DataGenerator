@@ -1,5 +1,5 @@
 ﻿namespace TrainDataGen.Entities.Mappers;
 
-public class Subclass
+public class FeatureMapper
 {
 }

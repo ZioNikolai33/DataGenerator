@@ -2,14 +2,14 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
-public class BaseMapper
+public class BaseEntity
 {
     [BsonElement("index")]
     public string Index { get; set; }
     [BsonElement("name")]
     public string Name { get; set; }
 
-    public BaseMapper(string index, string name)
+    public BaseEntity(string index, string name)
     {
         Index = index;
         Name = name;

@@ -7,5 +7,5 @@ public class SpellcastingMapper
     [BsonElement("level")]
     public byte Level { get; set; }
     [BsonElement("spellcasting_ability")]
-    public BaseMapper SpellcastingAbility { get; set; }
+    public BaseEntity SpellcastingAbility { get; set; }
 }

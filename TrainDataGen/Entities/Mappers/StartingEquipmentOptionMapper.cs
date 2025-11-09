@@ -22,7 +22,7 @@ public class StartingEquipmentOptionMapper
         [BsonElement("options")]
         public List<EquipmentOption> Options { get; set; }
         [BsonElement("equipment_category")]
-        public BaseMapper EquipmentCategory { get; set; } // For option_set_type == "equipment_category"
+        public BaseEntity EquipmentCategory { get; set; } // For option_set_type == "equipment_category"
     }
 
     public class EquipmentOption
@@ -34,7 +34,7 @@ public class StartingEquipmentOptionMapper
         [BsonElement("count")]
         public byte? Count { get; set; } // For "counted_reference"
         [BsonElement("of")]
-        public BaseMapper Of { get; set; } // For "counted_reference"
+        public BaseEntity Of { get; set; } // For "counted_reference"
         [BsonElement("choice")]
         public EquipmentChoice Choice { get; set; } // For "choice"
         [BsonElement("prerequisites")]
@@ -58,13 +58,13 @@ public class StartingEquipmentOptionMapper
         [BsonElement("type")]
         public string Type { get; set; }
         [BsonElement("proficiency")]
-        public BaseMapper Proficiency { get; set; }
+        public BaseEntity Proficiency { get; set; }
     }
 
-    public List<BaseMapper> GetRandomEquipment()
+    public List<BaseEntity> GetRandomEquipment()
     {
         var random = new Random();
-        var selectedEquipments = new List<BaseMapper>();
+        var selectedEquipments = new List<BaseEntity>();
 
         if (From.OptionSetType == "equipment_category")
             selectedEquipments.Add(From.EquipmentCategory);

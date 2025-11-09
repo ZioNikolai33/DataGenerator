@@ -7,9 +7,9 @@ public class Class
 {
     public string Name { get; set; }
     public short Hp { get; set; }
-    public List<BaseMapper> Subclasses { get; set; }
-    public List<BaseMapper> SavingThrows { get; set; }
-    public List<BaseMapper> Proficiencies { get; set; }
+    public List<BaseEntity> Subclasses { get; set; }
+    public List<BaseEntity> SavingThrows { get; set; }
+    public List<BaseEntity> Proficiencies { get; set; }
     public List<Feature> Features { get; set; }
     public List<Equipment> Equipment { get; set; }
     public Multiclass Multiclassing { get; set; }

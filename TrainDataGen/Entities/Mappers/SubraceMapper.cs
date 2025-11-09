@@ -1,6 +1,5 @@
 ﻿namespace TrainDataGen.Entities.Mappers;
 
-public class MonsterMapper : BaseEntity
+public class SubraceMapper
 {
-
 }

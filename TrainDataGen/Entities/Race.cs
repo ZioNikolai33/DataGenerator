@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TrainDataGen.Entities.Enums;
+using TrainDataGen.Entities.Mappers;
 
 namespace TrainDataGen.Entities;
 
@@ -8,7 +10,7 @@ public class Subrace
     public string Name { get; set; }
     public string Race { get; set; }
     public List<AbilityBonus> AbilityScores { get; set; }
-    public List<string> Proficiencies { get; set; }
+    public List<Skills> Proficiencies { get; set; }
     public List<string> Traits { get; set; }
 
     public Subrace(dynamic subrace)
@@ -27,12 +29,12 @@ public class Subrace
     }
 }
 
-public class Race
+public class Race: BaseEntity
 {
-    public string Name { get; set; }
+    public Size Size { get; set; }
     public List<AbilityBonus> AbilityBonuses { get; set; }
-    public List<string> Proficiencies { get; set; }
-    public List<string> Traits { get; set; }
+    public List<Skills> Proficiencies { get; set; }
+    public List<Trait> Traits { get; set; }
     public List<Subrace> Subraces { get; set; }
     public short Speed { get; set; }
 

@@ -5,7 +5,7 @@ namespace TrainDataGen.Entities.Mappers;
 public class EquipmentBaseMapper
 {
     [BsonElement("equipment")]
-    public BaseMapper Equipment { get; set; }
+    public BaseEntity Equipment { get; set; }
     [BsonElement("quantity")]
     public byte Quantity { get; set; }
 }

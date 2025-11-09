@@ -1,5 +1,4 @@
-﻿using TrainDataGen.Entities.Mappers;
-using TrainDataGen.Utilities;
+﻿using TrainDataGen.Utilities;
 
 namespace TrainDataGen.Entities;
 
@@ -8,10 +7,10 @@ public class Member
     public int Id { get; set; }
     public string Name { get; set; }
     public byte Level { get; set; }
-    public string Race { get; set; }
+    public Race Race { get; set; }
     public Subrace Subrace { get; set; }
     public short Speed { get; set; }
-    public string Class { get; set; }
+    public Class Class { get; set; }
     public Attribute Strength { get; set; }
     public Attribute Dexterity { get; set; }
     public Attribute Constitution { get; set; }
@@ -44,7 +43,7 @@ public class Member
         Id = id;
         Name = $"Member {id}";
         Level = level;
-        Race = randomRace.Name;
+        Race = EntitiesMapper.Map(randomRace);
         Subrace = (randomRace.Subraces.Count > 0) ? randomRace.Subraces[random.Next(randomRace.Subraces.Count)] : null;
         Speed = randomRace.Speed;
         Class = randomClass.Name;

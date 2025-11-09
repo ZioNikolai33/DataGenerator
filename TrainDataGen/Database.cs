@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using TrainDataGen.Entities;
 using TrainDataGen.Entities.Mappers;
+using TrainDataGen.Entities.Mappers.Equipment;
 
 namespace TrainDataGen.DataBase;
 
@@ -61,125 +62,125 @@ public class Database
         };
     }
 
-    public List<Class> GetAllClasses() =>
-        _db.GetCollection<Class>("Classes").Find(FilterDefinition<Class>.Empty).ToList();
+    public List<ClassMapper> GetAllClasses() =>
+        _db.GetCollection<ClassMapper>("Classes").Find(FilterDefinition<ClassMapper>.Empty).ToList();
 
-    public List<Race> GetAllRaces() =>
-        _db.GetCollection<Race>("Races").Find(FilterDefinition<Race>.Empty).ToList();
+    public List<RaceMapper> GetAllRaces() =>
+        _db.GetCollection<RaceMapper>("Races").Find(FilterDefinition<RaceMapper>.Empty).ToList();
 
-    public List<Subrace> GetAllSubraces() =>
-        _db.GetCollection<Subrace>("Subraces").Find(FilterDefinition<Subrace>.Empty).ToList();
+    public List<SubraceMapper> GetAllSubraces() =>
+        _db.GetCollection<SubraceMapper>("Subraces").Find(FilterDefinition<SubraceMapper>.Empty).ToList();
 
-    public List<Subclass> GetAllSubclasses() =>
-        _db.GetCollection<Subclass>("Subclasses").Find(FilterDefinition<Subclass>.Empty).ToList();
+    public List<SubclassMapper> GetAllSubclasses() =>
+        _db.GetCollection<SubclassMapper>("Subclasses").Find(FilterDefinition<SubclassMapper>.Empty).ToList();
 
-    public List<Monster> GetAllMonsters() =>
-        _db.GetCollection<Monster>("Monsters").Find(FilterDefinition<Monster>.Empty).ToList();
+    public List<MonsterMapper> GetAllMonsters() =>
+        _db.GetCollection<MonsterMapper>("Monsters").Find(FilterDefinition<MonsterMapper>.Empty).ToList();
 
-    public List<Feature> GetAllFeatures() =>
-        _db.GetCollection<Feature>("Features").Find(FilterDefinition<Feature>.Empty).ToList();
+    public List<FeatureMapper> GetAllFeatures() =>
+        _db.GetCollection<FeatureMapper>("Features").Find(FilterDefinition<FeatureMapper>.Empty).ToList();
 
-    public List<Equipment> GetAllEquipments() =>
-        _db.GetCollection<Equipment>("Equipment").Find(FilterDefinition<Equipment>.Empty).ToList();
+    public List<EquipmentMapper> GetAllEquipments() =>
+        _db.GetCollection<EquipmentMapper>("Equipment").Find(FilterDefinition<EquipmentMapper>.Empty).ToList();
 
-    public List<Equipment> GetAllWeapons() =>
-        _db.GetCollection<Equipment>("Equipment").Find(Builders<Equipment>.Filter.Exists("weapon_category")).ToList();
+    public List<EquipmentMapper> GetAllWeapons() =>
+        _db.GetCollection<EquipmentMapper>("Equipment").Find(Builders<EquipmentMapper>.Filter.Exists("weapon_category")).ToList();
 
-    public List<Spell> GetAllSpells() =>
-        _db.GetCollection<Spell>("Spells").Find(FilterDefinition<Spell>.Empty).ToList();
+    public List<SpellMapper> GetAllSpells() =>
+        _db.GetCollection<SpellMapper>("Spells").Find(FilterDefinition<SpellMapper>.Empty).ToList();
 
-    public List<BaseMapper> GetAllMeleeWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "melee-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllMeleeWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "melee-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllRangedWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "ranged-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllRangedWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "ranged-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllLightArmors() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "light-armor"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllLightArmors() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "light-armor"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllMediumArmors() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "medium-armor"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllMediumArmors() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "medium-armor"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllHeavyArmors() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "heavy-armor"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllHeavyArmors() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "heavy-armor"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllShields() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "shields"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllShields() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "shields"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllSimpleWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "simple-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllSimpleWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "simple-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllSimpleMeleeWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "simple-melee-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllSimpleMeleeWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "simple-melee-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllMartialMeleeWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "martial-melee-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllMartialMeleeWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "martial-melee-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllMartialWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "martial-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllMartialWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "martial-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllSimpleRangedWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "simple-ranged-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllSimpleRangedWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "simple-ranged-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();
 
-    public List<BaseMapper> GetAllMartialRangedWeapons() =>
-        _db.GetCollection<BaseMapper>("EquipmentCategories")
-        .Find(Builders<BaseMapper>.Filter.Eq("index", "martial-ranged-weapons"))
-        .Project<BaseMapper>(Builders<BaseMapper>.Projection
+    public List<BaseEntity> GetAllMartialRangedWeapons() =>
+        _db.GetCollection<BaseEntity>("EquipmentCategories")
+        .Find(Builders<BaseEntity>.Filter.Eq("index", "martial-ranged-weapons"))
+        .Project<BaseEntity>(Builders<BaseEntity>.Projection
             .Include("equipment")
             .Exclude("_id"))
         .ToList();

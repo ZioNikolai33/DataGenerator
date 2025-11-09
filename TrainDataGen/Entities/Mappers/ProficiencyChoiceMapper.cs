@@ -37,17 +37,17 @@ public class ProficiencyChoiceMapper
         public string Name { get; set; }
     }
 
-    public List<BaseMapper> GetRandomChoice(List<BaseMapper>? proficiencies)
+    public List<BaseEntity> GetRandomChoice(List<BaseEntity>? proficiencies)
     {
         var random = new Random();
-        var selectedProficiencies = new List<BaseMapper>();
+        var selectedProficiencies = new List<BaseEntity>();
 
         if (this.From.Options.All(item => item.Item != null))            
             if (proficiencies == null)
                 selectedProficiencies = this.From.Options
                     .OrderBy(_ => random.Next())
                     .Take(Choose)
-                    .Select(option => new BaseMapper(option.Item.Index, option.Item.Name))
+                    .Select(option => new BaseEntity(option.Item.Index, option.Item.Name))
                     .ToList();
             else {
                 var availableOptions = this.From.Options
@@ -57,7 +57,7 @@ public class ProficiencyChoiceMapper
                 selectedProficiencies = availableOptions
                     .OrderBy(_ => random.Next())
                     .Take(Choose)
-                    .Select(option => new BaseMapper(option.Item.Index, option.Item.Name))
+                    .Select(option => new BaseEntity(option.Item.Index, option.Item.Name))
                     .ToList();
             }
 

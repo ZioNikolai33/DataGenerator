@@ -2,14 +2,14 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
-public class MultiClassing
+public class MulticlassMapper
 {
     [BsonElement("prerequisites")]
     public List<Prerequisite>? Prerequisites { get; set; }
     [BsonElement("prerequisite_options")]
     public PrerequisiteOptions? PrerequisiteOptions { get; set; }
     [BsonElement("proficiencies")]
-    public List<BaseMapper> Proficiencies { get; set; }
+    public List<BaseEntity> Proficiencies { get; set; }
     [BsonElement("proficiency_choices")]
     public List<ProficiencyChoice>? ProficiencyChoices { get; set; }
 }
@@ -17,7 +17,7 @@ public class MultiClassing
 public class Prerequisite
 {
     [BsonElement("ability_score")]
-    public BaseMapper AbilityScore { get; set; }
+    public BaseEntity AbilityScore { get; set; }
     [BsonElement("minimum_score")]
     public byte MinimumScore { get; set; }
 }
@@ -45,7 +45,7 @@ public class ScorePrerequisiteOption
     [BsonElement("option_type")]
     public string OptionType { get; set; }
     [BsonElement("ability_score")]
-    public BaseMapper AbilityScore { get; set; }
+    public BaseEntity AbilityScore { get; set; }
     [BsonElement("minimum_score")]
     public byte MinimumScore { get; set; }
 }
@@ -75,5 +75,5 @@ public class ProficiencyOption
     [BsonElement("option_type")]
     public string OptionType { get; set; }
     [BsonElement("item")]
-    public BaseMapper Item { get; set; }
+    public BaseEntity Item { get; set; }
 }
