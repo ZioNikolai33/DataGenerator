@@ -1,13 +1,16 @@
-﻿namespace TrainDataGen.Entities;
+﻿using TrainDataGen.Entities.Mappers;
+
+namespace TrainDataGen.Entities;
 
 public class AbilityBonus
 {
-    public string Name { get; set; }
+    public BaseEntity ability { get; set; }
     public int Bonus { get; set; }
 
-    public AbilityBonus(string name, int bonus)
+    public AbilityBonus(BaseEntity ability, int bonus)
     {
-        Name = name;
+        ability.Index = ability.Index;
+        ability.Name = ability.Name;
         Bonus = bonus;
     }
 }

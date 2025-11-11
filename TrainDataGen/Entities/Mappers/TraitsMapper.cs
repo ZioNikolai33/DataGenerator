@@ -7,7 +7,7 @@ public class TraitsMapper : BaseEntity
     public List<BaseEntity> Proficiencies { get; set; }
     public BaseEntity Parent { get; set; }
     public TraitSpecific TraitSpec { get; set; }
-    public ProficiencyChoiceMapper ProficiencyChoise { get; set; }
+    public ProficiencyChoiceMapper ProficiencyChoice { get; set; }
 
     public class TraitSpecific
     {

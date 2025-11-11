@@ -5,13 +5,21 @@ namespace TrainDataGen.Entities.Mappers;
 
 public class RaceMapper : BaseEntity
 {
+    [BsonElement("speed")]
     public short Speed { get; set; }
-    public List<AbilityBonus> AbilityBonuses { get; set; }
+    [BsonElement("size")]
     public Size Size { get; set; }
+    [BsonElement("ability_bonuses")]
+    public List<AbilityBonus> AbilityBonuses { get; set; }
+    [BsonElement("starting_proficiencies")]
     public List<BaseEntity> StartingProficiences { get; set; }
-    public ProficiencyChoiceMapper StartingProficiencesOptions { get; set; }
-    public AbilityBonusOptions AbilityOptions { get; set; }
+    [BsonElement("starting_proficiency_options")]
+    public ProficiencyChoiceMapper? StartingProficiencesOptions { get; set; }
+    [BsonElement("ability_bonus_options")]
+    public AbilityBonusOptions? AbilityOptions { get; set; }
+    [BsonElement("traits")]
     public List<BaseEntity> Traits { get; set; }
+    [BsonElement("subraces")]
     public List<BaseEntity> Subraces { get; set; }
 
     public class AbilityScore
@@ -58,18 +66,18 @@ public class RaceMapper : BaseEntity
 
     public RaceMapper(string index, string name) : base(index, name) { }
 
-    public List<BaseEntity> GetRandomProficiency(List<BaseEntity>? proficiencies) => 
+    public List<BaseEntity> GetRandomProficiency(List<Skills>? proficiencies) => 
         StartingProficiencesOptions.GetRandomChoice(proficiencies);
 
-    public List<AbilityScore> GetRandomAbility()
+    public List<AbilityBonus> GetRandomAbility()
     {
         var random = new Random();
-        var selectedAbility = new List<AbilityScore>();
+        var selectedAbility = new List<AbilityBonus>();
 
         selectedAbility = this.AbilityOptions.From.Options
             .OrderBy(_ => random.Next())
             .Take(AbilityOptions.Choose)
-            .Select(option => new AbilityScore(option.AbilityScore, option.Bonus))
+            .Select(option => new AbilityBonus(option.AbilityScore, option.Bonus))
             .ToList();
 
         return selectedAbility;

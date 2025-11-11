@@ -1,4 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using TrainDataGen.Entities.Enums;
+using TrainDataGen.Utilities;
 
 namespace TrainDataGen.Entities.Mappers;
 
@@ -37,7 +39,7 @@ public class ProficiencyChoiceMapper
         public string Name { get; set; }
     }
 
-    public List<BaseEntity> GetRandomChoice(List<BaseEntity>? proficiencies)
+    public List<BaseEntity> GetRandomChoice(List<Skills>? proficiencies)
     {
         var random = new Random();
         var selectedProficiencies = new List<BaseEntity>();
@@ -51,7 +53,7 @@ public class ProficiencyChoiceMapper
                     .ToList();
             else {
                 var availableOptions = this.From.Options
-                    .Where(option => !proficiencies.Select(item => item.Index).Contains(option.Item.Index))
+                    .Where(option => !proficiencies.Select(item => EntitiesMapper.ToStringEnum(item)).Contains(option.Item.Index))
                     .ToList();
 
                 selectedProficiencies = availableOptions

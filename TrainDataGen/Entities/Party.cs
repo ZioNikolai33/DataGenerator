@@ -43,7 +43,7 @@ public class Member
         Id = id;
         Name = $"Member {id}";
         Level = level;
-        Race = EntitiesMapper.Map(randomRace);
+        Race = new Race(randomRace);
         Subrace = (randomRace.Subraces.Count > 0) ? randomRace.Subraces[random.Next(randomRace.Subraces.Count)] : null;
         Speed = randomRace.Speed;
         Class = randomClass.Name;
