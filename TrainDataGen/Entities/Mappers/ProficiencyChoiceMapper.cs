@@ -53,7 +53,7 @@ public class ProficiencyChoiceMapper
                     .ToList();
             else {
                 var availableOptions = this.From.Options
-                    .Where(option => !proficiencies.Select(item => EntitiesMapper.ToStringEnum(item)).Contains(option.Item.Index))
+                    .Where(option => !proficiencies.Select(item => EntitiesMapper.ToStringEnumSkill(item)).Contains(option.Item.Index))
                     .ToList();
 
                 selectedProficiencies = availableOptions

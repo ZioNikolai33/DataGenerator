@@ -4,18 +4,26 @@ namespace TrainDataGen.Utilities;
 
 public static class EntitiesFinder
 {
-    public static SubraceMapper GetEntityByIndex(List<SubraceMapper> subraceMappers, BaseEntity subrace)
+    public static SubraceMapper GetEntityByIndex(List<SubraceMapper> subraceMappers, BaseEntity race, BaseEntity subrace)
     {
         return subraceMappers
-            .Where(sr => sr.Index == subrace.Index)
+            .Where(sr => sr.Index == subrace.Index && sr.Race == race)
             .Select(item => item)
             .FirstOrDefault();
     }
 
-    public static TraitsMapper GetEntityByIndex(List<TraitsMapper> traitMappers, BaseEntity trait)
+    public static TraitMapper GetEntityByIndex(List<TraitMapper> traitMappers, BaseEntity race, BaseEntity trait)
     {
         return traitMappers
-            .Where(sr => sr.Index == trait.Index)
+            .Where(sr => sr.Index == trait.Index && sr.Races.Contains(race))
+            .Select(item => item)
+            .FirstOrDefault();
+    }
+
+    public static SpellMapper GetEntityByIndex(List<SpellMapper> spellMapper, BaseEntity spell)
+    {
+        return spellMapper
+            .Where(sr => sr.Index == spell.Index)
             .Select(item => item)
             .FirstOrDefault();
     }

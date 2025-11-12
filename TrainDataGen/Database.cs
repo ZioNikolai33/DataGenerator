@@ -83,6 +83,9 @@ public class Database
     public List<EquipmentMapper> GetAllEquipments() =>
         _db.GetCollection<EquipmentMapper>("Equipment").Find(FilterDefinition<EquipmentMapper>.Empty).ToList();
 
+    public List<TraitMapper> GetAllTraits() =>
+        _db.GetCollection<TraitMapper>("Traits").Find(FilterDefinition<TraitMapper>.Empty).ToList();
+
     public List<EquipmentMapper> GetAllWeapons() =>
         _db.GetCollection<EquipmentMapper>("Equipment").Find(Builders<EquipmentMapper>.Filter.Exists("weapon_category")).ToList();
 

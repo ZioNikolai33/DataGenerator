@@ -16,7 +16,7 @@ public class Subrace: BaseEntity
         Name = subrace.Name;
         Race = subrace.Race;
         AbilityBonuses = subrace.AbilityBonuses;
-        Proficiencies = (List<Skills>)subrace.StartingProficiencies.Select(item => EntitiesMapper.FromString(item.Index));
-        Traits = (List<Trait>)subrace.RacialTraits.Select(item => item.Index);
+        Proficiencies = EntitiesMapper.FromStringMultipleSkills(subrace.StartingProficiencies.Select(item => item.Index).ToList());
+        Traits = subrace.RacialTraits.Select(item => new Trait(item.Index, item.Name, EntitiesFinder.GetEntityByIndex(Lists.traits, new BaseEntity(subrace.Index, subrace.Name), item))).ToList();
     }
 }

@@ -22,11 +22,11 @@ public class Race: BaseEntity
         Speed = race.Speed;
         Size = race.Size;
         AbilityBonuses = race.AbilityBonuses;
-        Proficiencies = (List<Skills>)race.StartingProficiences.Select(item => EntitiesMapper.FromString(item.Index));
-        Subraces = race.Subraces.Select(item => new Subrace(item.Index, item.Name, EntitiesFinder.GetEntityByIndex(Lists.subraces, item))).ToList();
-        Traits = race.Traits.Select(item => new Trait(item.Index, item.Name, EntitiesFinder.GetEntityByIndex(Lists.traits, item))).ToList();
+        Proficiencies = (List<Skills>)race.StartingProficiences.Select(item => EntitiesMapper.FromStringSchool(item.Index));
+        Subraces = race.Subraces.Select(item => new Subrace(item.Index, item.Name, EntitiesFinder.GetEntityByIndex(Lists.subraces, new BaseEntity(race.Index, race.Name), item))).ToList();
+        Traits = race.Traits.Select(item => new Trait(item.Index, item.Name, EntitiesFinder.GetEntityByIndex(Lists.traits, new BaseEntity(race.Index, race.Name), item))).ToList();
 
         AbilityBonuses.AddRange(race.GetRandomAbility());
-        Proficiencies.AddRange(EntitiesMapper.FromStringMultiple(race.StartingProficiencesOptions.GetRandomChoice(Proficiencies).Select(item => item.Index)));
+        Proficiencies.AddRange(EntitiesMapper.FromStringMultipleSkills(race.StartingProficiencesOptions.GetRandomChoice(Proficiencies).Select(item => item.Index).ToList()));
     }
 }

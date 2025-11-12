@@ -1,42 +1,42 @@
-﻿namespace TrainDataGen.Entities;
+﻿using TrainDataGen.Entities.Enums;
+using TrainDataGen.Entities.Mappers;
+using TrainDataGen.Utilities;
 
-public class Spell
+namespace TrainDataGen.Entities;
+
+public class Spell: BaseEntity
 {
-    public string Name { get; set; }
     public string Range { get; set; }
-    public bool Ritual { get; set; }
-    public int Level { get; set; }
+    public byte Level { get; set; }
     public string Duration { get; set; }
     public bool Concentration { get; set; }
     public string CastingTime { get; set; }
     public Dictionary<string, string>? HealAtSlotLevel { get; set; }
-    public string School { get; set; }
-    public List<string> Classes { get; set; }
-    public List<string>? Subclasses { get; set; }
+    public Schools School { get; set; }
+    public List<BaseEntity> Classes { get; set; }
+    public List<BaseEntity>? Subclasses { get; set; }
     public Area? AreaEffect { get; set; }
     public DifficultyClass? Dc { get; set; }
     public SpellDamage? Damage { get; set; }
     public string? AttackType { get; set; }
 
-    public Spell(dynamic spell)
+    public Spell(SpellMapper spell): base(spell.Index, spell.Name)
     {
-        Name = spell.index;
-        Range = spell.range;
-        Ritual = spell.ritual;
-        Level = spell.level;
-        Duration = spell.duration;
-        Concentration = spell.concentration;
-        CastingTime = spell.casting_time;
-        HealAtSlotLevel = spell.heal_at_slot_level != null ? spell.heal_at_slot_level as Dictionary<string, string> : null;
-        School = spell.school.index;
-        Classes = new List<string>();
-        foreach (var item in spell.classes)
-            Classes.Add(item.index);
-        Subclasses = spell.subclasses != null ? new List<string>(spell.subclasses.Select(s => s.index)) : null;
-        AreaEffect = spell.area_of_effect != null ? new Area(spell.area_of_effect) : null;
-        Dc = spell.dc != null ? new DifficultyClass(spell.dc) : null;
-        Damage = spell.damage != null ? new SpellDamage(spell.damage) : null;
-        AttackType = spell.attack_type != null ? spell.attack_type : null;
+        Index = spell.Index;
+        Name = spell.Name;
+        Range = spell.Range;
+        Level = spell.Level;
+        Duration = spell.Duration;
+        Concentration = spell.Concentration;
+        CastingTime = spell.CastingTime;
+        HealAtSlotLevel = spell.HealAtSlotLevel;
+        School = EntitiesMapper.FromStringSchool(spell.Index);
+        Classes = spell.Classes;
+        Subclasses = spell.Subclasses;
+        AreaEffect = spell.AreaOfEffect;
+        Dc = spell.Dc;
+        Damage = spell.Damage != null ? new SpellDamage(spell.Damage) : null;
+        AttackType = spell.AttackType;
     }
 }
 

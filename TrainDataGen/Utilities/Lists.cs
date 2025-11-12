@@ -10,9 +10,10 @@ public static class Lists
 {
     public readonly static List<RaceMapper> races = new Database().GetAllRaces();
     public readonly static List<SubraceMapper> subraces = new Database().GetAllSubraces();
-    public readonly static List<TraitsMapper> traits = new Database().GetAllTraits();
+    public readonly static List<TraitMapper> traits = new Database().GetAllTraits();
     public readonly static List<EquipmentMapper> weapons = new Database().GetAllWeapons();
     public readonly static List<ClassMapper> classes = new Database().GetAllClasses();
+    public readonly static List<SpellMapper> spells = new Database().GetAllSpells();
     public readonly static List<BaseEntity> martialWeapons = new Database().GetAllMartialWeapons();
     public readonly static List<BaseEntity> martialMeleeWeapons = new Database().GetAllMartialMeleeWeapons();
     public readonly static List<BaseEntity> simpleWeapons = new Database().GetAllSimpleWeapons();
