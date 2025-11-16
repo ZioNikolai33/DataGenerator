@@ -12,7 +12,7 @@ public class Spell: BaseEntity
     public bool Concentration { get; set; }
     public string CastingTime { get; set; }
     public Dictionary<string, string>? HealAtSlotLevel { get; set; }
-    public Schools School { get; set; }
+    public BaseEntity School { get; set; }
     public List<BaseEntity> Classes { get; set; }
     public List<BaseEntity>? Subclasses { get; set; }
     public Area? AreaEffect { get; set; }
@@ -30,7 +30,7 @@ public class Spell: BaseEntity
         Concentration = spell.Concentration;
         CastingTime = spell.CastingTime;
         HealAtSlotLevel = spell.HealAtSlotLevel;
-        School = EntitiesMapper.FromStringSchool(spell.Index);
+        School = spell.School;
         Classes = spell.Classes;
         Subclasses = spell.Subclasses;
         AreaEffect = spell.AreaOfEffect;

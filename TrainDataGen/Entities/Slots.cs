@@ -1,30 +1,30 @@
-﻿namespace TrainDataGen.Entities
+﻿using TrainDataGen.Entities.Mappers;
+
+namespace TrainDataGen.Entities
 {
     public class Slots
     {
-        public int First { get; set; }
-        public int Second { get; set; }
-        public int Third { get; set; }
-        public int Fourth { get; set; }
-        public int Fifth { get; set; }
-        public int Sixth { get; set; }
-        public int Seventh { get; set; }
-        public int Eighth { get; set; }
-        public int Nineth { get; set; }
+        public byte First { get; set; }
+        public byte Second { get; set; }
+        public byte Third { get; set; }
+        public byte Fourth { get; set; }
+        public byte Fifth { get; set; }
+        public byte Sixth { get; set; }
+        public byte Seventh { get; set; }
+        public byte Eighth { get; set; }
+        public byte Nineth { get; set; }
 
-        public Slots(
-            int first = 0, int second = 0, int third = 0, int fourth = 0,
-            int fifth = 0, int sixth = 0, int seventh = 0, int eighth = 0, int nineth = 0)
+        public Slots(LevelMapper.SpellcastingInfo spellcastingInfo)
         {
-            First = first;
-            Second = second;
-            Third = third;
-            Fourth = fourth;
-            Fifth = fifth;
-            Sixth = sixth;
-            Seventh = seventh;
-            Eighth = eighth;
-            Nineth = nineth;
+            First = spellcastingInfo.SpellSlotsLevel1 ?? 0;
+            Second = spellcastingInfo.SpellSlotsLevel2 ?? 0;
+            Third = spellcastingInfo.SpellSlotsLevel3 ?? 0;
+            Fourth = spellcastingInfo.SpellSlotsLevel4 ?? 0;
+            Fifth = spellcastingInfo.SpellSlotsLevel5 ?? 0;
+            Sixth = spellcastingInfo.SpellSlotsLevel6 ?? 0;
+            Seventh = spellcastingInfo.SpellSlotsLevel7 ?? 0;
+            Eighth = spellcastingInfo.SpellSlotsLevel8 ?? 0;
+            Nineth = spellcastingInfo.SpellSlotsLevel9 ?? 0;
         }
 
         public bool HasEnoughSlots(int level, int numberToCheck)

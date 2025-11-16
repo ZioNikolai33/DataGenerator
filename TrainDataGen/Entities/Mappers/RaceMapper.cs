@@ -66,13 +66,16 @@ public class RaceMapper : BaseEntity
 
     public RaceMapper(string index, string name) : base(index, name) { }
 
-    public List<BaseEntity> GetRandomProficiency(List<Skills>? proficiencies) => 
+    public List<BaseEntity> GetRandomProficiency(List<BaseEntity>? proficiencies) => 
         StartingProficiencesOptions.GetRandomChoice(proficiencies);
 
     public List<AbilityBonus> GetRandomAbility()
     {
         var random = new Random();
         var selectedAbility = new List<AbilityBonus>();
+
+        if (AbilityOptions == null)
+            return selectedAbility;
 
         selectedAbility = this.AbilityOptions.From.Options
             .OrderBy(_ => random.Next())

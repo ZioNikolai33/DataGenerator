@@ -38,7 +38,7 @@ public class TraitMapper : BaseEntity
         [BsonElement("desc")]
         public string Desc { get; set; }
         [BsonElement("area_of_effect")]
-        public AreaOfEffect AreaEffect { get; set; }
+        public Area AreaEffect { get; set; }
         [BsonElement("usage")]
         public Usage Use { get; set; }
         [BsonElement("dc")]

@@ -1,5 +1,4 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using TrainDataGen.Entities.Mappers.Equipment;
 
 namespace TrainDataGen.Entities.Mappers;
 
@@ -16,13 +15,106 @@ public class ClassMapper : BaseEntity
     [BsonElement("proficiencies")]
     public List<BaseEntity> Proficiencies { get; set; }
     [BsonElement("starting_equipment")]
-    public List<EquipmentMapper> StartingEquipments { get; set; }
+    public List<Equipment> StartingEquipments { get; set; }
     [BsonElement("starting_equipment_options")]
     public List<StartingEquipmentOptionMapper> StartingEquipmentsOptions { get; set; }
     [BsonElement("multi_classing")]
-    public MulticlassMapper Multiclassing { get; set; }
+    public Multiclass Multiclassing { get; set; }
     [BsonElement("spellcasting")]
-    public SpellcastingMapper? SpellcastingAbility { get; set; }
+    public Spellcasting? SpellcastingAbility { get; set; }
+
+    public class Multiclass
+    {
+        [BsonElement("prerequisites")]
+        public List<Prerequisite>? Prerequisites { get; set; }
+        [BsonElement("prerequisite_options")]
+        public PrerequisiteOptions? PrerequisiteOptions { get; set; }
+        [BsonElement("proficiencies")]
+        public List<BaseEntity> Proficiencies { get; set; }
+        [BsonElement("proficiency_choices")]
+        public List<ProficiencyChoice>? ProficiencyChoices { get; set; }
+    }
+
+    public class Prerequisite
+    {
+        [BsonElement("ability_score")]
+        public BaseEntity AbilityScore { get; set; }
+        [BsonElement("minimum_score")]
+        public byte MinimumScore { get; set; }
+    }
+
+    public class PrerequisiteOptions
+    {
+        [BsonElement("type")]
+        public string Type { get; set; }
+        [BsonElement("choose")]
+        public byte Choose { get; set; }
+        [BsonElement("from")]
+        public PrerequisiteFrom From { get; set; }
+    }
+
+    public class PrerequisiteFrom
+    {
+        [BsonElement("option_set_type")]
+        public string OptionSetType { get; set; }
+        [BsonElement("options")]
+        public List<ScorePrerequisiteOption> Options { get; set; }
+    }
+
+    public class ScorePrerequisiteOption
+    {
+        [BsonElement("option_type")]
+        public string OptionType { get; set; }
+        [BsonElement("ability_score")]
+        public BaseEntity AbilityScore { get; set; }
+        [BsonElement("minimum_score")]
+        public byte MinimumScore { get; set; }
+    }
+
+    public class ProficiencyChoice
+    {
+        [BsonElement("desc")]
+        public string Desc { get; set; }
+        [BsonElement("choose")]
+        public byte Choose { get; set; }
+        [BsonElement("type")]
+        public string Type { get; set; }
+        [BsonElement("from")]
+        public ProficiencyFrom From { get; set; }
+    }
+
+    public class ProficiencyFrom
+    {
+        [BsonElement("option_set_type")]
+        public string OptionSetType { get; set; }
+        [BsonElement("options")]
+        public List<ProficiencyOption> Options { get; set; }
+    }
+
+    public class ProficiencyOption
+    {
+        [BsonElement("option_type")]
+        public string OptionType { get; set; }
+        [BsonElement("item")]
+        public BaseEntity Item { get; set; }
+    }
+
+    public class Spellcasting
+    {
+        [BsonElement("level")]
+        public byte Level { get; set; }
+        [BsonElement("spellcasting_ability")]
+        public BaseEntity SpellcastingAbility { get; set; }
+    }
+
+    public class Equipment
+    {
+        [BsonElement("equipment")]
+        public BaseEntity Equip { get; set; }
+
+        [BsonElement("quantity")]
+        public short Quantity { get; set; }
+    }
 
     public ClassMapper(string index, string name) : base(index, name) {  }
 }

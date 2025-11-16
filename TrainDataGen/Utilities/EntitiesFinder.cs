@@ -27,4 +27,20 @@ public static class EntitiesFinder
             .Select(item => item)
             .FirstOrDefault();
     }
+
+    public static SubclassMapper GetEntityByIndex(List<SubclassMapper> subclassMappers, BaseEntity cl, BaseEntity subclass)
+    {
+        return subclassMappers
+            .Where(sr => sr.Index == subclass.Index && sr.Class == cl)
+            .Select(item => item)
+            .FirstOrDefault();
+    }
+
+    public static EquipmentMapper GetEntityByIndex(List<EquipmentMapper> equipmentMappers, BaseEntity equipment)
+    {
+        return equipmentMappers
+            .Where(sr => sr.Index == equipment.Index)
+            .Select(item => item)
+            .FirstOrDefault();
+    }
 }

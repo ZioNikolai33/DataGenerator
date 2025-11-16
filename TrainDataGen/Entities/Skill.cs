@@ -1,7 +1,10 @@
-﻿namespace TrainDataGen.Entities;
+﻿using TrainDataGen.Entities.Enums;
+
+namespace TrainDataGen.Entities;
 
 public class Skill
 {
+    public Skills SkillName { get; set; }
     public byte Modifier { get; set; }
     public bool IsProficient { get; set; }
     public bool IsExpert { get; set; }
