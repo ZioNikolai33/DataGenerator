@@ -1,11 +1,17 @@
-﻿namespace TrainDataGen.Entities;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using TrainDataGen.Entities.Mappers;
 
+namespace TrainDataGen.Entities;
+
+[BsonIgnoreExtraElements]
 public class DifficultyClass
 {
-    public string DcType { get; set; }
+    [BsonElement("dc_type")]
+    public BaseEntity DcType { get; set; }
+    [BsonElement("dc_success")]
     public string DcSuccess { get; set; }
 
-    public DifficultyClass(string dcType, string dcSuccess)
+    public DifficultyClass(BaseEntity dcType, string dcSuccess)
     {
         DcType = dcType;
         DcSuccess = dcSuccess;

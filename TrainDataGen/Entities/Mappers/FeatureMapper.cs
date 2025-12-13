@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class FeatureMapper: BaseEntity
 {
     [BsonElement("class")]
@@ -19,6 +20,7 @@ public class FeatureMapper: BaseEntity
     [BsonElement("parent")]
     public BaseEntity? Parent { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class FeatureSpecific
     {
         [BsonElement("expertise_options")]
@@ -32,10 +34,10 @@ public class FeatureMapper: BaseEntity
         [BsonElement("invocations")]
         public List<BaseEntity>? Invocations { get; set; }
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<BaseEntity> GetRandomChoice(List<BaseEntity> proficiencies)
         {
             if (ExpertiseOptions != null)
-                return ExpertiseOptions.GetRandomChoice();
+                return ExpertiseOptions.GetRandomChoice(proficiencies);
             else if (EnemyTypeOptions != null)
                 return EnemyTypeOptions.GetRandomChoice();
             else if (TerrainTypeOptions != null)
@@ -47,6 +49,7 @@ public class FeatureMapper: BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class ExpertiseOptions
     {
         [BsonElement("choose")]
@@ -56,12 +59,15 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSet From { get; set; }
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<BaseEntity> GetRandomChoice(List<BaseEntity> proficiencies)
         {
             var random = new Random();
             var selectedOptions = new List<BaseEntity>();
+            var selectableOptions = From.Options
+                .Where(o => proficiencies.Any(p => o.Item != null && o.Item.Item != null && p.Index == o.Item.Item.Index))
+                .ToList();
 
-            var selected = From.Options
+            var selected = selectableOptions
                 .OrderBy(x => random.Next())
                 .Take(Choose)
                 .ToList();
@@ -80,6 +86,7 @@ public class FeatureMapper: BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class EnemyTypeOptions
     {
         [BsonElement("desc")]
@@ -105,6 +112,7 @@ public class FeatureMapper: BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class TerrainTypeOptions
     {
         [BsonElement("desc")]
@@ -130,6 +138,7 @@ public class FeatureMapper: BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class SubfeatureOptions
     {
         [BsonElement("choose")]
@@ -152,6 +161,7 @@ public class FeatureMapper: BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class OptionSet
     {
         [BsonElement("option_set_type")]
@@ -160,6 +170,7 @@ public class FeatureMapper: BaseEntity
         public List<Option> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class OptionSetString
     {
         [BsonElement("option_set_type")]
@@ -168,6 +179,7 @@ public class FeatureMapper: BaseEntity
         public List<string> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class OptionSetReference
     {
         [BsonElement("option_set_type")]
@@ -176,6 +188,7 @@ public class FeatureMapper: BaseEntity
         public List<OptionReference> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Option
     {
         [BsonElement("option_type")]
@@ -188,6 +201,7 @@ public class FeatureMapper: BaseEntity
         public OptionReference? Item { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Choice
     {
         [BsonElement("choose")]
@@ -211,6 +225,7 @@ public class FeatureMapper: BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class OptionReference
     {
         [BsonElement("option_type")]
@@ -219,6 +234,7 @@ public class FeatureMapper: BaseEntity
         public BaseEntity Item { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class FeaturePrerequisite
     {
         [BsonElement("type")]
@@ -232,6 +248,4 @@ public class FeatureMapper: BaseEntity
     }
 
     public FeatureMapper(string index, string name) : base(index, name) { }
-
-
 }

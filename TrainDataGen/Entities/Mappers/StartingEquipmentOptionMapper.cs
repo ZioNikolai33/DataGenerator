@@ -1,9 +1,11 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using System.Collections.Generic;
+using System;
 using TrainDataGen.Utilities;
+using static TrainDataGen.Entities.Mappers.FeatureMapper;
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class StartingEquipmentOptionMapper
 {
     [BsonElement("desc")]
@@ -15,6 +17,7 @@ public class StartingEquipmentOptionMapper
     [BsonElement("from")]
     public EquipmentFrom From { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class EquipmentFrom
     {
         [BsonElement("option_set_type")]
@@ -25,11 +28,12 @@ public class StartingEquipmentOptionMapper
         public BaseEntity EquipmentCategory { get; set; } // For option_set_type == "equipment_category"
     }
 
+    [BsonIgnoreExtraElements]
     public class EquipmentOption
     {
         [BsonElement("option_type")]
         public string OptionType { get; set; }
-        [BsonElement("item")]
+        [BsonElement("items")]
         public List<EquipmentOption> Items { get; set; } // For "multiple"
         [BsonElement("count")]
         public byte? Count { get; set; } // For "counted_reference"
@@ -41,6 +45,7 @@ public class StartingEquipmentOptionMapper
         public List<Prerequisite> Prerequisites { get; set; } // For prerequisites
     }
 
+    [BsonIgnoreExtraElements]
     public class EquipmentChoice
     {
         [BsonElement("desc")]
@@ -53,6 +58,7 @@ public class StartingEquipmentOptionMapper
         public EquipmentFrom From { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Prerequisite
     {
         [BsonElement("type")]
@@ -61,13 +67,16 @@ public class StartingEquipmentOptionMapper
         public BaseEntity Proficiency { get; set; }
     }
 
-    public List<BaseEntity> GetRandomEquipment()
+    public List<ClassMapper.Equipment> GetRandomEquipment()
     {
         var random = new Random();
-        var selectedEquipments = new List<BaseEntity>();
+        var selectedEquipments = new List<ClassMapper.Equipment>();
 
         if (From.OptionSetType == "equipment_category")
-            selectedEquipments.Add(From.EquipmentCategory);
+            selectedEquipments.AddRange(GetEquipFromList());
+
+        if (From.Options == null)
+            return selectedEquipments;
 
         var options = From.Options;
 
@@ -88,19 +97,17 @@ public class StartingEquipmentOptionMapper
                         {
                             var equipIndex = item.Choice.From.EquipmentCategory.Index;
                             var equipments = Lists.GetEquipmentsList(equipIndex);
-                            selectedEquipments.AddRange(equipments.OrderBy(x => random.Next()).Take(choose).ToList());
+                            selectedEquipments.AddRange(equipments.OrderBy(x => random.Next()).Take(choose).Select(x => new ClassMapper.Equipment(new BaseEntity(x.Index, x.Name), item.Choice.Choose)).ToList());
                         }
                     }
+                    else if (item.OptionType == "counted_reference")
+                        selectedEquipments.Add(new ClassMapper.Equipment(new BaseEntity(item.Of.Index, item.Of.Name), (short)item.Count));
 
                 }
             }
             else if (optionsChosen.OptionType == "counted_reference" && optionsChosen.Of != null && optionsChosen.Count.HasValue)
-            {
                 for (var i = 0; i < optionsChosen.Count.Value; i++)
-                {
-                    selectedEquipments.Add(optionsChosen.Of);
-                }
-            }
+                    selectedEquipments.Add(new ClassMapper.Equipment(new BaseEntity(optionsChosen.Of.Index, optionsChosen.Of.Name), (short)optionsChosen.Count));
             else if (optionsChosen.OptionType == "choice" && optionsChosen.Choice != null)
             {
                 var choose = optionsChosen.Choice.Choose;
@@ -109,11 +116,27 @@ public class StartingEquipmentOptionMapper
                 {
                     var equipIndex = optionsChosen.Choice.From.EquipmentCategory.Index;
                     var equipments = Lists.GetEquipmentsList(equipIndex);
-                    selectedEquipments.AddRange(equipments.OrderBy(x => random.Next()).Take(choose).ToList());
+                    selectedEquipments.AddRange(equipments.OrderBy(x => random.Next()).Take(choose).Select(x => new ClassMapper.Equipment(new BaseEntity(x.Index, x.Name), optionsChosen.Choice.Choose)).ToList());
                 }
             }
         }
 
         return selectedEquipments;
+    }
+
+    private List<ClassMapper.Equipment> GetEquipFromList()
+    {
+        var random = new Random();
+        var equipments = Lists.GetEquipmentsList(From.EquipmentCategory.Index);
+        var selectedEquipments = new List<ClassMapper.Equipment>();
+
+        if (equipments.Count == 0)
+            selectedEquipments.Add(new ClassMapper.Equipment(new BaseEntity(From.EquipmentCategory.Index, From.EquipmentCategory.Name), 1));
+        else
+            selectedEquipments.AddRange(equipments.OrderBy(x => random.Next())
+                .Take(Choose)
+                .Select(x => new ClassMapper.Equipment(new BaseEntity(x.Index, x.Name), 1)));
+        
+        return equipments.Select(x => new ClassMapper.Equipment(new BaseEntity(x.Index, x.Name), 1)).ToList();
     }
 }

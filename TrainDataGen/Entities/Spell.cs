@@ -48,7 +48,7 @@ public class SpellDamage
 
     public SpellDamage(dynamic damage)
     {
-        DamageType = damage.damage_type != null ? damage.damage_type.index : null;
+        DamageType = damage.damage_type != null ? damage.damage_type.Index : null;
         DamageSlots = damage.damage_at_slot_level != null ? damage.damage_at_slot_level as Dictionary<string, string> : null;
         DamageAtCharacterLevel = damage.damage_at_character_level != null ? damage.damage_at_character_level as Dictionary<string, string> : null;
     }

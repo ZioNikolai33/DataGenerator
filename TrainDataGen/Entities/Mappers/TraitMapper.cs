@@ -1,9 +1,8 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using TrainDataGen.Entities.Enums;
-using TrainDataGen.Utilities;
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class TraitMapper : BaseEntity
 {
     [BsonElement("races")]
@@ -19,6 +18,7 @@ public class TraitMapper : BaseEntity
     [BsonElement("proficiency_choices")]
     public ProficiencyChoiceMapper? ProficiencyChoice { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class TraitSpecific
     {
         [BsonElement("damage_type")]
@@ -31,6 +31,7 @@ public class TraitMapper : BaseEntity
         public SpellOptions? SpellOptions { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class BreathWeapon
     {
         [BsonElement("name")]
@@ -42,11 +43,12 @@ public class TraitMapper : BaseEntity
         [BsonElement("usage")]
         public Usage Use { get; set; }
         [BsonElement("dc")]
-        public DifficultyClass Dc { get; set; }
+        public DC Dc { get; set; }
         [BsonElement("damage")]
         public List<Damage> Damage { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class DC
     {
         [BsonElement("dc_type")]
@@ -55,6 +57,7 @@ public class TraitMapper : BaseEntity
         public string SuccessType { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Damage
     {
         [BsonElement("damage_type")]
@@ -63,6 +66,7 @@ public class TraitMapper : BaseEntity
         public Dictionary<byte, string> DamageAtCharacterLevel { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class SubtraitOptions
     {
         [BsonElement("choose")]
@@ -88,6 +92,16 @@ public class TraitMapper : BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
+    public class Usage
+    {
+        [BsonElement("type")]
+        public string Type { get; set; }
+        [BsonElement("times")]
+        public byte? Times { get; set; }
+    }
+
+    [BsonIgnoreExtraElements]
     public class SubtraitFrom
     {
         [BsonElement("option_set_type")]
@@ -96,6 +110,7 @@ public class TraitMapper : BaseEntity
         public List<Option> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Option
     {
         [BsonElement("option_type")]
@@ -104,6 +119,7 @@ public class TraitMapper : BaseEntity
         public BaseEntity Item { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class SpellOptions
     {
         [BsonElement("choose")]
@@ -129,6 +145,7 @@ public class TraitMapper : BaseEntity
         }
     }
 
+    [BsonIgnoreExtraElements]
     public class SpellFrom
     {
         [BsonElement("option_set_type")]

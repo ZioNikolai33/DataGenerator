@@ -1,22 +1,22 @@
 ﻿using TrainDataGen.Entities.Enums;
+using TrainDataGen.Entities.Mappers;
 
 namespace TrainDataGen.Entities;
 
-public class Skill
+public class Skill : BaseEntity
 {
-    public Skills SkillName { get; set; }
-    public byte Modifier { get; set; }
+    public sbyte Modifier { get; set; }
     public bool IsProficient { get; set; }
     public bool IsExpert { get; set; }
 
-    public Skill(byte modifier, bool isProficient = false, bool isExpert = false)
+    public Skill(BaseEntity skill, sbyte modifier, bool isProficient = false, bool isExpert = false) : base(skill.Index, skill.Name)
     {
         Modifier = modifier;
         IsProficient = isProficient;
         IsExpert = isExpert;
     }
 
-    public void SetProficiency(bool isProficient, byte proficiencyBonus)
+    public void SetProficiency(bool isProficient, sbyte proficiencyBonus)
     {
         if (IsProficient && !isProficient)
         {
@@ -34,20 +34,15 @@ public class Skill
         IsProficient = isProficient;
     }
 
-    public void SetExpertise(bool isExpert, byte proficiencyBonus)
+    public void SetExpertise(bool isExpert, sbyte proficiencyBonus)
     {
+        if (!IsProficient)
+            return;
+
         if (IsExpert && !isExpert)
             Modifier -= proficiencyBonus;
         else if (!IsExpert && isExpert)
-        {
-            if (!IsProficient)
-            {
-                Modifier += proficiencyBonus;
-                IsProficient = true;
-            }
-
             Modifier += proficiencyBonus;
-        }
 
         IsExpert = isExpert;
     }

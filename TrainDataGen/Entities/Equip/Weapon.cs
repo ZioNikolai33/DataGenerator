@@ -18,7 +18,7 @@ abstract public class Weapon : Equipment
     public class RangeData
     {
         public short Normal { get; set; }
-        public short Long { get; set; }
+        public short? Long { get; set; }
     }
 
     public Weapon(EquipmentMapper equipment) : base(equipment)

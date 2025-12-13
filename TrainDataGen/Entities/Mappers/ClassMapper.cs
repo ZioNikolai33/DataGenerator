@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class ClassMapper : BaseEntity
 {
     [BsonElement("hit_die")]
@@ -23,6 +24,7 @@ public class ClassMapper : BaseEntity
     [BsonElement("spellcasting")]
     public Spellcasting? SpellcastingAbility { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class Multiclass
     {
         [BsonElement("prerequisites")]
@@ -35,6 +37,7 @@ public class ClassMapper : BaseEntity
         public List<ProficiencyChoice>? ProficiencyChoices { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Prerequisite
     {
         [BsonElement("ability_score")]
@@ -43,6 +46,7 @@ public class ClassMapper : BaseEntity
         public byte MinimumScore { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class PrerequisiteOptions
     {
         [BsonElement("type")]
@@ -53,6 +57,7 @@ public class ClassMapper : BaseEntity
         public PrerequisiteFrom From { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class PrerequisiteFrom
     {
         [BsonElement("option_set_type")]
@@ -61,6 +66,7 @@ public class ClassMapper : BaseEntity
         public List<ScorePrerequisiteOption> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ScorePrerequisiteOption
     {
         [BsonElement("option_type")]
@@ -71,6 +77,7 @@ public class ClassMapper : BaseEntity
         public byte MinimumScore { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ProficiencyChoice
     {
         [BsonElement("desc")]
@@ -83,6 +90,7 @@ public class ClassMapper : BaseEntity
         public ProficiencyFrom From { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ProficiencyFrom
     {
         [BsonElement("option_set_type")]
@@ -91,6 +99,7 @@ public class ClassMapper : BaseEntity
         public List<ProficiencyOption> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ProficiencyOption
     {
         [BsonElement("option_type")]
@@ -99,6 +108,7 @@ public class ClassMapper : BaseEntity
         public BaseEntity Item { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Spellcasting
     {
         [BsonElement("level")]
@@ -107,6 +117,7 @@ public class ClassMapper : BaseEntity
         public BaseEntity SpellcastingAbility { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Equipment
     {
         [BsonElement("equipment")]
@@ -114,6 +125,12 @@ public class ClassMapper : BaseEntity
 
         [BsonElement("quantity")]
         public short Quantity { get; set; }
+
+        public Equipment(BaseEntity equip, short quantity)
+        {
+            Equip = equip;
+            Quantity = quantity;
+        }
     }
 
     public ClassMapper(string index, string name) : base(index, name) {  }

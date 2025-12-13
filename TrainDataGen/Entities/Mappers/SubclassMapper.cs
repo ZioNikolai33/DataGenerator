@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class SubclassMapper : BaseEntity
 {
     [BsonElement("class")]
@@ -11,6 +12,7 @@ public class SubclassMapper : BaseEntity
     [BsonElement("spells")]
     public List<SubclassSpell> spells { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class SubclassSpell
     {
         [BsonElement("prerequisites")]
@@ -19,6 +21,7 @@ public class SubclassMapper : BaseEntity
         public BaseEntity Spell { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Prerequisite : BaseEntity
     {
         [BsonElement("type")]

@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class BaseEntity
 {
     [BsonElement("index")]

@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class LevelMapper
 {
     [BsonElement("index")]
@@ -25,6 +26,7 @@ public class LevelMapper
     [BsonElement("subclass")]
     public BaseEntity? Subclass { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class SpellcastingInfo
     {
         [BsonElement("cantrips_known")]

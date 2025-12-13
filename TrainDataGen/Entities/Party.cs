@@ -1,4 +1,6 @@
-﻿using TrainDataGen.Entities.Equip;
+﻿using System.Collections.Generic;
+using TrainDataGen.Entities.Enums;
+using TrainDataGen.Entities.Equip;
 using TrainDataGen.Entities.Mappers;
 using TrainDataGen.Utilities;
 
@@ -23,15 +25,14 @@ public class Member
     public Attribute Intelligence { get; set; }
     public Attribute Wisdom { get; set; }
     public Attribute Charisma { get; set; }
-    public byte Initiative { get; set; }
-    public byte ProficiencyBonus { get; set; }
+    public sbyte Initiative { get; set; }
+    public sbyte ProficiencyBonus { get; set; }
     public List<BaseEntity> Proficiencies { get; set; }
     public List<Equipment> Equipments { get; set; }
     public List<Feature> Features { get; set; }
     public Dictionary<string, object>? ClassSpecific { get; set; }
     public Dictionary<string, object>? SubclassSpecific { get; set; }
     public List<BaseEntity> FeatureSpecifics { get; set; }
-    public List<string> Masteries { get; set; }
     public List<string> Vulnerabilities { get; set; }
     public List<string> Resistances { get; set; }
     public List<string> Immunities { get; set; }
@@ -45,46 +46,75 @@ public class Member
         var random = new Random();
         var randomRace = Lists.races.OrderBy(_ => random.Next()).First();
         var randomRaceAbilityBonus = randomRace.GetRandomAbility();
-        var randomSubrace = EntitiesFinder.GetEntityByIndex(Lists.subraces, new BaseEntity(randomRace.Index, randomRace.Name), randomRace.Subraces.OrderBy(_ => random.Next()).FirstOrDefault());
+        var randomSubrace = (randomRace.Subraces.Count > 0) ? EntitiesFinder.GetEntityByIndex(Lists.subraces, new BaseEntity(randomRace.Index, randomRace.Name), randomRace.Subraces.OrderBy(_ => random.Next()).FirstOrDefault()) : null;
         var randomClass = Lists.classes.OrderBy(_ => random.Next()).First();
         var randomSubclass = EntitiesFinder.GetEntityByIndex(Lists.subclasses, new BaseEntity(randomClass.Index, randomClass.Name), randomClass.Subclasses.OrderBy(_ => random.Next()).First());
-        
+        var raceTraits = new List<TraitMapper>();
+
         var allEquipmentsBase = randomClass.StartingEquipments;
-        allEquipmentsBase.AddRange((List<ClassMapper.Equipment>)randomClass.StartingEquipmentsOptions.Select(item => item.GetRandomEquipment()));
+        var randomBaseEquipments = randomClass.StartingEquipmentsOptions.SelectMany(item => item.GetRandomEquipment()).ToList();
+        allEquipmentsBase.AddRange(randomBaseEquipments);
 
         var allEquipmentsMapper = allEquipmentsBase.Select(item => EntitiesFinder.GetEntityByIndex(Lists.equipments, item.Equip)).Where(item => item != null).ToList();
         var allArmors = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "armor").Select(item => new Armor(item)).ToList();
         var allMeleeWeapons = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "weapon" && item.WeaponRange == "Melee").Select(item => new MeleeWeapon(item)).ToList();
-        var allRangedWeapons = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "weapon" && item.WeaponRange == "Ranged").Select(item => new MeleeWeapon(item)).ToList();
+        var allRangedWeapons = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "weapon" && item.WeaponRange == "Ranged").Select(item => new RangedWeapon(item)).ToList();
         var allAmmunition = allEquipmentsMapper.Where(item => item.GearCategory?.Index == "ammunition").Select(item => new Ammunition(item)).ToList();
-        
-        allArmors.OrderBy(_ => random.Next()).First().IsEquipped = true;
+
         allAmmunition.ForEach(item => item.IsEquipped = true);
+
+        Features = new List<Feature>();
+        FeatureSpecifics = new List<BaseEntity>();
+        Equipments = new List<Equipment>();        
+        Equipments.AddRange(allMeleeWeapons);
+        Equipments.AddRange(allRangedWeapons);
+        Equipments.AddRange(allAmmunition);
+
         EquipRandomWeapons(allMeleeWeapons, allRangedWeapons);
 
-        var allTraits = randomRace.Traits;
-        allTraits.AddRange(randomSubrace.RacialTraits);
+        if (randomRace.Traits.Count > 0)
+        {
+            var allTraits = randomRace.Traits;
 
-        var raceTraits = allTraits.Select(item => EntitiesFinder.GetEntityByIndex(Lists.traits, new BaseEntity(randomRace.Index, randomRace.Name), item)).Where(item => item.Parent == null).ToList();
-        raceTraits.AddRange((List<TraitMapper>)allTraits.Select(item => EntitiesFinder.GetEntityByIndex(Lists.traits, new BaseEntity(randomRace.Index, randomRace.Name), item).TraitSpec?.SubtraitOptions?.GetRandomChoice()));
+            if (randomSubrace != null)
+                allTraits.AddRange(randomSubrace.RacialTraits);
 
-        var levels = Lists.levels.Where(item => item.Class.Index == randomClass.Index && (item.Subclass == null || item.Subclass.Index == Subclass?.Index) && item.Level <= level).ToList();
-        var features = Lists.features.Where(item => item.Class.Index == randomClass.Index && (item.Subclass == null || item.Subclass.Index == Subclass?.Index) && item.Level <= Level && item.Parent == null).ToList();
+            raceTraits = allTraits.Select(item => EntitiesFinder.GetEntityByIndex(Lists.traits, new BaseEntity(randomRace.Index, randomRace.Name), item)).Where(item => item != null && item.Parent == null).ToList();
+            var raceSubtraits = new List<BaseEntity>();
 
-        LevelAdvancements(levels, features);
+            foreach (var item in raceTraits)
+                if (item.TraitSpec == null || item.TraitSpec.SubtraitOptions == null)
+                    continue;
+                else
+                    raceSubtraits = item.TraitSpec.SubtraitOptions.GetRandomChoice();
+
+            if (raceSubtraits.Count > 0)
+                raceTraits.AddRange(raceSubtraits
+                    .Select(item => EntitiesFinder.GetEntityByIndex(Lists.traits, new BaseEntity(randomRace.Index, randomRace.Name), item)));
+
+            if (raceTraits.Count > 0)
+                Traits = raceTraits.Select(item => new BaseEntity(item.Index, item.Name)).ToList();
+        }        
+
+        var levels = Lists.levels.Where(item => item.Class.Index == randomClass.Index || (item.Subclass == null || (item.Class.Index == randomClass.Index && item.Subclass.Index == Subclass?.Index)) && item.Level <= level).ToList();
+        var features = Lists.features.Where(item => item.Class.Index == randomClass.Index || (item.Subclass == null || (item.Class.Index == randomClass.Index && item.Subclass.Index == Subclass?.Index)) && item.Level <= level && item.Parent == null).ToList();
 
         // First assume random value for attributes based on Standard Array rule
         var attributes = AssumeAttributes(randomClass, random);
+
+        if (allArmors.Count > 0 && allArmors.Any(item => item.StrengthMinimum <= attributes[0]))
+            allArmors.Where(item => item.StrengthMinimum <= attributes[0]).OrderBy(_ => random.Next()).First().IsEquipped = true;
+
+        Equipments.AddRange(allArmors);
 
         // Base Information
         Id = id;
         Name = $"Member {id}";
         Level = level;
         HitDie = (byte)randomClass.Hp;
-        ProficiencyBonus = (byte)(2 + ((Level - 1) / 4));
+        ProficiencyBonus = (sbyte)(2 + ((Level - 1) / 4));
         Race = new BaseEntity(randomRace.Index, randomRace.Name);
-        Subrace = randomSubrace != null ? new BaseEntity(randomSubrace.Index, randomSubrace.Name) : null;
-        Traits = raceTraits.Select(item => new BaseEntity(item.Index, item.Name)).ToList();
+        Subrace = randomSubrace != null ? new BaseEntity(randomSubrace.Index, randomSubrace.Name) : null;       
         Class = new BaseEntity(randomClass.Index, randomClass.Name);
         Subclass = new BaseEntity(randomSubclass.Index, randomSubclass.Name);
         Strength = new Attribute(attributes[0]);
@@ -93,37 +123,59 @@ public class Member
         Intelligence = new Attribute(attributes[3]);
         Wisdom = new Attribute(attributes[4]);
         Charisma = new Attribute(attributes[5]);
+        ArmorClass = CalculateArmorClass(allArmors);
         Initiative = Dexterity.Modifier;
+        Vulnerabilities = new List<string>();
+        Resistances = new List<string>();
+        Immunities = new List<string>();
 
-        // Starting Proficiencies (Race & Class & Race Traits)
-        Proficiencies = randomRace.StartingProficiences;
-        Proficiencies.AddRange(randomClass.Proficiencies);
-        Proficiencies.AddRange((List<BaseEntity>)raceTraits.Select(item => item.Proficiencies));
+        SetProficiencies(randomClass, randomRace, raceTraits);
+        CreateSkills(); // Create Skills with basic Modifiers
+        AddProfToSavings(randomClass); // Add Proficiency to Saving Throws
+        AddProfToSkills(); // Add Proficiency to Skills based on Proficiencies list
+        LevelAdvancements(levels, features); // Manage Level Advancements and related Features, Spells, ClassSpecific and SubclassSpecific
 
-        // Random Proficiencies (Race, Class & Race Traits)
-        Proficiencies.AddRange(randomRace.GetRandomProficiency(Proficiencies));
-        Proficiencies.AddRange((List<BaseEntity>)randomClass.ProficiencyChoices.Select(item => item.GetRandomChoice(Proficiencies)));
-        Proficiencies.AddRange((List<BaseEntity>)raceTraits.Select(item => item.ProficiencyChoice?.GetRandomChoice(Proficiencies)));
-
-        // Add Proficiency to Saving Throws
-        AddProfToSavings(randomClass);
+        ManageFeatureSpecific(); // Manage Feature Specifics (like Expertise)
 
         Hp = CalculateRandomHp(randomClass);
+    }
 
-        //Check Proficiencies requirements are followed
-        //Check Features Prerequisities (after Features and Spells are set)
+    private byte CalculateArmorClass(List<Armor> armors)
+    {
+        var ac = 10 + Dexterity.Value;
+        var equippedArmor = armors.Where(item => item.IsEquipped).FirstOrDefault();
+
+        if (equippedArmor != null)
+        {
+            ac = equippedArmor.ArmorClass.Base;
+
+            if (equippedArmor.ArmorClass.HasDexBonus)
+            {
+                ac += Dexterity.Modifier;
+
+                if (equippedArmor.ArmorClass.MaxDexBonus != null)
+                    if (Dexterity.Modifier > equippedArmor.ArmorClass.MaxDexBonus)
+                        ac = equippedArmor.ArmorClass.Base + equippedArmor.ArmorClass.MaxDexBonus.Value;
+            }
+        }            
+
+        return (byte)ac;
     }
 
     private void LevelAdvancements(List<LevelMapper> levels, List<FeatureMapper> features)
     {
         for (int i = 1; i <= Level; i++)
         {
-            List<LevelMapper> currentLevels = levels.Where(item => item.Level == i).ToList();
+            List<LevelMapper> currentLevels = levels.Where(item => item.Class.Index == Class.Index && item.Level == i).ToList();
 
             foreach (var level in currentLevels)
             {
                 var levelFeatures = features.Where(item => item.Level == i).ToList();
-                Features.AddRange(levelFeatures.Select(item => new Feature(item)));
+
+                if (levelFeatures.Count == 0)
+                    continue;
+
+                Features.AddRange(levelFeatures.Select(item => new Feature(item, Proficiencies)));
             }
 
             if (i == Level)
@@ -131,28 +183,143 @@ public class Member
                 var abilityImprovements = currentLevels.OrderBy(item => item.AbilityScoreBonuses).First().AbilityScoreBonuses ?? 0;
                 AbilityScoreImprovement(abilityImprovements);
 
-                var spellcasting = currentLevels.Where(item => item.Spellcasting != null).First().Spellcasting;
-                SpellSlots = new Slots(spellcasting);
+                if (currentLevels.Any(item => item.Spellcasting != null))
+                {
+                    var spellcasting = currentLevels.First(item => item.Spellcasting != null).Spellcasting;
+                    SpellSlots = new Slots(currentLevels.First(item => item.Spellcasting != null).Spellcasting);
 
-                Spells = Lists.spells.Where(item => item.Classes.Contains(Class) && (item.Subclasses == null || item.Subclasses.Contains(Subclass)) && IsSpellKnown(item.Level, spellcasting))
+                    switch (Class.Index)
+                    {
+                        case "cleric":
+                            spellcasting.SpellsKnown = (byte?)((byte)Wisdom.Modifier + Level);
+                            break;
+                        case "druid":
+                            spellcasting.SpellsKnown = (byte?)((byte)Wisdom.Modifier + Level);
+                            break;
+                        case "paladin":
+                            spellcasting.SpellsKnown = (byte?)((byte)Charisma.Modifier + Math.Floor((double)Level/2));
+                            break;
+                        case "ranger":
+                            spellcasting.SpellsKnown = (byte?)((byte)Wisdom.Modifier + Math.Floor((double)Level / 2));
+                            break;
+                        case "wizard":
+                            spellcasting.SpellsKnown = (byte?)((byte)Intelligence.Modifier + Level);
+                            break;
+                    }
+
+                    Spells = Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class.Index) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class.Index) && item.Subclasses.Any(x => x.Index == Subclass.Index))) && IsSpellKnown(item.Level, spellcasting))
                     .OrderBy(_ => new Random().Next())
                     .Take(spellcasting.SpellsKnown ?? 0)
                     .Select(item => new Spell(item))
                     .ToList();
 
-                Cantrips = Lists.spells.Where(item => item.Classes.Contains(Class) && (item.Subclasses == null || item.Subclasses.Contains(Subclass)) && item.Level == 0)
-                    .OrderBy(_ => new Random().Next())
-                    .Take(spellcasting.CantripsKnown ?? 0)
-                    .Select(item => new Spell(item))
-                    .ToList();
+                    Cantrips = Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class.Index) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class.Index) && item.Subclasses.Any(x => x.Index == Subclass.Index))) && item.Level == 0)
+                        .OrderBy(_ => new Random().Next())
+                        .Take(spellcasting.CantripsKnown ?? 0)
+                        .Select(item => new Spell(item))
+                        .ToList();
+                }
 
-                ClassSpecific = currentLevels.Where(item => item.ClassSpecific != null).Last().ClassSpecific;
-                SubclassSpecific = currentLevels.Where(item => item.SubclassSpecific != null).Last().SubclassSpecific;
+                if (currentLevels.Any(item => item.ClassSpecific != null))
+                    ClassSpecific = currentLevels.Where(item => item.ClassSpecific != null).Last().ClassSpecific;
+
+                if (currentLevels.Any(item => item.SubclassSpecific != null))
+                    SubclassSpecific = currentLevels.Where(item => item.SubclassSpecific != null).Last().SubclassSpecific;
+
+                CheckFeaturesPrerequisities(features); //Check Features Prerequisities (after Features and Spells are set)
             }
         }
     }
 
-    public bool IsSpellKnown(byte level, LevelMapper.SpellcastingInfo spellcasting)
+    private void CreateSkills()
+    {
+        Skills = new List<Skill>
+        {
+             new Skill(new BaseEntity("skill-acrobatics", "Acrobatics"), Dexterity.Modifier),
+             new Skill(new BaseEntity("skill-animal-handling", "Animal Handling"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-arcana", "Arcana"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-athletics", "Athletics"), Strength.Modifier),
+             new Skill(new BaseEntity("skill-deception", "Deception"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-history", "History"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-insight", "Insight"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-intimidation", "Intimidation"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-investigation", "Investigation"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-medicine", "Medicine"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-nature", "Nature"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-perception", "Perception"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-performance", "Performance"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-persuasion", "Persuasion"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-religion", "Religion"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-sleight-of-hand", "Sleight of Hand"), Dexterity.Modifier),
+             new Skill(new BaseEntity("skill-stealth", "Stealth"), Dexterity.Modifier),
+             new Skill(new BaseEntity("skill-survival", "Survival"), Wisdom.Modifier)
+        };
+    }
+
+    private void SetProficiencies(ClassMapper randomClass, RaceMapper randomRace, List<TraitMapper> raceTraits)
+    {
+        // Starting Proficiencies (Race & Class & Race Traits)
+        Proficiencies = randomRace.StartingProficiences;
+        Proficiencies.AddRange(randomClass.Proficiencies);
+
+        if (raceTraits.Count > 0)
+            foreach (var item in raceTraits)
+                if (item.Proficiencies.Count > 0)
+                    Proficiencies.AddRange(item.Proficiencies);
+
+        // Random Proficiencies (Race, Class & Race Traits)
+        Proficiencies.AddRange(randomRace.GetRandomProficiency(Proficiencies));
+
+        if (randomClass.ProficiencyChoices.Count > 0)
+            foreach (var item in randomClass.ProficiencyChoices)
+                Proficiencies.AddRange(item.GetRandomChoice(Proficiencies));
+
+        if (raceTraits.Count > 0)
+            foreach (var item in raceTraits)
+                if (item.ProficiencyChoice != null)
+                    Proficiencies.AddRange(item.ProficiencyChoice.GetRandomChoice(Proficiencies));
+    }
+
+    private void ManageFeatureSpecific()
+    {
+        var newFeatures = new List<Feature>();
+
+        foreach (var feature in Features)
+        {
+            if (feature.FeatureType != null && feature.FeatureType == FeatureSpecificTypes.Expertise)
+            {
+                foreach (var choice in feature.FeatureSpec)
+                {
+                    var skill = Skills.Where(item => item.Index == choice.Index).FirstOrDefault();
+
+                    if (skill != null)
+                        skill.SetExpertise(true, ProficiencyBonus);
+                }
+            }
+            else if (feature.FeatureType != null && feature.FeatureType == FeatureSpecificTypes.Enemy)
+                FeatureSpecifics.AddRange(feature.FeatureSpec);
+
+            else if (feature.FeatureType != null && feature.FeatureType == FeatureSpecificTypes.Terrain)
+                FeatureSpecifics.AddRange(feature.FeatureSpec);
+
+            else if (feature.FeatureType != null && feature.FeatureType == FeatureSpecificTypes.Subfeature)
+            {
+                foreach (var choice in feature.FeatureSpec)
+                {
+                    var subfeature = Lists.features.Where(item => item.Index == choice.Index).FirstOrDefault();
+
+                    if (subfeature != null)
+                    {
+                        newFeatures.Add(new Feature(subfeature, Proficiencies));
+                    }
+                }
+            }
+        }
+
+        Features.AddRange(newFeatures);
+    }
+
+    private bool IsSpellKnown(byte level, LevelMapper.SpellcastingInfo spellcasting)
     {
         switch(level)
         {
@@ -231,7 +398,7 @@ public class Member
         }
     }
 
-    private void EquipRandomWeapons(List<MeleeWeapon> meleeWeapons, List<MeleeWeapon> rangedWeapons)
+    private void EquipRandomWeapons(List<MeleeWeapon> meleeWeapons, List<RangedWeapon> rangedWeapons)
     {
         var random = new Random();
 
@@ -267,7 +434,7 @@ public class Member
         var random = new Random();
 
         int hp = classMapper.Hp + Constitution.Modifier;
-        for (int i = 2; i < Level; i++)
+        for (int i = 2; i <= Level; i++)
             hp += random.Next(1, classMapper.Hp + 1) + Constitution.Modifier;
 
         return (short)hp;
@@ -296,59 +463,53 @@ public class Member
             Charisma.SetProficiency(true, ProficiencyBonus);
     }
 
-    private Dictionary<string, int> GetSkillsDict()
+    private void AddProfToSkills()
     {
-        var skills = new Dictionary<string, int>
-        {
-            ["acrobatics"] = Dexterity.Modifier,
-            ["animal_handling"] = Wisdom.Modifier,
-            ["arcana"] = Intelligence.Modifier,
-            ["athletics"] = Strength.Modifier,
-            ["deception"] = Charisma.Modifier,
-            ["history"] = Intelligence.Modifier,
-            ["insight"] = Wisdom.Modifier,
-            ["intimidation"] = Charisma.Modifier,
-            ["investigation"] = Intelligence.Modifier,
-            ["medicine"] = Wisdom.Modifier,
-            ["nature"] = Intelligence.Modifier,
-            ["perception"] = Wisdom.Modifier,
-            ["performance"] = Charisma.Modifier,
-            ["persuasion"] = Charisma.Modifier,
-            ["religion"] = Intelligence.Modifier,
-            ["sleight_of_hand"] = Dexterity.Modifier,
-            ["stealth"] = Dexterity.Modifier,
-            ["survival"] = Wisdom.Modifier
-        };
+        foreach (var skill in Skills)
+            if (Proficiencies.Select(item => item.Index).ToList().Contains(skill.Index))
+                skill.SetProficiency(true, ProficiencyBonus);
+    }
 
-        foreach (var item in skills.Keys.ToList())
+    private void CheckFeaturesPrerequisities(List<FeatureMapper> features)
+    {
+        foreach (var feature in features)
         {
-            if (Proficiencies.Contains("skill-" + item))
-                skills[item] += ProficiencyBonus;
+            if (feature.Prerequisites != null)
+            {
+                foreach (var prereq in feature.Prerequisites)
+                {
+                    bool meetsPrereq = false;
+
+                    if (prereq.Type == "feature")
+                    {
+                        if (Features.Any(item => item.Index == prereq.Feature?.Split('/').Last()))
+                            meetsPrereq = true;
+                    }
+                    else if (prereq.Type == "spell")
+                    {
+                        if (Spells.Any(item => item.Index == prereq.Feature?.Split('/').Last()) || Cantrips.Any(item => item.Index == prereq.Feature?.Split('/').Last()))
+                            meetsPrereq = true;
+                    }
+                    if (!meetsPrereq)
+                        Features = Features.Select(item => item).Where(item => item.Index != feature.Index).ToList();
+
+                }
+            }
         }
-
-        foreach (var item in skills.Keys.ToList())
-        {
-            if (Masteries.Contains("skill-" + item))
-                skills[item] += ProficiencyBonus;
-        }
-
-        return skills;
     }
 
     public override string ToString()
     {
         var subraceStr = Subrace != null ? $" {Subrace.Name}" : "";
-        var str = $"{Name} | {Race}{subraceStr} | Lv{Level} {Classe}\n";
-        str += $"HP: {Hp} | Speed: {Speed} | Initiative: {Initiative} | Proficiency Bonus: +{ProficiencyBonus}\n";
+        var str = $"{Name} | {Race.Name}{subraceStr} | Lv{Level} {Class.Name}\n";
+        str += $"HP: {Hp} | Initiative: {Initiative} | Proficiency Bonus: +{ProficiencyBonus}\n";
         str += $"STR: {Strength.Value} ({Strength.Modifier}) | DEX: {Dexterity.Value} ({Dexterity.Modifier}) | CON: {Constitution.Value} ({Constitution.Modifier}) | INT: {Intelligence.Value} ({Intelligence.Modifier}) | WIS: {Wisdom.Value} ({Wisdom.Modifier}) | CHA: {Charisma.Value} ({Charisma.Modifier})\n";
         str += $"Saving Throws: STR {Strength.Save}, DEX {Dexterity.Save}, CON {Constitution.Save}, INT {Intelligence.Save}, WIS {Wisdom.Save}, CHA {Charisma.Save}\n";
-        str += $"Skills: {string.Join(", ", Skills.Select(kv => $"{kv.Key.Replace("_", " ").ToUpper()} {kv.Value}"))}\n";
-        str += $"Proficiencies: {string.Join(", ", Proficiencies)}\n";
-        if (Masteries.Count > 0)
-            str += $"Masteries: {string.Join(", ", Masteries)}\n";
-        str += $"Traits: {(Subrace != null && Subrace.Traits != null ? string.Join(", ", Subrace.Traits) : "None")}\n";
+        str += $"Skills: {string.Join(", ", Skills.Select(skill => $"{skill.Name} {skill.Modifier}"))}\n";
+        str += $"Proficiencies: {string.Join(", ", Proficiencies.Select(p => p.Name))}\n";
+        str += Traits != null ? $"Traits: {string.Join(", ", Traits.Select(t => t.Name))}\n": "Traits: None\n";
         str += $"Features: {string.Join(", ", Features.Select(f => f.Name))}\n";
-        str += $"Equipments: {string.Join(", ", Equipments.Select(e => $"{e.Quantity} x {e.Name.Replace("-", " ").ToUpper()}"))}\n";
+        str += $"Equipments: {string.Join(", ", Equipments.Select(e => $"{e.Name.Replace("-", " ")}"))}\n";
         if (Vulnerabilities.Count > 0)
             str += $"Vulnerabilities: {string.Join(", ", Vulnerabilities)}\n";
         if (Resistances.Count > 0)
@@ -356,7 +517,12 @@ public class Member
         if (Immunities.Count > 0)
             str += $"Immunities: {string.Join(", ", Immunities)}\n";
         str += SpellSlots != null && SpellSlots.First > 0 ? SpellSlots.ToString() : "";
+        if (Cantrips != null && Cantrips.Count > 0)
+            str += $"Cantrips: {string.Join(", ", Cantrips.Select(c => c.Name))}\n";
+        if (Spells != null && Spells.Count > 0)
+            str += $"Spells: {string.Join(", ", Spells.Select(s => s.Name))}\n";
         str += "\n------------------------------------------------------------------------------------------------------------------------\n";
         return str;
     }
+
 }

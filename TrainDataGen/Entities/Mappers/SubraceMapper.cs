@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class SubraceMapper : BaseEntity
 {
     [BsonElement("race")]

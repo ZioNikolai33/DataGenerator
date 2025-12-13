@@ -3,6 +3,7 @@ using TrainDataGen.Entities.Enums;
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class RaceMapper : BaseEntity
 {
     [BsonElement("speed")]
@@ -22,20 +23,7 @@ public class RaceMapper : BaseEntity
     [BsonElement("subraces")]
     public List<BaseEntity> Subraces { get; set; }
 
-    public class AbilityScore
-    {
-        [BsonElement("ability_score")]
-        public BaseEntity Ability { get; set; }
-        [BsonElement("bonus")]
-        public byte Bonus { get; set; }
-
-        public AbilityScore(BaseEntity ability, byte bonus)
-        {
-            Ability = ability;
-            Bonus = bonus;
-        }
-    }
-
+    [BsonIgnoreExtraElements]
     public class AbilityBonusOptions
     {
         [BsonElement("choose")]
@@ -46,6 +34,7 @@ public class RaceMapper : BaseEntity
         public OptionSet From { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class OptionSet
     {
         [BsonElement("option_set_type")]
@@ -54,6 +43,7 @@ public class RaceMapper : BaseEntity
         public List<Option> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class Option
     {
         [BsonElement("option_type")]
@@ -67,7 +57,7 @@ public class RaceMapper : BaseEntity
     public RaceMapper(string index, string name) : base(index, name) { }
 
     public List<BaseEntity> GetRandomProficiency(List<BaseEntity>? proficiencies) => 
-        StartingProficiencesOptions.GetRandomChoice(proficiencies);
+        (StartingProficiencesOptions != null) ? StartingProficiencesOptions.GetRandomChoice(proficiencies) : new List<BaseEntity>();
 
     public List<AbilityBonus> GetRandomAbility()
     {

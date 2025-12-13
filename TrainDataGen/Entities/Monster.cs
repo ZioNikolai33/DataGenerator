@@ -1,0 +1,391 @@
+﻿using MongoDB.Bson.Serialization.Attributes;
+using TrainDataGen.Entities.Mappers;
+using TrainDataGen.Utilities;
+
+namespace TrainDataGen.Entities;
+
+public class Monster : BaseEntity
+{
+    public string Desc { get; set; }
+    public string Size { get; set; }
+    public string Type { get; set; }
+    public string Subtype { get; set; }
+    public string Alignment { get; set; }
+    public List<ArmorClass> AC { get; set; }
+    public int HitPoints { get; set; }
+    public string HitDice { get; set; }
+    public string HitPointsRoll { get; set; }
+    public SpeedType Speed { get; set; }
+    public Attribute Strength { get; set; }
+    public Attribute Dexterity { get; set; }
+    public Attribute Constitution { get; set; }
+    public Attribute Intelligence { get; set; }
+    public Attribute Wisdom { get; set; }
+    public Attribute Charisma { get; set; }
+    public List<Skill> Skills { get; set; }
+    public List<string> DamageVulnerabilities { get; set; }
+    public List<string> DamageResistances { get; set; }
+    public List<string> DamageImmunities { get; set; }
+    public List<BaseEntity> ConditionImmunities { get; set; }
+    public SensesType Senses { get; set; }
+    public string Languages { get; set; }
+    public double ChallengeRating { get; set; }
+    public byte ProficiencyBonus { get; set; }
+    public int Xp { get; set; }
+    public List<SpecialAbility> SpecialAbilities { get; set; }
+    public List<NormalAction> Actions { get; set; }
+    public List<LegendaryAction> LegendaryActions { get; set; }
+    public List<Reaction> Reactions { get; set; }
+
+    public class ArmorClass
+    {
+        public string Desc { get; set; }
+        public string Type { get; set; }
+        public int Value { get; set; }
+        public List<BaseEntity> Armor { get; set; }
+        public BaseEntity Spell { get; set; }
+        public BaseEntity Condition { get; set; }
+
+        public ArmorClass(MonsterMapper.ArmorClass armorClass)
+        {
+            Desc = armorClass.Desc;
+            Type = armorClass.Type;
+            Value = armorClass.Value;
+            Armor = armorClass.Armor ?? new List<BaseEntity>();
+            Spell = armorClass.Spell;
+            Condition = armorClass.Condition;
+        }
+    }
+
+    public class SpeedType
+    {
+        public string? Walk { get; set; }
+        public string? Swim { get; set; }
+        public string? Fly { get; set; }
+        public string? Burrow { get; set; }
+        public string? Climb { get; set; }
+        public bool? Hover { get; set; }
+    }
+
+    public class SensesType
+    {
+        public string? Darkvision { get; set; }
+        public string? Tremorsense { get; set; }
+        public string? Blindsight { get; set; }
+        public string? Truesight { get; set; }
+        public byte? PassivePerception { get; set; }
+    }
+
+    public class SpecialAbility
+    {
+        public string Name { get; set; }
+        public string Desc { get; set; }
+        public Spellcasting? Spellcast { get; set; }
+        public Usage? Usage { get; set; }
+        public Dc? Dc { get; set; }
+        public List<Damage>? Damage { get; set; }
+
+        public class Spellcasting
+        {
+            public int Level { get; set; }
+            public BaseEntity Ability { get; set; }
+            public int Dc { get; set; }
+            public int Modifier { get; set; }
+            public List<string> ComponentsRequired { get; set; }
+            public string School { get; set; }
+            public Slots SpellSlots { get; set; }
+            public List<Spell> Spells { get; set; }
+        }
+
+        public SpecialAbility(MonsterMapper.SpecialAbility ability)
+        {
+            Name = ability.Name;
+            Desc = ability.Desc;
+            if (ability.Spellcasting != null)
+            {
+                Spellcast = new Spellcasting
+                {
+                    Level = ability.Spellcasting.Level ?? 0,
+                    Ability = ability.Spellcasting.Ability,
+                    Dc = ability.Spellcasting.Dc ?? 0,
+                    Modifier = ability.Spellcasting.Modifier ?? 0,
+                    ComponentsRequired = ability.Spellcasting.ComponentsRequired,
+                    School = ability.Spellcasting.School,
+                    SpellSlots = (ability.Spellcasting.Slots != null) ? new Slots(ability.Spellcasting.Slots) : null,
+                    Spells = ability.Spellcasting.Spells?.Select(item => new Spell(EntitiesFinder.GetEntityByIndex(Lists.spells, new BaseEntity(item.Url.Substring(item.Url.LastIndexOf('/') + 1), item.Name)))).ToList() ?? new List<Spell>()
+                };
+            }
+            Usage = (ability.Usage != null) ? new Usage(ability.Usage.Type, ability.Usage.Times, ability.Usage.RestTypes, ability.Usage.Dice, ability.Usage.MinValue) : null;
+            Dc = new Dc(ability.Dc);
+            Damage = (ability.Damage != null) ? ability.Damage.Select(item => new Damage(item)).ToList() : null;
+        }
+    }
+
+    public class NormalAction
+    {
+        public string Name { get; set; }
+        public string Desc { get; set; }
+        public List<MultiAction> Actions { get; set; }
+        public byte? AttackBonus { get; set; }
+        public List<Damage> Damage { get; set; }
+        public Dc Dc { get; set; }
+
+        public class MultiAction
+        {
+            public string ActionName { get; set; }
+            public int Count { get; set; }
+            public string Type { get; set; }
+        }
+
+        public NormalAction(MonsterMapper.NormalAction action)
+        {
+            Name = action.Name;
+            Desc = action.Desc;
+            Actions = action.Actions?.Select(item => new MultiAction
+            {
+                ActionName = item.ActionName,
+                Count = item.Count is string ? -1 : (int)item.Count,
+                Type = item.Type
+            }).ToList() ?? new List<MultiAction>();
+            AttackBonus = action.AttackBonus != null ? (byte?)action.AttackBonus : null;
+            Damage = (action.Damage != null) ? action.Damage.Select(item => new Damage(item)).ToList() : null;
+            Dc = new Dc(action.Dc);
+        }
+    }
+
+    public class LegendaryAction
+    {
+        public string Name { get; set; }
+        public string Desc { get; set; }
+        public int? AttackBonus { get; set; }
+        public Dc Dc { get; set; }
+        public List<Damage> Damage { get; set; }
+
+        public LegendaryAction(MonsterMapper.LegendaryAction action)
+        {
+            Name = action.Name;
+            Desc = action.Desc;
+            AttackBonus = action.AttackBonus;
+            Dc = new Dc(action.Dc);
+            Damage = action.Damage.Select(item => new Damage(item)).ToList();
+        }
+    }
+
+    public class Reaction
+    {
+        public string Name { get; set; }
+        public string Desc { get; set; }
+        public int? AttackBonus { get; set; }
+        public Dc Dc { get; set; }
+        public List<Damage> Damage { get; set; }
+
+        public Reaction(MonsterMapper.Reaction reaction)
+        {
+            Name = reaction.Name;
+            Desc = reaction.Desc;
+            AttackBonus = reaction.AttackBonus;
+            Dc = new Dc(reaction.Dc);
+            Damage = (reaction.Damage != null) ? reaction.Damage.Select(item => new Damage(item)).ToList() : null;
+        }
+    }
+
+    public class Dc
+    {
+        public BaseEntity DcType { get; set; }
+        public int DcValue { get; set; }
+        public string SuccessType { get; set; }
+
+        public Dc(MonsterMapper.Dc? dc)
+        {
+            if (dc != null)
+            {
+                DcType = dc.DcType;
+                DcValue = dc.DcValue;
+                SuccessType = dc.SuccessType;
+            }
+        }
+    }
+
+    public class Damage
+    {
+        public string Type { get; set; }
+        public BaseEntity DamageType { get; set; }
+        public string DamageDice { get; set; }
+        public Dc? Dc { get; set; }
+        public byte? Choose { get; set; }
+        public DamageOptionSet From { get; set; }
+
+        public Damage(MonsterMapper.Damage? damage)
+        {
+            if (damage != null)
+            {
+                Type = damage.Type;
+                DamageType = damage.DamageType;
+                DamageDice = damage.DamageDice;
+                Dc = new Dc(damage.Dc);
+                Choose = damage.Choose != null ? (byte?)damage.Choose : null;
+                From = damage.From != null ? new DamageOptionSet(damage.From) : null;
+            }
+        }
+    }
+
+    public class DamageOptionSet
+    {
+        public string Option_Set_Type { get; set; }
+        public List<DamageOption> Options { get; set; }
+
+        public DamageOptionSet(MonsterMapper.DamageOptionSet damage)
+        {
+            Option_Set_Type = damage.Option_Set_Type;
+            Options = damage.Options.Select(item => new DamageOption
+            {
+                Option_Type = item.Option_Type,
+                Notes = item.Notes,
+                Damage_Type = item.Damage_Type,
+                Damage_Dice = item.Damage_Dice
+            }).ToList();
+        }
+    }
+
+    public class DamageOption
+    {
+        public string Desc { get; set; }
+        public string Option_Type { get; set; }
+        public string Notes { get; set; }
+        public BaseEntity Damage_Type { get; set; }
+        public string Damage_Dice { get; set; }
+    }
+
+    public Monster(MonsterMapper monster) : base(monster.Index, monster.Name)
+    {
+        Desc = monster.Desc;
+        Size = monster.Size;
+        Type = monster.Type;
+        Subtype = monster.Subtype;
+        Alignment = monster.Alignment;
+        AC = monster.AC.Select(item => new ArmorClass(item)).ToList();
+        HitPoints = monster.HitPoints;
+        HitDice = monster.HitDice;
+        HitPointsRoll = monster.HitPointsRoll;
+        Speed = new SpeedType
+        {
+            Walk = monster.Speed.Contains("walk") ? monster.Speed["walk"].AsString : null,
+            Swim = monster.Speed.Contains("swim") ? monster.Speed["swim"].AsString : null,
+            Fly = monster.Speed.Contains("fly") ? monster.Speed["fly"].AsString : null,
+            Burrow = monster.Speed.Contains("burrow") ? monster.Speed["burrow"].AsString : null,
+            Climb = monster.Speed.Contains("climb") ? monster.Speed["climb"].AsString : null,
+            Hover = monster.Speed.Contains("hover") ? monster.Speed["hover"].AsBoolean : null
+        };
+        Strength = new Attribute((byte)monster.Strength);
+        Dexterity = new Attribute((byte)monster.Dexterity);
+        Constitution = new Attribute((byte)monster.Constitution);
+        Intelligence = new Attribute((byte)monster.Intelligence);
+        Wisdom = new Attribute((byte)monster.Wisdom);
+        Charisma = new Attribute((byte)monster.Charisma);
+        
+        CreateSkills();
+        AddProfs(monster);
+
+        DamageVulnerabilities = monster.DamageVulnerabilities;
+        DamageResistances = monster.DamageResistances;
+        DamageImmunities = monster.DamageImmunities;
+        ConditionImmunities = monster.ConditionImmunities;
+        Senses = new SensesType
+        {
+            Darkvision = monster.Senses.Contains("darkvision") ? monster.Senses["darkvision"].AsString : null,
+            Tremorsense = monster.Senses.Contains("tremorsense") ? monster.Senses["tremorsense"].AsString : null,
+            Blindsight = monster.Senses.Contains("blindsight") ? monster.Senses["blindsight"].AsString : null,
+            Truesight = monster.Senses.Contains("truesight") ? monster.Senses["truesight"].AsString : null,
+            PassivePerception = monster.Senses.Contains("passive_perception") ? (byte?)monster.Senses["passive_perception"].AsInt32 : null
+        };
+        Languages = monster.Languages;
+        ChallengeRating = monster.ChallengeRating;
+        ProficiencyBonus = (byte)monster.ProficiencyBonus;
+        Xp = monster.Xp;
+        SpecialAbilities = (monster.SpecialAbilities != null) ? monster.SpecialAbilities.Select(item => new SpecialAbility(item)).ToList() : null;
+        Actions = (monster.Actions != null) ? monster.Actions.Select(item => new NormalAction(item)).ToList() : null;
+        LegendaryActions = (monster.LegendaryActions != null) ? monster.LegendaryActions.Select(item => new LegendaryAction(item)).ToList() : null;
+        Reactions = (monster.Reactions != null) ? monster.Reactions.Select(item => new Reaction(item)).ToList() : null;
+    }
+
+    private void CreateSkills()
+    {
+        Skills = new List<Skill>
+        {
+             new Skill(new BaseEntity("skill-acrobatics", "Acrobatics"), Dexterity.Modifier),
+             new Skill(new BaseEntity("skill-animal-handling", "Animal Handling"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-arcana", "Arcana"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-athletics", "Athletics"), Strength.Modifier),
+             new Skill(new BaseEntity("skill-deception", "Deception"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-history", "History"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-insight", "Insight"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-intimidation", "Intimidation"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-investigation", "Investigation"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-medicine", "Medicine"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-nature", "Nature"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-perception", "Perception"), Wisdom.Modifier),
+             new Skill(new BaseEntity("skill-performance", "Performance"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-persuasion", "Persuasion"), Charisma.Modifier),
+             new Skill(new BaseEntity("skill-religion", "Religion"), Intelligence.Modifier),
+             new Skill(new BaseEntity("skill-sleight-of-hand", "Sleight of Hand"), Dexterity.Modifier),
+             new Skill(new BaseEntity("skill-stealth", "Stealth"), Dexterity.Modifier),
+             new Skill(new BaseEntity("skill-survival", "Survival"), Wisdom.Modifier)
+        };
+    }
+
+    private void AddProfs(MonsterMapper monster)
+    {
+        foreach (var proficiency in monster.Proficiencies)
+        {
+            var profName = proficiency.Proficiency.Index;
+            var value = (sbyte)proficiency.Value;
+
+            if (profName.StartsWith("saving-throw"))
+            {
+                var attrName = profName.Replace("saving-throw: ", "").Trim();
+
+                switch (attrName)
+                {
+                    case "str":
+                        Strength.Save += (sbyte)proficiency.Value;
+                        break;
+                    case "dex":
+                        Dexterity.Save += (sbyte)proficiency.Value;
+                        break;
+                    case "con":
+                        Constitution.Save += (sbyte)proficiency.Value;
+                        break;
+                    case "int":
+                        Intelligence.Save += (sbyte)proficiency.Value;
+                        break;
+                    case "wis":
+                        Wisdom.Save += (sbyte)proficiency.Value;
+                        break;
+                    case "cha":
+                        Charisma.Save += (sbyte)proficiency.Value;
+                        break;
+                }
+            }
+            else if (profName.StartsWith("skill"))
+            {
+                var skillName = profName.Replace("skill: ", "").Trim();
+                var skill = Skills.FirstOrDefault(s => s.Name.Equals(skillName));
+
+                if (skill != null)
+                    skill.SetProficiency(true, (sbyte)proficiency.Value);
+            }
+        }
+    }
+
+    public override string ToString()
+    {
+        var str = $"Monster: {Name} (CR: {ChallengeRating})\n";
+        str += $" Type: {Size} {Type}, Alignment: {Alignment}\n";
+        str += $" HP: {HitPoints} ({HitDice}) | AC: {string.Join(", ", AC.Select(ac => ac.Value.ToString()))}\n";
+        str += $" STR: {Strength.Value} ({Strength.Modifier}), DEX: {Dexterity.Value} ({Dexterity.Modifier}), CON: {Constitution.Value} ({Constitution.Modifier}), INT: {Intelligence.Value} ({Intelligence.Modifier}), WIS: {Wisdom.Value} ({Wisdom.Modifier}), CHA: {Charisma.Value} ({Charisma.Modifier})\n";
+        str += $" Skills: {string.Join(", ", Skills.Where(s => s.IsProficient).Select(s => $"{s.Name} (+{s.Modifier})"))}\n";
+        str += $" Languages: {Languages}\n";
+
+        return str;
+    }
+}

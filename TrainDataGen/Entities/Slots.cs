@@ -27,6 +27,19 @@ namespace TrainDataGen.Entities
             Nineth = spellcastingInfo.SpellSlotsLevel9 ?? 0;
         }
 
+        public Slots(MonsterMapper.SpellSlots spellcasting)
+        {
+            First = spellcasting._1 ?? 0;
+            Second = spellcasting._2 ?? 0;
+            Third = spellcasting._3 ?? 0;
+            Fourth = spellcasting._4 ?? 0;
+            Fifth = spellcasting._4 ?? 0;
+            Sixth = spellcasting._5 ?? 0;
+            Seventh = spellcasting._6 ?? 0;
+            Eighth = spellcasting._7 ?? 0;
+            Nineth = spellcasting._8 ?? 0;
+        }
+
         public bool HasEnoughSlots(int level, int numberToCheck)
         {
             return level switch

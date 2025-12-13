@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class ProficiencyChoiceMapper
 {
     [BsonElement("desc")]
@@ -13,6 +14,7 @@ public class ProficiencyChoiceMapper
     [BsonElement("from")]
     public ProficiencyFrom From { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class ProficiencyFrom
     {
         [BsonElement("option_set_type")]
@@ -21,20 +23,13 @@ public class ProficiencyChoiceMapper
         public List<ProficiencyOption> Options { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class ProficiencyOption
     {
         [BsonElement("option_type")]
         public string OptionType { get; set; }
         [BsonElement("item")]
-        public ProficiencyItem? Item { get; set; }
-    }
-
-    public class ProficiencyItem
-    {
-        [BsonElement("index")]
-        public string Index { get; set; }
-        [BsonElement("name")]
-        public string Name { get; set; }
+        public BaseEntity? Item { get; set; }
     }
 
     public List<BaseEntity> GetRandomChoice(List<BaseEntity>? proficiencies)

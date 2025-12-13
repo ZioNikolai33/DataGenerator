@@ -4,12 +4,12 @@ namespace TrainDataGen.Entities.Equip;
 
 public class MeleeWeapon : Weapon
 {
-    public RangeData ThrowRange { get; set; }
+    public RangeData? ThrowRange { get; set; }
     public DamageData? TwoHandedDamage { get; set; }
 
     public MeleeWeapon(EquipmentMapper equipment) : base(equipment)
     {
-        ThrowRange = equipment.ThrowRange ?? new RangeData { Normal = 0, Long = 0 };
-        TwoHandedDamage = equipment.TwoHandedDamage;
+        ThrowRange = equipment.ThrowRange != null ? new RangeData { Normal = equipment.ThrowRange.Normal } : null;
+        TwoHandedDamage = equipment.TwoHandedDamage != null ? new DamageData { DamageDice = equipment.TwoHandedDamage.DamageDice, DamageType = equipment.TwoHandedDamage.DamageType } : null;
     }
 }

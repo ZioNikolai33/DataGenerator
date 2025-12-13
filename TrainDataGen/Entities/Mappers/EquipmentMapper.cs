@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class EquipmentMapper : BaseEntity
 {
     [BsonElement("equipment_category")]
@@ -39,6 +40,7 @@ public class EquipmentMapper : BaseEntity
     [BsonElement("stealth_disadvantage")]
     public bool? IsStealthDisadvantage { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class ArmorData
     {
         [BsonElement("base")]
@@ -49,6 +51,7 @@ public class EquipmentMapper : BaseEntity
         public byte? MaxDexBonus { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class DamageData
     {
         [BsonElement("damage_type")]
@@ -57,6 +60,7 @@ public class EquipmentMapper : BaseEntity
         public string DamageDice { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class RangeData
     {
         [BsonElement("normal")]
@@ -65,10 +69,11 @@ public class EquipmentMapper : BaseEntity
         public short? Long { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class CostMapper
     {
         [BsonElement("quantity")]
-        public byte Quantity { get; set; }
+        public short Quantity { get; set; }
         [BsonElement("unit")]
         public string Unit { get; set; }
     }

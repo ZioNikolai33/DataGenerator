@@ -2,6 +2,7 @@
 
 namespace TrainDataGen.Entities.Mappers;
 
+[BsonIgnoreExtraElements]
 public class SpellMapper: BaseEntity
 {
     [BsonElement("desc")]
@@ -35,6 +36,7 @@ public class SpellMapper: BaseEntity
     [BsonElement("subclasses")]
     public List<BaseEntity> Subclasses { get; set; }
 
+    [BsonIgnoreExtraElements]
     public class DamageInfo
     {
         [BsonElement("damage_type")]
@@ -45,6 +47,7 @@ public class SpellMapper: BaseEntity
         public Dictionary<string, string>? damage_at_character_level { get; set; }
     }
 
+    [BsonIgnoreExtraElements]
     public class HealInfo : Dictionary<string, string>
     {
         // e.g. { "1": "1d4 + 4", "2": "1d4 + 9", ... }
