@@ -8,7 +8,8 @@ internal static class Program
     private static void Main()
     {
         var database = new Database();
+        var startTime = DateTime.Now;
 
-        DataGenerator.Generate(database);
+        DataGenerator.Generate(database, startTime);
     }
 }

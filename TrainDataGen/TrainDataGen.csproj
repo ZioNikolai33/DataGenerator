@@ -11,6 +11,21 @@
     <Folder Include="Generator\logs\" />
     <Folder Include="Generator\output\" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\expMonsterMultiplier.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\expThreshold.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\spellSlots.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MongoDB.Bson" Version="3.5.0" />
