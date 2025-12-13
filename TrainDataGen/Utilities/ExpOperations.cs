@@ -9,19 +9,10 @@ namespace TrainDataGen.Utilities;
 
 public static class ExpOperations
 {
-    private static readonly List<ExpThreshold> ExpPointsList;
-    private static readonly List<MonsterMultiplier> MultiplierList;
+    public static readonly List<ExpThreshold> ExpPointsList = JsonSerializer.Deserialize<List<ExpThreshold>>(File.ReadAllText("data/expThreshold.json"));
+    public static readonly List<MonsterMultiplier> MultiplierList = JsonSerializer.Deserialize<List<MonsterMultiplier>>(File.ReadAllText("data/expMonsterMultiplier.json"));
 
-    static ExpOperations()
-    {
-        var expThresholdJson = File.ReadAllText("data/expThreshold.json");
-        ExpPointsList = JsonSerializer.Deserialize<List<ExpThreshold>>(expThresholdJson);
-
-        var multiplierJson = File.ReadAllText("data/expMonsterMultiplier.json");
-        MultiplierList = JsonSerializer.Deserialize<List<MonsterMultiplier>>(multiplierJson);
-    }
-
-    public static Difficulty CalculateDifficultiesExp(IEnumerable<int> partyLevels)
+    public static Difficulty CalculateDifficultiesExp(List<byte> partyLevels)
     {
         var totalExpPoints = new Difficulty
         {
@@ -50,7 +41,7 @@ public static class ExpOperations
         return totalExpPoints;
     }
 
-    public static int CalculateAdjustedExp(IEnumerable<int> monsterExps)
+    public static int CalculateAdjustedExp(List<int> monsterExps)
     {
         var totalExp = monsterExps.Sum();
         var numMonsters = monsterExps.Count();

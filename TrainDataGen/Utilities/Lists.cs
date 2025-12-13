@@ -6,6 +6,7 @@ namespace TrainDataGen.Utilities;
 
 public static class Lists
 {
+    public readonly static List<MonsterMapper> monsters = new Database().GetAllMonsters();
     public readonly static List<RaceMapper> races = new Database().GetAllRaces();
     public readonly static List<SubraceMapper> subraces = new Database().GetAllSubraces();
     public readonly static List<TraitMapper> traits = new Database().GetAllTraits();
@@ -15,22 +16,37 @@ public static class Lists
     public readonly static List<SpellMapper> spells = new Database().GetAllSpells();
     public readonly static List<FeatureMapper> features = new Database().GetAllFeatures();
     public readonly static List<LevelMapper> levels = new Database().GetAllLevels();
-    public readonly static List<EquipmentMapper> martialWeapons = new Database().GetAllMartialWeapons();
-    public readonly static List<EquipmentMapper> martialMeleeWeapons = new Database().GetAllMartialMeleeWeapons();
-    public readonly static List<EquipmentMapper> simpleWeapons = new Database().GetAllSimpleWeapons();
-    public readonly static List<EquipmentMapper> simpleMeleeWeapons = new Database().GetAllSimpleMeleeWeapons();
+    public readonly static List<BaseEntity> meleeWeapons = new Database().GetAllMeleeWeapons();
+    public readonly static List<BaseEntity> rangedWeapons = new Database().GetAllRangedWeapons();
+    public readonly static List<BaseEntity> simpleWeapons = new Database().GetAllSimpleWeapons();
+    public readonly static List<BaseEntity> simpleMeleeWeapons = new Database().GetAllSimpleMeleeWeapons();
+    public readonly static List<BaseEntity> simpleRangedWeapons = new Database().GetAllSimpleRangedWeapons();
+    public readonly static List<BaseEntity> martialWeapons = new Database().GetAllMartialWeapons();
+    public readonly static List<BaseEntity> martialMeleeWeapons = new Database().GetAllMartialMeleeWeapons();
+    public readonly static List<BaseEntity> martialRangedWeapons = new Database().GetAllMartialRangedWeapons();
+    public readonly static List<BaseEntity> lightArmors = new Database().GetAllLightArmors();
+    public readonly static List<BaseEntity> mediumArmors = new Database().GetAllMediumArmors();
+    public readonly static List<BaseEntity> heavyArmors = new Database().GetAllHeavyArmors();
+    public readonly static List<BaseEntity> shields = new Database().GetAllShields();
     public readonly static List<EquipmentMapper> equipments = new Database().GetAllEquipments();
-    public readonly static List<string> weaponNames = weapons.Select(item => item.Name).ToList();
 
-    public static List<EquipmentMapper> GetEquipmentsList(string index)
+    public static List<BaseEntity> GetEquipmentsList(string index)
     {
         return index switch
         {
-            "martial_weapons" => martialWeapons,
-            "martial_melee_weapons" => martialMeleeWeapons,
+            "melee-weapons" => meleeWeapons,
+            "ranged-weapons" => rangedWeapons,
             "simple_weapons" => simpleWeapons,
             "simple_melee_weapons" => simpleMeleeWeapons,
-            _ => new List<EquipmentMapper>()
+            "simple-ranged-weapons" => simpleRangedWeapons,
+            "martial_weapons" => martialWeapons,
+            "martial_melee_weapons" => martialMeleeWeapons,
+            "martial-ranged-weapons" => martialRangedWeapons,
+            "light-armor" => lightArmors,
+            "medium-armor" => mediumArmors,
+            "heavy-armor" => heavyArmors,
+            "shields" => shields,
+            _ => new List<BaseEntity>()
         };
     }
 }
