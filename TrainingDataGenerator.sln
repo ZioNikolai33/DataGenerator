@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "TrainingDataGenerator", "TrainingDataGenerator.pyproj", "{31DE24B6-D2ED-4F32-8376-93226555BF5F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainDataGen", "TrainDataGen\TrainDataGen.csproj", "{163A9296-8DD0-4A10-9421-162D79D9A591}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainingDataGenerator", "TrainingDataGenerator.csproj", "{163A9296-8DD0-4A10-9421-162D79D9A591}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,8 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{31DE24B6-D2ED-4F32-8376-93226555BF5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31DE24B6-D2ED-4F32-8376-93226555BF5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{163A9296-8DD0-4A10-9421-162D79D9A591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{163A9296-8DD0-4A10-9421-162D79D9A591}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{163A9296-8DD0-4A10-9421-162D79D9A591}.Release|Any CPU.ActiveCfg = Release|Any CPU

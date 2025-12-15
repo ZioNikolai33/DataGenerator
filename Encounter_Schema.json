@@ -529,11 +529,6 @@
                     ],
                     "isRequired": true
                 },
-                "rounds": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "default": 1
-                },
                 "notes": {
                     "type": "string",
                     "isRequired": true
