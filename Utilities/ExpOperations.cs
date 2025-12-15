@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using TrainDataGen.Entities;
+using TrainingDataGenerator.Entities;
 
-namespace TrainDataGen.Utilities;
+namespace TrainingDataGenerator.Utilities;
 
 public static class ExpOperations
 {

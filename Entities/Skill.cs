@@ -1,7 +1,7 @@
-﻿using TrainDataGen.Entities.Enums;
-using TrainDataGen.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 public class Skill : BaseEntity
 {

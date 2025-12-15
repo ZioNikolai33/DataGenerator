@@ -1,9 +1,9 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using System;
-using TrainDataGen.Utilities;
-using static TrainDataGen.Entities.Mappers.FeatureMapper;
+using TrainingDataGenerator.Utilities;
+using static TrainingDataGenerator.Entities.Mappers.FeatureMapper;
 
-namespace TrainDataGen.Entities.Mappers;
+namespace TrainingDataGenerator.Entities.Mappers;
 
 [BsonIgnoreExtraElements]
 public class StartingEquipmentOptionMapper

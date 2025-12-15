@@ -2,9 +2,9 @@
 using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using TrainDataGen.Entities.Mappers;
+using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainDataGen.DataBase;
+namespace TrainingDataGenerator.DataBase;
 
 internal class Config
 {

@@ -1,8 +1,8 @@
 ﻿using MongoDB.Driver;
-using TrainDataGen.DataBase;
-using TrainDataGen.Entities.Mappers;
+using TrainingDataGenerator.DataBase;
+using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainDataGen.Utilities;
+namespace TrainingDataGenerator.Utilities;
 
 public static class Lists
 {

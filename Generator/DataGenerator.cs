@@ -1,33 +1,59 @@
 ﻿using System.Text.Json;
-using TrainDataGen.DataBase;
-using TrainDataGen.Entities;
-using TrainDataGen.Utilities;
+using TrainingDataGenerator.DataBase;
+using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Utilities;
 
-namespace TrainDataGen.Generator;
+namespace TrainingDataGenerator.Generator;
 
 public static class DataGenerator
 {
     public static void Generate(Database db, DateTime startDate)
     {
-        for (var i = 1; i <= JsonSerializer.Deserialize<Config>(File.ReadAllText("appsettings.json")).NumberOfEncountersToGenerate; i++)
+        try
         {
-            var bucket = GetRandomDifficulty();
-            var party = GetRandomParty(db);
-            var monstersList = DataManipulation.GetMonstersDifficultiesList(db);
-            var monsters = GetRandomMonsters(bucket, party.Select(x => x.Level).ToList(), monstersList);
-            var encounter = new Encounter(i, bucket, party, monsters);
-            var encounterWithOutcome = CalculateOutcome(encounter);
+            Logger.Instance.Information("Retrieving App Settings...");
+            var config = JsonSerializer.Deserialize<Config>(File.ReadAllText("appsettings.json"));
 
-            SaveEncounter(encounterWithOutcome, startDate);
-        }        
+            if (config == null)
+                throw new InvalidOperationException("Configuration file is missing or invalid.");
+
+            Logger.Instance.Information("App Settings successfully retrieved");
+
+            Logger.Instance.Information($"Start generating {config.NumberOfEncountersToGenerate} encounters");
+            for (var i = 1; i <= config.NumberOfEncountersToGenerate; i++)
+            {
+                Logger.Instance.Information($"Creating Encounter {i.ToString().PadLeft(8, '0')}...");
+                var bucket = GetRandomDifficulty();
+                var party = GetRandomParty(db);
+                var monstersList = DataManipulation.GetMonstersDifficultiesList(db);
+                var monsters = GetRandomMonsters(bucket, party.Select(x => x.Level).ToList(), monstersList);
+                var encounter = new Encounter(i, bucket, party, monsters);
+                var encounterWithOutcome = CalculateOutcome(encounter);
+
+                SaveEncounter(encounterWithOutcome, startDate);
+                Logger.Instance.Information($"Random difficulty selected: {encounterWithOutcome.Id}");
+            }
+            Logger.Instance.Information("Data generation completed.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            Logger.Instance.Error(ex, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     private static CRRatios GetRandomDifficulty()
     {
         var random = new Random();
         var values = Enum.GetValues(typeof(CRRatios));
-        
-        return (CRRatios)(values.GetValue(random.Next(values.Length)) ?? CRRatios.Normal);
+        var selected = (CRRatios)(values.GetValue(random.Next(values.Length)) ?? CRRatios.Normal);
+
+        Logger.Instance.Information($"Random difficulty selected: {selected}");
+
+        return selected;
     }
 
     private static List<Member> GetRandomParty(Database db)
@@ -35,14 +61,16 @@ public static class DataGenerator
         var random = new Random();
         var partyLevels = new List<byte>();
         var party = new List<Member>();
-        var numMembers = random.Next(1, 8); // Number of party members
-        var section = random.Next(1, 5); // Section of levels to randomize levels organically - 1: 1-5; 2: 6-10; 3: 11-15; 4: 16-20
+        var numMembers = random.Next(1, 8);
+        var section = random.Next(1, 5);
 
         for (var i = 0; i < numMembers; i++)
-            partyLevels.Add((byte)random.Next((5 * section) - 4, (5 * section) + 1)); // Generate random levels for each member, related to section
+            partyLevels.Add((byte)random.Next((5 * section) - 4, (5 * section) + 1));
 
         for (var i = 0; i < numMembers; i++)
             party.Add(new Member(i, partyLevels[i]));
+
+        Logger.Instance.Information($"Generated {numMembers} party members of {string.Join(", ", partyLevels)} level. Levels were in sector {section}");
 
         return party;
     }
@@ -55,6 +83,8 @@ public static class DataGenerator
         var randomMonsters = new List<MonsterDifficulty>();
         var numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters).Number;
         var targetExpBeforeMultiplier = 0;
+
+        Logger.Instance.Information($"Selecting monsters: ratio {ratio} - {randomNumMonsters} monsters - multiplier {numMultiplier}");
 
         switch(ratio)
         {
@@ -72,6 +102,8 @@ public static class DataGenerator
                 break;
         }
 
+        Logger.Instance.Information($"Target XP before multiplier: {targetExpBeforeMultiplier}");
+
         var monstersFiltered = monsters.Where(m => m.Xp <= targetExpBeforeMultiplier).ToList();
 
         do
@@ -81,14 +113,18 @@ public static class DataGenerator
                 .ToList();
         while (randomMonsters.Sum(m => m.Xp) > targetExpBeforeMultiplier && randomMonsters.Sum(m => m.Xp) > 0);
 
+        Logger.Instance.Information($"Selected monsters XP sum: {randomMonsters.Sum(m => m.Xp)}");
+
         List<Monster> monstersSelected = randomMonsters.Select(item => new Monster(EntitiesFinder.GetEntityByIndex(Lists.monsters, new Entities.Mappers.BaseEntity(item.Index, item.Name)))).ToList();
+        Logger.Instance.Information($"Selected monsters: {string.Join(", ", monstersSelected.Select(m => m.Name))}");
 
         return monstersSelected;
     }
 
     private static Encounter CalculateOutcome(Encounter encounter)
     {
-        // Algorithm to calculate outcome of encounter based on party and monsters stats
+        Logger.Instance.Information($"Calculating outcome for encounter {encounter.Id}");
+
         return encounter;
     }
 
@@ -99,11 +135,15 @@ public static class DataGenerator
         var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", $"Generator", $"output", $"Batch_{startDate:yyyyMMdd_HHmmss}");
 
         if (!Directory.Exists(batchFolderName))
+        {
             Directory.CreateDirectory(batchFolderName);
+            Logger.Instance.Information($"Created batch folder");
+        }
 
         var fileName = $"{encounter.Id}.json";
         var filePath = Path.Combine(batchFolderName, fileName);
 
         File.WriteAllText(filePath, encounterJson);
+        Logger.Instance.Information($"Encounter {encounter.Id} written to folder");
     }
 }

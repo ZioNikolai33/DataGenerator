@@ -1,8 +1,8 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using TrainDataGen.Entities.Mappers;
-using TrainDataGen.Utilities;
+using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Utilities;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 public class Monster : BaseEntity
 {

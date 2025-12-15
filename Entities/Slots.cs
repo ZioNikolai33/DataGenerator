@@ -1,6 +1,6 @@
-﻿using TrainDataGen.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainDataGen.Entities
+namespace TrainingDataGenerator.Entities
 {
     public class Slots
     {

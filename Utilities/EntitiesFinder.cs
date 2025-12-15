@@ -1,6 +1,6 @@
-﻿using TrainDataGen.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainDataGen.Utilities;
+namespace TrainingDataGenerator.Utilities;
 
 public static class EntitiesFinder
 {

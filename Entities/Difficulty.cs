@@ -1,4 +1,4 @@
-﻿namespace TrainDataGen.Entities;
+﻿namespace TrainingDataGenerator.Entities;
 
 public class Difficulty
 {

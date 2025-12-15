@@ -1,4 +1,4 @@
-﻿namespace TrainDataGen.Entities.Enums;
+﻿namespace TrainingDataGenerator.Entities.Enums;
 
 public enum Results
 {

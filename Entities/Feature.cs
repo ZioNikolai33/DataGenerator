@@ -1,8 +1,8 @@
-﻿using TrainDataGen.Entities.Enums;
-using TrainDataGen.Entities.Mappers;
-using static TrainDataGen.Entities.Mappers.FeatureMapper;
+﻿using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.Mappers;
+using static TrainingDataGenerator.Entities.Mappers.FeatureMapper;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 public class Feature : BaseEntity
 {

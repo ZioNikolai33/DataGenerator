@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using TrainDataGen.Entities.Enums;
+using TrainingDataGenerator.Entities.Enums;
 
-namespace TrainDataGen.Entities.Mappers;
+namespace TrainingDataGenerator.Entities.Mappers;
 
 [BsonIgnoreExtraElements]
 public class RaceMapper : BaseEntity

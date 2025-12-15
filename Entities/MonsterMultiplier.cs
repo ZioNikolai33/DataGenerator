@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 public class MonsterMultiplier
 {

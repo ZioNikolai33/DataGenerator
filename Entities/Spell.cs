@@ -1,8 +1,8 @@
-﻿using TrainDataGen.Entities.Enums;
-using TrainDataGen.Entities.Mappers;
-using TrainDataGen.Utilities;
+﻿using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Utilities;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 public class Spell: BaseEntity
 {

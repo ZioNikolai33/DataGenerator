@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 
-namespace TrainDataGen.Entities.Mappers;
+namespace TrainingDataGenerator.Entities.Mappers;
 
 [BsonIgnoreExtraElements]
 public class SubraceMapper : BaseEntity

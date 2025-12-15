@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
-using TrainDataGen.DataBase;
+using TrainingDataGenerator.DataBase;
 
-namespace TrainDataGen.Utilities;
+namespace TrainingDataGenerator.Utilities;
 
 public static class DataManipulation
 {

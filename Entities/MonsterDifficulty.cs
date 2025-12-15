@@ -1,4 +1,4 @@
-﻿namespace TrainDataGen.Utilities;
+﻿namespace TrainingDataGenerator.Utilities;
 public class MonsterDifficulty
 {
     public string Index { get; set; }

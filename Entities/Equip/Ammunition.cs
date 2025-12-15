@@ -1,6 +1,6 @@
-﻿using TrainDataGen.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainDataGen.Entities.Equip;
+namespace TrainingDataGenerator.Entities.Equip;
 
 public class Ammunition : Equipment
 {

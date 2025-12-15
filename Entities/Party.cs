@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using TrainDataGen.Entities.Enums;
-using TrainDataGen.Entities.Equip;
-using TrainDataGen.Entities.Mappers;
-using TrainDataGen.Utilities;
+﻿using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.Equip;
+using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Utilities;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 public class Member
 {
@@ -14,10 +13,10 @@ public class Member
     public byte HitDie { get; set; }
     public short Hp { get; set; }
     public byte ArmorClass { get; set; }
+    public BaseEntity Class { get; set; }
     public BaseEntity Race { get; set; }
     public BaseEntity? Subrace { get; set; }
-    public List<BaseEntity> Traits { get; set; }
-    public BaseEntity Class { get; set; }
+    public List<BaseEntity> Traits { get; set; }    
     public BaseEntity Subclass { get; set; }
     public Attribute Strength { get; set; }
     public Attribute Dexterity { get; set; }

@@ -1,6 +1,6 @@
-﻿using TrainDataGen.Entities.Enums;
+﻿using TrainingDataGenerator.Entities.Enums;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 public class Result
 {

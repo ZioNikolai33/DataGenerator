@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 
-namespace TrainDataGen.Entities;
+namespace TrainingDataGenerator.Entities;
 
 [BsonIgnoreExtraElements]
 public class Area
