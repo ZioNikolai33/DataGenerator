@@ -27,7 +27,10 @@ public class Member
     public sbyte Initiative { get; set; }
     public sbyte ProficiencyBonus { get; set; }
     public List<BaseEntity> Proficiencies { get; set; }
-    public List<Equipment> Equipments { get; set; }
+    public List<MeleeWeapon> MeleeWeapons { get; set; }
+    public List<RangedWeapon> RangedWeapons { get; set; }
+    public List<Armor> Armors { get; set; }
+    public List<Ammunition> Ammunitions { get; set; }
     public List<Feature> Features { get; set; }
     public Dictionary<string, object>? ClassSpecific { get; set; }
     public Dictionary<string, object>? SubclassSpecific { get; set; }
@@ -40,13 +43,11 @@ public class Member
     public List<Spell> Cantrips { get; set; }
     public List<Spell> Spells { get; set; }
 
-    public Member(int id, byte level)
+    public Member(int id, byte level, RaceMapper randomRace, ClassMapper randomClass)
     {
         var random = new Random();
-        var randomRace = Lists.races.OrderBy(_ => random.Next()).First();
         var randomRaceAbilityBonus = randomRace.GetRandomAbility();
         var randomSubrace = (randomRace.Subraces.Count > 0) ? EntitiesFinder.GetEntityByIndex(Lists.subraces, new BaseEntity(randomRace.Index, randomRace.Name), randomRace.Subraces.OrderBy(_ => random.Next()).FirstOrDefault()) : null;
-        var randomClass = Lists.classes.OrderBy(_ => random.Next()).First();
         var randomSubclass = EntitiesFinder.GetEntityByIndex(Lists.subclasses, new BaseEntity(randomClass.Index, randomClass.Name), randomClass.Subclasses.OrderBy(_ => random.Next()).First());
         var raceTraits = new List<TraitMapper>();
 
@@ -56,20 +57,16 @@ public class Member
 
         var allEquipmentsMapper = allEquipmentsBase.Select(item => EntitiesFinder.GetEntityByIndex(Lists.equipments, item.Equip)).Where(item => item != null).ToList();
         var allArmors = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "armor").Select(item => new Armor(item)).ToList();
-        var allMeleeWeapons = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "weapon" && item.WeaponRange == "Melee").Select(item => new MeleeWeapon(item)).ToList();
-        var allRangedWeapons = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "weapon" && item.WeaponRange == "Ranged").Select(item => new RangedWeapon(item)).ToList();
-        var allAmmunition = allEquipmentsMapper.Where(item => item.GearCategory?.Index == "ammunition").Select(item => new Ammunition(item)).ToList();
+        MeleeWeapons = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "weapon" && item.WeaponRange == "Melee").Select(item => new MeleeWeapon(item)).ToList();
+        RangedWeapons = allEquipmentsMapper.Where(item => item.EquipmentCategory.Index == "weapon" && item.WeaponRange == "Ranged").Select(item => new RangedWeapon(item)).ToList();
+        Ammunitions = allEquipmentsMapper.Where(item => item.GearCategory?.Index == "ammunition").Select(item => new Ammunition(item)).ToList();
 
-        allAmmunition.ForEach(item => item.IsEquipped = true);
+        Ammunitions.ForEach(item => item.IsEquipped = true);
 
         Features = new List<Feature>();
         FeatureSpecifics = new List<BaseEntity>();
-        Equipments = new List<Equipment>();        
-        Equipments.AddRange(allMeleeWeapons);
-        Equipments.AddRange(allRangedWeapons);
-        Equipments.AddRange(allAmmunition);
 
-        EquipRandomWeapons(allMeleeWeapons, allRangedWeapons);
+        EquipRandomWeapons(allArmors);
 
         if (randomRace.Traits.Count > 0)
         {
@@ -95,16 +92,21 @@ public class Member
                 Traits = raceTraits.Select(item => new BaseEntity(item.Index, item.Name)).ToList();
         }        
 
-        var levels = Lists.levels.Where(item => item.Class.Index == randomClass.Index || (item.Subclass == null || (item.Class.Index == randomClass.Index && item.Subclass.Index == Subclass?.Index)) && item.Level <= level).ToList();
-        var features = Lists.features.Where(item => item.Class.Index == randomClass.Index || (item.Subclass == null || (item.Class.Index == randomClass.Index && item.Subclass.Index == Subclass?.Index)) && item.Level <= level && item.Parent == null).ToList();
+        var levels = Lists.levels.Where(item => item.Level <= level && ((item.Class.Index == randomClass.Index && item.Subclass == null) || (item.Class.Index == randomClass.Index && item.Subclass.Index == Subclass?.Index))).ToList();
+        var features = Lists.features.Where(item => item.Level <= level && item.Parent == null && ((item.Class.Index == randomClass.Index && item.Subclass == null) || (item.Class.Index == randomClass.Index && item.Subclass.Index == Subclass?.Index))).ToList();
 
         // First assume random value for attributes based on Standard Array rule
         var attributes = AssumeAttributes(randomClass, random);
 
-        if (allArmors.Count > 0 && allArmors.Any(item => item.StrengthMinimum <= attributes[0]))
-            allArmors.Where(item => item.StrengthMinimum <= attributes[0]).OrderBy(_ => random.Next()).First().IsEquipped = true;
+        if (allArmors.Where(item => item.Index != "shield").ToList().Count > 0 && allArmors.Any(item => item.StrengthMinimum <= attributes[0]))
+        {
+            var armorsEquippable = allArmors.Where(item => item.StrengthMinimum <= attributes[0] && item.Index != "shield").ToList();
 
-        Equipments.AddRange(allArmors);
+            if (armorsEquippable.Count > 0)
+                armorsEquippable.OrderBy(_ => random.Next()).First().IsEquipped = true;
+        }
+
+        Armors = allArmors;
 
         // Base Information
         Id = id;
@@ -156,7 +158,10 @@ public class Member
                     if (Dexterity.Modifier > equippedArmor.ArmorClass.MaxDexBonus)
                         ac = equippedArmor.ArmorClass.Base + equippedArmor.ArmorClass.MaxDexBonus.Value;
             }
-        }            
+        }
+
+        if (armors.Any(item => item.Index == "shield" && item.IsEquipped))
+            ac += 2;
 
         return (byte)ac;
     }
@@ -397,36 +402,27 @@ public class Member
         }
     }
 
-    private void EquipRandomWeapons(List<MeleeWeapon> meleeWeapons, List<RangedWeapon> rangedWeapons)
+    private void EquipRandomWeapons(List<Armor> allArmors)
     {
         var random = new Random();
 
-        if (meleeWeapons.Count > 0)
+        if (MeleeWeapons.Count > 0)
         {
-            var meleeWeapon = meleeWeapons.OrderBy(_ => random.Next()).First();
-            Equipments.Where(item => item.Index == meleeWeapon.Index).ToList().ForEach(item => item.IsEquipped = true);
+            var meleeWeapon = MeleeWeapons.OrderBy(_ => random.Next()).First();
+            meleeWeapon.IsEquipped = true;
 
             if (meleeWeapon.Properties.Contains(new BaseEntity("light", "light")))
-            {
-                var lightWeapon = meleeWeapons.Where(item => item.Properties.Contains(new BaseEntity("light", "light")) && item.Index != meleeWeapon.Index).OrderBy(_ => random.Next()).First();
-                Equipments.Where(item => item.Index == lightWeapon.Index).ToList().ForEach(item => item.IsEquipped = true);
-            }
+                MeleeWeapons.Where(item => item.Properties.Contains(new BaseEntity("light", "light")) && item.Index != meleeWeapon.Index).OrderBy(_ => random.Next()).First().IsEquipped = true;
             else if (meleeWeapon.Properties.Contains(new BaseEntity("two-handed", "Two-Handed")))
-                if (Equipments.Any(item => item.Index == "shield"))
-                    Equipments.Where(item => item.Index == "shield").ToList().ForEach(item => item.IsEquipped = false);
-            else
-                if (Equipments.Any(item => item.Index == "shield"))
-                    Equipments.Where(item => item.Index == "shield").ToList().ForEach(item => item.IsEquipped = true);
+                if (allArmors.Any(item => item.Index == "shield"))
+                    allArmors.Where(item => item.Index == "shield").First().IsEquipped = false;
+            else if (allArmors.Any(item => item.Index == "shield"))
+                allArmors.Where(item => item.Index == "shield").First().IsEquipped = true;
         }
 
-        if (rangedWeapons.Count > 0)
-        {
-            var rangedWeapon = rangedWeapons.OrderBy(_ => random.Next()).First();
-            Equipments.Where(item => item.Index == rangedWeapon.Index).ToList().ForEach(item => item.IsEquipped = true);
-        }
+        if (RangedWeapons.Count > 0)
+            RangedWeapons.OrderBy(_ => random.Next()).First().IsEquipped = true;
     }
-
-    private List<Equipment> GetEquippedItems() => Equipments.Where(item => item.IsEquipped).ToList();
 
     private short CalculateRandomHp(ClassMapper classMapper)
     {
@@ -448,18 +444,21 @@ public class Member
 
     private void AddProfToSavings(ClassMapper cl)
     {
-        if (cl.SavingThrows.Select(item => item.Index).Contains("str"))
-            Strength.SetProficiency(true, ProficiencyBonus);
-        if (cl.SavingThrows.Select(item => item.Index).Contains("dex"))
-            Dexterity.SetProficiency(true, ProficiencyBonus);
-        if (cl.SavingThrows.Select(item => item.Index).Contains("con"))
-            Constitution.SetProficiency(true, ProficiencyBonus);
-        if (cl.SavingThrows.Select(item => item.Index).Contains("int"))
-            Intelligence.SetProficiency(true, ProficiencyBonus);
-        if (cl.SavingThrows.Select(item => item.Index).Contains("wis"))
-            Wisdom.SetProficiency(true, ProficiencyBonus);
-        if (cl.SavingThrows.Select(item => item.Index).Contains("cha"))
-            Charisma.SetProficiency(true, ProficiencyBonus);
+        foreach (var item in cl.SavingThrows)
+        {
+            if (item.Index == "str")
+                Strength.SetProficiency(true, ProficiencyBonus);
+            if (item.Index == "dex")
+                Dexterity.SetProficiency(true, ProficiencyBonus);
+            if (item.Index == "con")
+                Constitution.SetProficiency(true, ProficiencyBonus);
+            if (item.Index == "int")
+                Intelligence.SetProficiency(true, ProficiencyBonus);
+            if (item.Index == "wis")
+                Wisdom.SetProficiency(true, ProficiencyBonus);
+            if (item.Index == "cha")
+                Charisma.SetProficiency(true, ProficiencyBonus);
+        }
     }
 
     private void AddProfToSkills()
@@ -508,7 +507,8 @@ public class Member
         str += $"Proficiencies: {string.Join(", ", Proficiencies.Select(p => p.Name))}\n";
         str += Traits != null ? $"Traits: {string.Join(", ", Traits.Select(t => t.Name))}\n": "Traits: None\n";
         str += $"Features: {string.Join(", ", Features.Select(f => f.Name))}\n";
-        str += $"Equipments: {string.Join(", ", Equipments.Select(e => $"{e.Name.Replace("-", " ")}"))}\n";
+        str += $"Weapons: {string.Join(", ", MeleeWeapons.Where(w => w.IsEquipped).Select(w => w.Name))} (Melee), {string.Join(", ", RangedWeapons.Where(w => w.IsEquipped).Select(w => w.Name))} (Ranged)\n";
+        str += $"Armors: {string.Join(", ", Armors.Where(a => a.IsEquipped).Select(a => a.Name))}\n";
         if (Vulnerabilities.Count > 0)
             str += $"Vulnerabilities: {string.Join(", ", Vulnerabilities)}\n";
         if (Resistances.Count > 0)

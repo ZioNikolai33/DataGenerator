@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Text.Json;
 using TrainingDataGenerator.Entities;
 
 namespace TrainingDataGenerator.Utilities;
@@ -16,10 +12,12 @@ public static class ExpOperations
     {
         var totalExpPoints = new Difficulty
         {
+            Cakewalk = 0,
             Easy = 0,
             Medium = 0,
             Hard = 0,
-            Deadly = 0
+            Deadly = 0,
+            Impossible = 0
         };
 
         foreach (var level in partyLevels)
@@ -27,15 +25,15 @@ public static class ExpOperations
             var levelExps = ExpPointsList.FirstOrDefault(entry => entry.Level == level);
             if (levelExps != null)
             {
+                totalExpPoints.Cakewalk += levelExps.Cakewalk;
                 totalExpPoints.Easy += levelExps.Easy;
                 totalExpPoints.Medium += levelExps.Medium;
                 totalExpPoints.Hard += levelExps.Hard;
                 totalExpPoints.Deadly += levelExps.Deadly;
+                totalExpPoints.Impossible += levelExps.Impossible;
             }
             else
-            {
                 throw new ArgumentException($"Level {level} not found in expPointsList.");
-            }
         }
 
         return totalExpPoints;

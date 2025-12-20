@@ -158,8 +158,8 @@ public class Monster : BaseEntity
         public string Name { get; set; }
         public string Desc { get; set; }
         public int? AttackBonus { get; set; }
-        public Dc Dc { get; set; }
-        public List<Damage> Damage { get; set; }
+        public Dc? Dc { get; set; }
+        public List<Damage>? Damage { get; set; }
 
         public LegendaryAction(MonsterMapper.LegendaryAction action)
         {
@@ -167,7 +167,7 @@ public class Monster : BaseEntity
             Desc = action.Desc;
             AttackBonus = action.AttackBonus;
             Dc = new Dc(action.Dc);
-            Damage = action.Damage.Select(item => new Damage(item)).ToList();
+            Damage = (action.Damage != null) ? action.Damage.Select(item => new Damage(item)).ToList() : null;
         }
     }
 

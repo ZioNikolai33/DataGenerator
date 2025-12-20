@@ -11,10 +11,12 @@ public sealed class Encounter
     {
         var difficultyLetter = difficulty switch
         {
+            CRRatios.Cakewalk => "C",
             CRRatios.Easy => "E",
             CRRatios.Normal => "N",
             CRRatios.Hard => "H",
-            CRRatios.Deadly => "D"
+            CRRatios.Deadly => "D",
+            CRRatios.Impossible => "I"
         };
 
         var indexPadded = index.ToString().PadLeft(8, '0');

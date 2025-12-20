@@ -1,5 +1,4 @@
-﻿using MongoDB.Driver;
-using TrainingDataGenerator.DataBase;
+﻿using TrainingDataGenerator.DataBase;
 
 namespace TrainingDataGenerator.Utilities;
 

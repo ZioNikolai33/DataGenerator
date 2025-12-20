@@ -1,142 +1,182 @@
 [
   {
     "level": 1,
+    "cakewalk": 0,
     "easy": 25,
     "medium": 50,
     "hard": 75,
-    "deadly": 100
+    "deadly": 100,
+    "impossible": 125
   },
   {
     "level": 2,
+    "cakewalk": 0,
     "easy": 50,
     "medium": 100,
     "hard": 150,
-    "deadly": 200
+    "deadly": 200,
+    "impossible": 250
   },
   {
     "level": 3,
+    "cakewalk": 0,
     "easy": 75,
     "medium": 150,
     "hard": 225,
-    "deadly": 400
+    "deadly": 400,
+    "impossible": 500
   },
   {
     "level": 4,
+    "cakewalk": 0,
     "easy": 125,
     "medium": 250,
     "hard": 375,
-    "deadly": 500
+    "deadly": 500,
+    "impossible": 625
   },
   {
     "level": 5,
+    "cakewalk": 0,
     "easy": 250,
     "medium": 500,
     "hard": 750,
-    "deadly": 1100
+    "deadly": 1100,
+    "impossible": 1375
   },
   {
     "level": 6,
+    "cakewalk": 0,
     "easy": 300,
     "medium": 600,
     "hard": 900,
-    "deadly": 1400
+    "deadly": 1400,
+    "impossible": 1750
   },
   {
     "level": 7,
+    "cakewalk": 0,
     "easy": 350,
     "medium": 750,
     "hard": 1100,
-    "deadly": 1700
+    "deadly": 1700,
+    "impossible": 2125
   },
   {
     "level": 8,
+    "cakewalk": 0,
     "easy": 450,
     "medium": 900,
     "hard": 1400,
-    "deadly": 2100
+    "deadly": 2100,
+    "impossible": 2625
   },
   {
     "level": 9,
+    "cakewalk": 0,
     "easy": 550,
     "medium": 1100,
     "hard": 1600,
-    "deadly": 2400
+    "deadly": 2400,
+    "impossible": 3000
   },
   {
     "level": 10,
+    "cakewalk": 0,
     "easy": 600,
     "medium": 1200,
     "hard": 1900,
-    "deadly": 2800
+    "deadly": 2800,
+    "impossible": 3500
   },
   {
     "level": 11,
+    "cakewalk": 0,
     "easy": 800,
     "medium": 1600,
     "hard": 2400,
-    "deadly": 3600
+    "deadly": 3600,
+    "impossible": 4500
   },
   {
     "level": 12,
+    "cakewalk": 0,
     "easy": 1000,
     "medium": 2000,
     "hard": 3000,
-    "deadly": 4500
+    "deadly": 4500,
+    "impossible": 5700
   },
   {
     "level": 13,
+    "cakewalk": 0,
     "easy": 1100,
     "medium": 2200,
     "hard": 3400,
-    "deadly": 5100
+    "deadly": 5100,
+    "impossible": 6375
   },
   {
     "level": 14,
+    "cakewalk": 0,
     "easy": 1250,
     "medium": 2500,
     "hard": 3800,
-    "deadly": 5700
+    "deadly": 5700,
+    "impossible": 7125
   },
   {
     "level": 15,
+    "cakewalk": 0,
     "easy": 1400,
     "medium": 2800,
     "hard": 4300,
-    "deadly": 6400
+    "deadly": 6400,
+    "impossible": 8000
   },
   {
     "level": 16,
+    "cakewalk": 0,
     "easy": 1600,
     "medium": 3200,
     "hard": 4800,
-    "deadly": 7200
+    "deadly": 7200,
+    "impossible": 9000
   },
   {
     "level": 17,
+    "cakewalk": 0,
     "easy": 2000,
     "medium": 3900,
     "hard": 5900,
-    "deadly": 8800
+    "deadly": 8800,
+    "impossible": 11000
   },
   {
     "level": 18,
+    "cakewalk": 0,
     "easy": 2100,
     "medium": 4200,
     "hard": 6300,
-    "deadly": 9500
+    "deadly": 9500,
+    "impossible": 12000
   },
   {
     "level": 19,
+    "cakewalk": 0,
     "easy": 2400,
     "medium": 4900,
     "hard": 7300,
-    "deadly": 10900
+    "deadly": 10900,
+    "impossible": 13750
   },
   {
     "level": 20,
+    "cakewalk": 0,
     "easy": 2800,
     "medium": 5700,
     "hard": 8500,
-    "deadly": 12700
+    "deadly": 12700,
+    "impossible": 15900
   }
 ]

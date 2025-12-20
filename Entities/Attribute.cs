@@ -18,8 +18,12 @@ public class Attribute
     public void AddValue(byte value)
     {
         Value += value;
-        Modifier = (sbyte)((Value - 10) / 2);
-        Save = (sbyte)((Value - 10) / 2);
+
+        if (Value % 2 == 0)
+        {
+            Modifier++;
+            Save++;
+        }        
     }
 
     public void SetProficiency(bool isProficient, sbyte proficiencyBonus)

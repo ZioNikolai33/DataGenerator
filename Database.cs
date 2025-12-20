@@ -10,6 +10,7 @@ internal class Config
 {
     [JsonPropertyName("database")]
     public DatabaseConfig Database { get; set; } = new DatabaseConfig();
+    [JsonPropertyName("numberOfCycles")]
     public int NumberOfEncountersToGenerate { get; set; } = 10;
 }
 

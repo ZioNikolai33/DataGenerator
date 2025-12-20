@@ -11,7 +11,7 @@ public static class Logger
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.File(
-                "Generator/logs/app.log",
+                "../../../Generator/logs/app.log",
                 rollingInterval: RollingInterval.Day,
                 fileSizeLimitBytes: 100 * 1024 * 1024,
                 rollOnFileSizeLimit: true)
