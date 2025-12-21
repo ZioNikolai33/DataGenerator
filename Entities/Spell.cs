@@ -19,8 +19,9 @@ public class Spell: BaseEntity
     public DifficultyClass? Dc { get; set; }
     public SpellDamage? Damage { get; set; }
     public string? AttackType { get; set; }
+    public string? Uses { get; set; }
 
-    public Spell(SpellMapper spell): base(spell.Index, spell.Name)
+    public Spell(SpellMapper spell, string? uses = "") : base(spell.Index, spell.Name)
     {
         Index = spell.Index;
         Name = spell.Name;
@@ -37,6 +38,7 @@ public class Spell: BaseEntity
         Dc = spell.Dc;
         Damage = spell.Damage != null ? new SpellDamage(spell.Damage) : null;
         AttackType = spell.AttackType;
+        Uses = uses;
     }
 }
 

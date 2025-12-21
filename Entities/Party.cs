@@ -1,4 +1,5 @@
-﻿using TrainingDataGenerator.Entities.Enums;
+﻿using System;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Utilities;
@@ -15,6 +16,8 @@ public class Member
     public byte ArmorClass { get; set; }
     public string Class { get; set; }
     public string Race { get; set; }
+    public Size Size { get; set; }
+    public short Speed { get; set; }
     public string? Subrace { get; set; }
     public List<string> Traits { get; set; }    
     public string Subclass { get; set; }
@@ -65,6 +68,7 @@ public class Member
 
         Ammunitions.ForEach(item => item.IsEquipped = true);
 
+        Traits = new List<string>();
         Features = new List<Feature>();
         FeatureSpecifics = new List<string>();
 
@@ -117,6 +121,8 @@ public class Member
         HitDie = (byte)randomClass.Hp;
         ProficiencyBonus = (sbyte)(2 + ((Level - 1) / 4));
         Race = randomRace.Index;
+        Speed = (short)randomRace.Speed;
+        Size = randomRace.Size;
         Subrace = randomSubrace != null ? randomSubrace.Index : null;
         Class = randomClass.Index;
         Subclass = randomSubclass.Index;
@@ -130,13 +136,27 @@ public class Member
         Vulnerabilities = new List<string>();
         Resistances = new List<string>();
         Immunities = new List<string>();
+        Cantrips = new List<Spell>();
+        Spells = new List<Spell>();
+
+        if (Features.Select(item => item.Index).ToList().Contains("fast-movement"))
+            Speed += 10;
 
         SetProficiencies(randomClass, randomRace, raceTraits);
-        Proficiencies?.ToHashSet().ToList(); // Remove Duplicates
         CreateSkills(); // Create Skills with basic Modifiers
         AddProfToSavings(randomClass); // Add Proficiency to Saving Throws
         AddProfToSkills(); // Add Proficiency to Skills based on Proficiencies list
+
+        if (Traits.Count > 0)
+            SetSpellsFromTraits(); // Set Spells from Traits (like High Elf Cantrip)
+
+        if (Features.Count > 0)
+            SetSpellsFromFeatures(); // Set Spells from Features (like Infernal Legacy)
+
         LevelAdvancements(levels, features); // Manage Level Advancements and related Features, Spells, ClassSpecific and SubclassSpecific
+
+        if (Traits.Count > 0)
+            SetDamageResistances(); // Set Damage Vulnerabilities, Resistances and Immunities
 
         ManageFeatureSpecific(); // Manage Feature Specifics (like Expertise)
 
@@ -214,17 +234,17 @@ public class Member
                             break;
                     }
 
-                    Spells = Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && IsSpellKnown(item.Level, spellcasting))
-                    .OrderBy(_ => new Random().Next())
-                    .Take(spellcasting.SpellsKnown ?? 0)
-                    .Select(item => new Spell(item))
-                    .ToList();
+                    Spells.AddRange(Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && IsSpellKnown(item.Level, spellcasting) && (Spells == null || !Spells.Any(s => s.Index == item.Index)))
+                        .OrderBy(_ => new Random().Next())
+                        .Take(spellcasting.SpellsKnown ?? 0)
+                        .Select(item => new Spell(item))
+                        .ToList());
 
-                    Cantrips = Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && item.Level == 0)
+                    Cantrips.AddRange(Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && item.Level == 0 && (Cantrips == null || !Cantrips.Any(s => s.Index == item.Index)))
                         .OrderBy(_ => new Random().Next())
                         .Take(spellcasting.CantripsKnown ?? 0)
                         .Select(item => new Spell(item))
-                        .ToList();
+                        .ToList());
                 }
 
                 if (currentLevels.Any(item => item.ClassSpecific != null))
@@ -268,6 +288,23 @@ public class Member
         // Starting Proficiencies (Race & Class & Race Traits)
         Proficiencies = randomRace.StartingProficiences.Select(item => item.Index).ToList();
         Proficiencies.AddRange(randomClass.Proficiencies.Select(item => item.Index).ToList());
+        
+        if (Traits.Count > 0)
+        {
+            if (Traits.Contains("keen-senses"))
+                Proficiencies.Add("skill-perception");
+
+            if (Traits.Contains("elf-weapon-training"))
+                Proficiencies.AddRange(new List<string>() { "shortsword", "longsword", "shortbow", "longbow" });
+
+            if (Traits.Contains("dwarven-combat-training"))
+                Proficiencies.AddRange(new List<string>() { "battleaxe", "handaxe", "light-hammer", "warhammer" });
+
+            if (Traits.Contains("menacing"))
+                Proficiencies.Add("skill-intimidation");
+        }
+
+        Proficiencies.ToHashSet().ToList(); // Remove Duplicates
 
         if (raceTraits.Count > 0)
             foreach (var item in raceTraits)
@@ -285,6 +322,90 @@ public class Member
             foreach (var item in raceTraits)
                 if (item.ProficiencyChoice != null)
                     Proficiencies.AddRange(item.ProficiencyChoice.GetRandomChoice(Proficiencies));
+    }
+
+    private void SetSpellsFromTraits()
+    {
+        if (Traits.Contains("high-elf-cantrip"))
+        {
+            var cantripOptions = Lists.spells.Where(item => item.Level == 0 && item.Classes.Any(x => x.Index == "wizard")).ToList();
+            var cantripChosen = cantripOptions.OrderBy(_ => new Random().Next()).First();
+
+            Cantrips.Add(new Spell(cantripChosen));
+        }
+
+        if (Traits.Contains("infernal-legacy"))
+        {
+            var cantripOptions = Lists.spells.Where(item => item.Index == "thaumaturgy").ToList();
+            var spellOptions = Lists.spells.Where(item => (Level >= 3 && item.Index == "hellish-rebuke") || (Level >= 5 && item.Index == "darkness")).ToList();
+
+            foreach (var cantrip in cantripOptions)
+            {
+                var cantripChosen = cantripOptions.Where(item => item.Index == cantrip.Index).FirstOrDefault();
+
+                if (cantripChosen != null)
+                    Cantrips.Add(new Spell(cantripChosen));
+            }
+
+            foreach (var spell in spellOptions)
+            {
+                var spellChosen = spellOptions.Where(item => item.Index == spell.Index).FirstOrDefault();
+
+                if (spellChosen != null)
+                    Spells.Add(new Spell(spellChosen, "1 per Long Rest"));
+            }
+        }
+    }
+
+    private void SetSpellsFromFeatures()
+    {
+        if (Features.Select(item => item.Index).ToList().Contains("additional-magical-secrets"))
+        {
+            var spellsOptions = Lists.spells.Where(item => item.Level <= 3).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+            
+            foreach (var spell in spellsChosen)
+                if (spell.Level == 0)
+                    Cantrips.Add(spell);
+                else
+                    Spells.Add(spell);
+        }
+
+        if (Features.Select(item => item.Index).ToList().Contains("magical-secrets-1"))
+        {
+            var spellsOptions = Lists.spells.Where(item => item.Level <= 5).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+
+            foreach (var spell in spellsChosen)
+                if (spell.Level == 0)
+                    Cantrips.Add(spell);
+                else
+                    Spells.Add(spell);
+        }
+
+        if (Features.Select(item => item.Index).ToList().Contains("magical-secrets-2"))
+        {
+            var spellsOptions = Lists.spells.Where(item => item.Level <= 7).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+
+            foreach (var spell in spellsChosen)
+                if (spell.Level == 0)
+                    Cantrips.Add(spell);
+                else
+                    Spells.Add(spell);
+        }
+
+        if (Features.Select(item => item.Index).ToList().Contains("magical-secrets-3"))
+        {
+            var spellsOptions = Lists.spells.Where(item => item.Level <= 9).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+
+            foreach (var spell in spellsChosen)
+                if (spell.Level == 0)
+                    Cantrips.Add(spell);
+                else
+                    Spells.Add(spell);
+        }
     }
 
     private void ManageFeatureSpecific()
@@ -325,6 +446,9 @@ public class Member
 
         Features.AddRange(newFeatures);
     }
+
+    private List<string> GetAllSkills() =>
+        Skills.Select(item => item.Index).ToList();
 
     private bool IsSpellKnown(byte level, LevelMapper.SpellcastingInfo spellcasting)
     {
@@ -436,6 +560,9 @@ public class Member
         for (int i = 2; i <= Level; i++)
             hp += random.Next(1, classMapper.Hp + 1) + Constitution.Modifier;
 
+        if (Traits.Contains("dwarven-toughness"))
+            hp += Level;
+
         return (short)hp;
     }
 
@@ -467,9 +594,60 @@ public class Member
 
     private void AddProfToSkills()
     {
+        if (Traits.Contains("skill-versatility"))
+            Proficiencies.AddRange(GetAllSkills().OrderBy(_ => new Random().Next()).Take(2).ToList());
+
         foreach (var skill in Skills)
             if (Proficiencies.Select(item => item).ToList().Contains(skill.Index))
                 skill.SetProficiency(true, ProficiencyBonus);
+
+        if (Features.Select(item => item.Index).ToList().Contains("jack-of-all-trades"))
+            foreach (var skill in Skills.Where(skill => !skill.IsProficient).ToList())
+                skill.Modifier += (sbyte)Math.Floor(ProficiencyBonus / 2.0);
+    }
+
+    private void SetDamageResistances()
+    {
+        if (Race == "dragonborn")
+            switch(Traits.Where(item => item.Contains("dragon-ancestry")).FirstOrDefault())
+                {
+                case "dragon-ancestry-black":
+                    Resistances.Add("acid");
+                    break;
+                case "dragon-ancestry-blue":
+                    Resistances.Add("lightning");
+                    break;
+                case "dragon-ancestry-brass":
+                    Resistances.Add("fire");
+                    break;
+                case "dragon-ancestry-bronze":
+                    Resistances.Add("lightning");
+                    break;
+                case "dragon-ancestry-copper":
+                    Resistances.Add("acid");
+                    break;
+                case "dragon-ancestry-gold":
+                    Resistances.Add("fire");
+                    break;
+                case "dragon-ancestry-green":
+                    Resistances.Add("poison");
+                    break;
+                case "dragon-ancestry-red":
+                    Resistances.Add("fire");
+                    break;
+                case "dragon-ancestry-silver":
+                    Resistances.Add("cold");
+                    break;
+                case "dragon-ancestry-white":
+                    Resistances.Add("cold");
+                    break;
+            }
+
+        if (Traits.Contains("dwarven-resilience"))
+            Resistances.Add("poison");
+
+        if (Traits.Contains("hellish-resistance"))
+            Resistances.Add("fire");
     }
 
     private void CheckFeaturesPrerequisities(List<FeatureMapper> features)
