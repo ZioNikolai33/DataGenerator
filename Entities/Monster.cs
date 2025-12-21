@@ -148,7 +148,7 @@ public class Monster : BaseEntity
                 Type = item.Type
             }).ToList() ?? new List<MultiAction>();
             AttackBonus = action.AttackBonus != null ? (byte?)action.AttackBonus : null;
-            Damage = (action.Damage != null) ? action.Damage.Select(item => new Damage(item)).ToList() : null;
+            Damage = action.Damage?.Select(item => new Damage(item)).ToList() ?? new List<Damage>();
             Dc = new Dc(action.Dc);
         }
     }
@@ -209,7 +209,7 @@ public class Monster : BaseEntity
     public class Damage
     {
         public string Type { get; set; }
-        public BaseEntity DamageType { get; set; }
+        public string DamageType { get; set; }
         public string DamageDice { get; set; }
         public Dc? Dc { get; set; }
         public byte? Choose { get; set; }
@@ -220,7 +220,7 @@ public class Monster : BaseEntity
             if (damage != null)
             {
                 Type = damage.Type;
-                DamageType = damage.DamageType;
+                DamageType = damage.DamageType?.Index ?? string.Empty;
                 DamageDice = damage.DamageDice;
                 Dc = new Dc(damage.Dc);
                 Choose = damage.Choose != null ? (byte?)damage.Choose : null;
@@ -241,7 +241,7 @@ public class Monster : BaseEntity
             {
                 Option_Type = item.Option_Type,
                 Notes = item.Notes,
-                Damage_Type = item.Damage_Type,
+                Damage_Type = item.Damage_Type.Index,
                 Damage_Dice = item.Damage_Dice
             }).ToList();
         }
@@ -252,7 +252,7 @@ public class Monster : BaseEntity
         public string Desc { get; set; }
         public string Option_Type { get; set; }
         public string Notes { get; set; }
-        public BaseEntity Damage_Type { get; set; }
+        public string Damage_Type { get; set; }
         public string Damage_Dice { get; set; }
     }
 

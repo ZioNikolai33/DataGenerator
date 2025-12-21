@@ -32,27 +32,27 @@ public class ProficiencyChoiceMapper
         public BaseEntity? Item { get; set; }
     }
 
-    public List<BaseEntity> GetRandomChoice(List<BaseEntity>? proficiencies)
+    public List<string> GetRandomChoice(List<string>? proficiencies)
     {
         var random = new Random();
-        var selectedProficiencies = new List<BaseEntity>();
+        var selectedProficiencies = new List<string>();
 
         if (this.From.Options.All(item => item.Item != null))            
             if (proficiencies == null)
                 selectedProficiencies = this.From.Options
                     .OrderBy(_ => random.Next())
                     .Take(Choose)
-                    .Select(option => new BaseEntity(option.Item.Index, option.Item.Name))
+                    .Select(option => option.Item.Index)
                     .ToList();
             else {
                 var availableOptions = this.From.Options
-                    .Where(option => !proficiencies.Contains(new BaseEntity(option.Item.Index, option.Item.Name)))
+                    .Where(option => !proficiencies.Contains(option.Item.Index))
                     .ToList();
 
                 selectedProficiencies = availableOptions
                     .OrderBy(_ => random.Next())
                     .Take(Choose)
-                    .Select(option => new BaseEntity(option.Item.Index, option.Item.Name))
+                    .Select(option => option.Item.Index)
                     .ToList();
             }
 

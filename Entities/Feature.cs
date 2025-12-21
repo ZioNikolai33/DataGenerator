@@ -8,9 +8,9 @@ public class Feature : BaseEntity
 {
     public List<string> Desc { get; set; }
     public FeatureSpecificTypes? FeatureType { get; set; }
-    public List<BaseEntity>? FeatureSpec { get; set; }
+    public List<string>? FeatureSpec { get; set; }
 
-    public Feature(FeatureMapper feature, List<BaseEntity> proficiencies) : base(feature.Index, feature.Name)
+    public Feature(FeatureMapper feature, List<string> proficiencies) : base(feature.Index, feature.Name)
     {
         Desc = feature.Desc;
         FeatureSpec = feature.FeatureSpec?.GetRandomChoice(proficiencies);

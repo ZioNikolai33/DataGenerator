@@ -34,7 +34,7 @@ public class FeatureMapper: BaseEntity
         [BsonElement("invocations")]
         public List<BaseEntity>? Invocations { get; set; }
 
-        public List<BaseEntity> GetRandomChoice(List<BaseEntity> proficiencies)
+        public List<string> GetRandomChoice(List<string> proficiencies)
         {
             if (ExpertiseOptions != null)
                 return ExpertiseOptions.GetRandomChoice(proficiencies);
@@ -45,7 +45,7 @@ public class FeatureMapper: BaseEntity
             else if (SubfeatureOptions != null)
                 return SubfeatureOptions.GetRandomChoice();
 
-            return new List<BaseEntity>();
+            return new List<string>();
         }
     }
 
@@ -59,12 +59,12 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSet From { get; set; }
 
-        public List<BaseEntity> GetRandomChoice(List<BaseEntity> proficiencies)
+        public List<string> GetRandomChoice(List<string> proficiencies)
         {
             var random = new Random();
-            var selectedOptions = new List<BaseEntity>();
+            var selectedOptions = new List<string>();
             var selectableOptions = From.Options
-                .Where(o => proficiencies.Any(p => o.Item != null && o.Item.Item != null && p.Index == o.Item.Item.Index))
+                .Where(o => proficiencies.Any(p => o.Item != null && o.Item.Item != null && p == o.Item.Item.Index))
                 .ToList();
 
             var selected = selectableOptions
@@ -80,7 +80,7 @@ public class FeatureMapper: BaseEntity
                         if (subItem.Choice != null)
                             selectedOptions.AddRange(subItem.Choice.GetRandomChoice());
                         else if (subItem.Item != null)
-                            selectedOptions.Add(new BaseEntity(subItem.Item.Item.Index, subItem.Item.Item.Name));
+                            selectedOptions.Add(subItem.Item.Item.Index);
 
             return selectedOptions;
         }
@@ -98,14 +98,13 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSetString From { get; set; }
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<string> GetRandomChoice()
         {
             var random = new Random();
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
-                .Select(item => new BaseEntity(item, item.Substring(0, 1).ToUpper() + item.Substring(1)))
                 .ToList();
 
             return selectedOptions;
@@ -124,14 +123,13 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSetString From { get; set; }
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<string> GetRandomChoice()
         {
             var random = new Random();
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
-                .Select(item => new BaseEntity(item, item.Substring(0, 1).ToUpper() + item.Substring(1)))
                 .ToList();
 
             return selectedOptions;
@@ -148,14 +146,14 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSetReference From { get; set; }
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<string> GetRandomChoice()
         {
             var random = new Random();
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
-                .Select(item => new BaseEntity(item.Item.Index, item.Item.Name))
+                .Select(item => item.Item.Index)
                 .ToList();
             return selectedOptions;
         }
@@ -211,14 +209,14 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSet From { get; set; }
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<string> GetRandomChoice()
         {
             var random = new Random();
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
-                .Select(item => new BaseEntity(item.Item.Item.Index, item.Item.Item.Name))
+                .Select(item => item.Item.Item.Index)
                 .ToList();
 
             return selectedOptions;

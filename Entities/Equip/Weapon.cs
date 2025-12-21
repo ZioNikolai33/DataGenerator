@@ -11,7 +11,7 @@ abstract public class Weapon : Equipment
 
     public class DamageData
     {
-        public BaseEntity DamageType { get; set; }
+        public string DamageType { get; set; }
         public string DamageDice { get; set; }
     }
 
@@ -28,8 +28,8 @@ abstract public class Weapon : Equipment
         CategoryRange = equipment.CategoryRange ?? "Standard";
         Damage = new DamageData
         {
-            DamageType = equipment.Damage?.DamageType,
-            DamageDice = equipment.Damage?.DamageDice
+            DamageType = equipment.Damage?.DamageType.Index ?? "None",
+            DamageDice = equipment.Damage?.DamageDice ?? "0d0"
         };
     }
 }

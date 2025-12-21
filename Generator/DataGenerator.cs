@@ -68,6 +68,7 @@ public static class DataGenerator
 
         for (var i = 0; i < numMembers; i++)
             party.Add(new Member(i, partyLevels[i], Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
+            //party.Add(new Member(i, 3, Lists.races.Where(item => item.Index == "dragonborn").First(), Lists.classes.Where(item => item.Index == "warlock").First()));
 
         Logger.Instance.Information($"Generated {numMembers} party members of level {string.Join(", ", partyLevels)}. Levels were in sector {section}");
 

@@ -12,7 +12,7 @@ namespace TrainingDataGenerator.Entities
         public byte Sixth { get; set; }
         public byte Seventh { get; set; }
         public byte Eighth { get; set; }
-        public byte Nineth { get; set; }
+        public byte Ninth { get; set; }
 
         public Slots(LevelMapper.SpellcastingInfo spellcastingInfo)
         {
@@ -24,7 +24,7 @@ namespace TrainingDataGenerator.Entities
             Sixth = spellcastingInfo.SpellSlotsLevel6 ?? 0;
             Seventh = spellcastingInfo.SpellSlotsLevel7 ?? 0;
             Eighth = spellcastingInfo.SpellSlotsLevel8 ?? 0;
-            Nineth = spellcastingInfo.SpellSlotsLevel9 ?? 0;
+            Ninth = spellcastingInfo.SpellSlotsLevel9 ?? 0;
         }
 
         public Slots(MonsterMapper.SpellSlots spellcasting)
@@ -37,7 +37,7 @@ namespace TrainingDataGenerator.Entities
             Sixth = spellcasting._5 ?? 0;
             Seventh = spellcasting._6 ?? 0;
             Eighth = spellcasting._7 ?? 0;
-            Nineth = spellcasting._8 ?? 0;
+            Ninth = spellcasting._8 ?? 0;
         }
 
         public bool HasEnoughSlots(int level, int numberToCheck)
@@ -52,7 +52,7 @@ namespace TrainingDataGenerator.Entities
                 6 => Sixth >= numberToCheck,
                 7 => Seventh >= numberToCheck,
                 8 => Eighth >= numberToCheck,
-                9 => Nineth >= numberToCheck,
+                9 => Ninth >= numberToCheck,
                 _ => false
             };
         }
@@ -68,7 +68,7 @@ namespace TrainingDataGenerator.Entities
             if (Sixth > 0) str += $" 6th Level: {Sixth}\n";
             if (Seventh > 0) str += $" 7th Level: {Seventh}\n";
             if (Eighth > 0) str += $" 8th Level: {Eighth}\n";
-            if (Nineth > 0) str += $" 9th Level: {Nineth}\n";
+            if (Ninth > 0) str += $" 9th Level: {Ninth}\n";
             return str;
         }
     }

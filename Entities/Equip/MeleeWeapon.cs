@@ -10,6 +10,6 @@ public class MeleeWeapon : Weapon
     public MeleeWeapon(EquipmentMapper equipment) : base(equipment)
     {
         ThrowRange = equipment.ThrowRange != null ? new RangeData { Normal = equipment.ThrowRange.Normal } : null;
-        TwoHandedDamage = equipment.TwoHandedDamage != null ? new DamageData { DamageDice = equipment.TwoHandedDamage.DamageDice, DamageType = equipment.TwoHandedDamage.DamageType } : null;
+        TwoHandedDamage = equipment.TwoHandedDamage != null ? new DamageData { DamageDice = equipment.TwoHandedDamage.DamageDice, DamageType = equipment.TwoHandedDamage.DamageType.Index } : null;
     }
 }

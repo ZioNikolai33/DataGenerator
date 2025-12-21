@@ -56,8 +56,8 @@ public class RaceMapper : BaseEntity
 
     public RaceMapper(string index, string name) : base(index, name) { }
 
-    public List<BaseEntity> GetRandomProficiency(List<BaseEntity>? proficiencies) => 
-        (StartingProficiencesOptions != null) ? StartingProficiencesOptions.GetRandomChoice(proficiencies) : new List<BaseEntity>();
+    public List<string> GetRandomProficiency(List<string>? proficiencies) => 
+        (StartingProficiencesOptions != null) ? StartingProficiencesOptions.GetRandomChoice(proficiencies) : new List<string>();
 
     public List<AbilityBonus> GetRandomAbility()
     {
