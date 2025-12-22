@@ -483,13 +483,6 @@ public class Member
         }
     }
 
-    private void SetFighterFeatures()
-    {
-        if (Features.Select(item => item.Index).ToList().Contains("fighting-style-defense"))
-            if (Armors.Any(item => item.IsEquipped && item.Index != "shield"))
-                ArmorClass += 1;
-    }
-
     private void SetOathSpells()
     {
         if (Features.Select(item => item.Index).ToList().Contains("oath-spells") && Level >= 3)

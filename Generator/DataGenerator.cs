@@ -197,6 +197,15 @@ public static class DataGenerator
     {
         Logger.Instance.Information($"Calculating outcome for encounter {encounter.Id}");
 
+        var random = new Random();
+        var randomFactorParty = random.Next(-10, 11); // -10% to +10%
+        var randomFactorMonsters = random.Next(-10, 11); // -10% to +10%
+
+        Logger.Instance.Information($"Random factor for Party: {randomFactorParty}% - Random factor for Monsters: {randomFactorMonsters}%");
+
+        //var baseStatsParty = encounter.PartyMembers.Sum(m => m.GetTotalBaseStats());
+        //var baseStatsMonsters = encounter.Monsters.Sum(m => m.GetTotalBaseStats());
+
         // General Idea: Base Stats + Offensive Power + Defensive Power + Healing Power + Random Factor (+-10%)
 
         return encounter;
