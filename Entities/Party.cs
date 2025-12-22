@@ -449,7 +449,16 @@ public class Member
         if (Features.Select(item => item.Index).ToList().Contains("unarmored-defense-monk"))
             ArmorClass = (byte)(10 + Dexterity.Modifier + Wisdom.Modifier);
 
+        if (Features.Select(item => item.Index).ToList().Contains("unarmored-movement-1") && Armors.All(item => !item.IsEquipped))
+            Speed += 10;
 
+        if (Features.Select(item => item.Index).ToList().Contains("diamond-soul"))
+        {
+            Strength.Save += ProficiencyBonus;
+            Constitution.Save += ProficiencyBonus;
+            Intelligence.Save += ProficiencyBonus;
+            Charisma.Save += ProficiencyBonus;
+        }
     }
 
     private void SetFighterFeatures()
@@ -1044,6 +1053,9 @@ public class Member
             Resistances.Add("fire");
 
         if (Class == "druid" && Features.Select(item => item.Index).ToList().Contains("natures-ward"))
+            Immunities.AddRange(new List<string>() { "poison", "disease" });
+
+        if (Class == "monk" && Features.Select(item => item.Index).ToList().Contains("purity-of-body"))
             Immunities.AddRange(new List<string>() { "poison", "disease" });
     }
 
