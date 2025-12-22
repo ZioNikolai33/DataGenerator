@@ -82,7 +82,7 @@ public static class DataGenerator
         var expThresholds = ExpOperations.CalculateDifficultiesExp(levels);
         var randomNumMonsters = random.Next(1, 16);
         var randomMonsters = new List<MonsterDifficulty>();
-        var numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters).Number;
+        var numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Number ?? 1;
         var targetExpBeforeMultiplier = 0;
         var floorTargetExpBeforeMultiplier = 0;
 
@@ -146,7 +146,7 @@ public static class DataGenerator
                 else
                     randomNumMonsters++;
 
-                numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters).Number;
+                numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Number ?? 1;
 
                 switch (ratio)
                 {

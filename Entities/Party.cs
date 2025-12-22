@@ -141,6 +141,9 @@ public class Member
 
         if (Features.Select(item => item.Index).ToList().Contains("fast-movement"))
             Speed += 10;
+        
+        if (Features.Count > 0)
+            SetFeatures();
 
         SetProficiencies(randomClass, randomRace, raceTraits);
         CreateSkills(); // Create Skills with basic Modifiers
@@ -164,6 +167,26 @@ public class Member
         Initiative = Dexterity.Modifier;
     }
 
+    private void SetFeatures()
+    {
+        if (Class == "barbarian")
+            if (Features.Select(item => item.Index).ToList().Contains("primal-champion"))
+                for (int i = 0; i < 2; i++) // Increase Strength and Constitution by 4. Avoid problem with AddValue method for Modifier & Saves
+                {
+                    Strength.AddValue(2);
+                    Constitution.AddValue(2);
+                }
+
+        if (Class == "cleric")
+            SetDomainSpells();
+
+        if (Class == "fighter")
+            SetFighterFeatures();
+
+        if (Class == "monk")
+            SetMonkFeatures();
+    }
+
     private byte CalculateArmorClass(List<Armor> armors)
     {
         var ac = 10 + Dexterity.Modifier;
@@ -183,8 +206,11 @@ public class Member
             }
         }
 
+        if (Features.Select(item => item.Index).ToList().Contains("barbarian-unarmored-defense") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
+            ac = 10 + Dexterity.Modifier + Constitution.Modifier;
+
         if (armors.Any(item => item.Index == "shield" && item.IsEquipped))
-            ac += 2;
+            ac += 2;        
 
         return (byte)ac;
     }
@@ -304,6 +330,10 @@ public class Member
                 Proficiencies.Add("skill-intimidation");
         }
 
+        if (Features.Count > 0)
+            if (Class == "cleric" && Subclass == "life" && Features.Select(item => item.Index).ToList().Contains("bonus-proficiency"))
+                Proficiencies.Add("heavy-armor");
+
         Proficiencies.ToHashSet().ToList(); // Remove Duplicates
 
         if (raceTraits.Count > 0)
@@ -405,6 +435,362 @@ public class Member
                     Cantrips.Add(spell);
                 else
                     Spells.Add(spell);
+        }
+
+        if (Features.Select(item => item.Index).ToList().Contains("bonus-cantrip") && Class == "druid")
+            Cantrips.Add(new Spell(Lists.spells.Where(item => item.Classes.Select(c => c.Index).Contains("druid") && item.Level == 0).OrderBy(_ => new Random().Next()).First()));
+
+        if (Class == "druid")
+            SetCircleSpells();
+    }
+
+    private void SetMonkFeatures()
+    {
+        if (Features.Select(item => item.Index).ToList().Contains("unarmored-defense-monk"))
+            ArmorClass = (byte)(10 + Dexterity.Modifier + Wisdom.Modifier);
+
+
+    }
+
+    private void SetFighterFeatures()
+    {
+        if (Features.Select(item => item.Index).ToList().Contains("fighting-style-defense"))
+            if (Armors.Any(item => item.IsEquipped && item.Index != "shield"))
+                ArmorClass += 1;
+    }
+
+    private void SetDomainSpells()
+    {
+        if (Features.Select(item => item.Index).ToList().Contains("domain-spells-1"))
+            switch (Subclass)
+            {
+                case "knowledge":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "command").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "identify").First()));
+                    break;
+                case "life":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "bless").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "cure-wounds").First()));
+                    break;
+                case "light":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "burning-hands").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "faerie-fire").First()));
+                    break;
+                case "nature":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "animal-friendship").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "entangle").First()));
+                    break;
+                case "tempest":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "fog-cloud").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "thunderwave").First()));
+                    break;
+                case "trickery":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "charm-person").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "disguise-self").First()));
+                    break;
+                case "war":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "divine-favor").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "shield-of-faith").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("domain-spells-2"))
+            switch (Subclass)
+            {
+                case "knowledge":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "augury").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "suggestion").First()));
+                    break;
+                case "life":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "lesser-restoration").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "spiritual-weapon").First()));
+                    break;
+                case "light":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "flaming-sphere").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "scorching-ray").First()));
+                    break;
+                case "nature":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "barkskin").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "spike-growth").First()));
+                    break;
+                case "tempest":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "gust-of-wind").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "shatter").First()));
+                    break;
+                case "trickery":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "mirror-image").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "pass-without-trace").First()));
+                    break;
+                case "war":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "magic-weapon").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "spiritual-weapon").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("domain-spells-3"))
+            switch (Subclass)
+            {
+                case "knowledge":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "nondetection").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "speak-with-dead").First()));
+                    break;
+                case "life":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "beacon-of-hope").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "revivify").First()));
+                    break;
+                case "light":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "daylight").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "fireball").First()));
+                    break;
+                case "nature":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "plant-growth").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "wind-wall").First()));
+                    break;
+                case "tempest":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "call-lightning").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "sleet-storm").First()));
+                    break;
+                case "trickery":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "blink").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "dispel-magic").First()));
+                    break;
+                case "war":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "crusaders-mantle").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "spirit-guardians").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("domain-spells-4"))
+            switch (Subclass)
+            {
+                case "knowledge":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "arcane-eye").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "confusion").First()));
+                    break;
+                case "life":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "death-ward").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "guardian-of-faith").First()));
+                    break;
+                case "light":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "guardian-of-faith").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "wall-of-fire").First()));
+                    break;
+                case "nature":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "dominate-beast").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "grasping-vine").First()));
+                    break;
+                case "tempest":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "control-water").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "ice-storm").First()));
+                    break;
+                case "trickery":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "dimension-door").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "polymorph").First()));
+                    break;
+                case "war":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "freedom-of-movement").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "stoneskin").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("domain-spells-5"))
+            switch (Subclass)
+            {
+                case "knowledge":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "legend-lore").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "scrying").First()));
+                    break;
+                case "life":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "mass-cure-wounds").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "raise-dead").First()));
+                    break;
+                case "light":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "flame-strike").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "scrying").First()));
+                    break;
+                case "nature":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "insect-plague").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "tree-stride").First()));
+                    break;
+                case "tempest":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "destructive-wave").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "insect-plague").First()));
+                    break;
+                case "trickery":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "dominate-person").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "modify-person").First()));
+                    break;
+                case "war":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "flame-strike").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "hold-monster").First()));
+                    break;
+                default:
+                    break;
+            }
+    }
+
+    private void SetCircleSpells()
+    {
+        // Circle of the Land Druid - Add circle spells by level
+        if (Features.Select(item => item.Index).Contains("circle-spells-1"))
+        {
+            switch (Subclass)
+            {
+                case "arctic":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "hold-person")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "spike-growth")));
+                    break;
+                case "coast":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "mirror-image")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "misty-step")));
+                    break;
+                case "desert":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "blur")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "silence")));
+                    break;
+                case "forest":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "barkskin")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "spider-climb")));
+                    break;
+                case "grassland":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "invisibility")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "pass-without-trace")));
+                    break;
+                case "mountain":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "spider-climb")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "spike-growth")));
+                    break;
+                case "swamp":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "darkness")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "melfs-acid-arrow")));
+                    break;
+                case "underdark":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "spider-climb")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "web")));
+                    break;
+            }
+        }
+        if (Features.Select(item => item.Index).Contains("circle-spells-2"))
+        {
+            switch (Subclass)
+            {
+                case "arctic":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "sleet-storm")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "slow")));
+                    break;
+                case "coast":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "water-breathing")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "water-walk")));
+                    break;
+                case "desert":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "create-food-and-water")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "protection-from-energy")));
+                    break;
+                case "forest":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "call-lightning")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "plant-growth")));
+                    break;
+                case "grassland":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "daylight")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "haste")));
+                    break;
+                case "mountain":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "lightning-bolt")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "meld-into-stone")));
+                    break;
+                case "swamp":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "water-walk")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "stinking-cloud")));
+                    break;
+                case "underdark":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "gaseous-form")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "stinking-cloud")));
+                    break;
+            }
+        }
+        if (Features.Select(item => item.Index).Contains("circle-spells-3"))
+        {
+            switch (Subclass)
+            {
+                case "arctic":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "freedom-of-movement")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "ice-storm")));
+                    break;
+                case "coast":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "control-water")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "freedom-of-movement")));
+                    break;
+                case "desert":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "blight")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "hallucinatory-terrain")));
+                    break;
+                case "forest":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "divination")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "freedom-of-movement")));
+                    break;
+                case "grassland":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "divination")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "freedom-of-movement")));
+                    break;
+                case "mountain":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "stone-shape")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "stoneskin")));
+                    break;
+                case "swamp":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "freedom-of-movement")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "locate-creature")));
+                    break;
+                case "underdark":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "greater-invisibility")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "stone-shape")));
+                    break;
+            }
+        }
+        if (Features.Select(item => item.Index).Contains("circle-spells-4"))
+        {
+            switch (Subclass)
+            {
+                case "arctic":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "commune-with-nature")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "cone-of-cold")));
+                    break;
+                case "coast":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "conjure-elemental")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "scrying")));
+                    break;
+                case "desert":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "insect-plague")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "wall-of-stone")));
+                    break;
+                case "forest":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "commune-with-nature")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "tree-stride")));
+                    break;
+                case "grassland":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "dream")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "insect-plague")));
+                    break;
+                case "mountain":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "passwall")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "wall-of-stone")));
+                    break;
+                case "swamp":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "insect-plague")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "scrying")));
+                    break;
+                case "underdark":
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "cloudkill")));
+                    Spells.Add(new Spell(Lists.spells.First(item => item.Index == "insect-plague")));
+                    break;
+            }
         }
     }
 
@@ -597,12 +983,20 @@ public class Member
         if (Traits.Contains("skill-versatility"))
             Proficiencies.AddRange(GetAllSkills().OrderBy(_ => new Random().Next()).Take(2).ToList());
 
+        if (Features.Count > 0)
+            if (Class == "bard" && Features.Select(item => item.Index).ToList().Contains("bonus-proficiencies"))
+                Proficiencies.AddRange(GetAllSkills().OrderBy(_ => new Random().Next()).Take(3).ToList());
+
         foreach (var skill in Skills)
             if (Proficiencies.Select(item => item).ToList().Contains(skill.Index))
                 skill.SetProficiency(true, ProficiencyBonus);
 
         if (Features.Select(item => item.Index).ToList().Contains("jack-of-all-trades"))
             foreach (var skill in Skills.Where(skill => !skill.IsProficient).ToList())
+                skill.Modifier += (sbyte)Math.Floor(ProficiencyBonus / 2.0);
+
+        if (Features.Select(item => item.Index).ToList().Contains("remarkable-athlete"))
+            foreach (var skill in Skills.Where(skill => !skill.IsProficient && new List<string>() { "skill-acrobatics", "skill-athletics", "skill-sleight-of-hand", "skill-stealth" }.Contains(skill.Index)).ToList())
                 skill.Modifier += (sbyte)Math.Floor(ProficiencyBonus / 2.0);
     }
 
@@ -648,6 +1042,9 @@ public class Member
 
         if (Traits.Contains("hellish-resistance"))
             Resistances.Add("fire");
+
+        if (Class == "druid" && Features.Select(item => item.Index).ToList().Contains("natures-ward"))
+            Immunities.AddRange(new List<string>() { "poison", "disease" });
     }
 
     private void CheckFeaturesPrerequisities(List<FeatureMapper> features)
@@ -705,5 +1102,4 @@ public class Member
         str += "\n------------------------------------------------------------------------------------------------------------------------\n";
         return str;
     }
-
 }
