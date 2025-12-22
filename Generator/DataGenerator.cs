@@ -197,6 +197,8 @@ public static class DataGenerator
     {
         Logger.Instance.Information($"Calculating outcome for encounter {encounter.Id}");
 
+        // General Idea: Base Stats + Offensive Power + Defensive Power + Healing Power + Random Factor (+-10%)
+
         return encounter;
     }
 

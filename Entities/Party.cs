@@ -177,11 +177,9 @@ public class Member
                     Constitution.AddValue(2);
                 }
 
-        if (Class == "cleric")
-            SetDomainSpells();
-
-        if (Class == "fighter")
-            SetFighterFeatures();
+        if (Features.Select(item => item.Index).ToList().Contains("fighting-style-defense") || Features.Select(item => item.Index).ToList().Contains("ranger-fighting-style-defense"))
+            if (Armors.Any(item => item.IsEquipped && item.Index != "shield"))
+                ArmorClass += 1;
 
         if (Class == "monk")
             SetMonkFeatures();
@@ -190,7 +188,7 @@ public class Member
     private byte CalculateArmorClass(List<Armor> armors)
     {
         var ac = 10 + Dexterity.Modifier;
-        var equippedArmor = armors.Where(item => item.IsEquipped).FirstOrDefault();
+        var equippedArmor = armors.Where(item => item.IsEquipped && item.Index != "shield").FirstOrDefault();
 
         if (equippedArmor != null)
         {
@@ -208,6 +206,9 @@ public class Member
 
         if (Features.Select(item => item.Index).ToList().Contains("barbarian-unarmored-defense") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
             ac = 10 + Dexterity.Modifier + Constitution.Modifier;
+
+        if (Features.Select(item => item.Index).ToList().Contains("draconic-resilience") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
+            ac = 13 + Dexterity.Modifier;
 
         if (armors.Any(item => item.Index == "shield" && item.IsEquipped))
             ac += 2;        
@@ -437,11 +438,32 @@ public class Member
                     Spells.Add(spell);
         }
 
+        if (Features.Select(item => item.Index).ToList().Contains("pact-of-the-tome"))
+            Cantrips.AddRange(Lists.spells.Where(item => item.Level == 0).OrderBy(_ => new Random().Next()).Take(3).Select(item => new Spell(item)).ToList());
+
+        if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-6th-level"))
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 6).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+
+        if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-7th-level"))
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 7).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+
+        if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-8th-level"))
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 8).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+
+        if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-9th-level"))
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 9).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+
         if (Features.Select(item => item.Index).ToList().Contains("bonus-cantrip") && Class == "druid")
             Cantrips.Add(new Spell(Lists.spells.Where(item => item.Classes.Select(c => c.Index).Contains("druid") && item.Level == 0).OrderBy(_ => new Random().Next()).First()));
 
         if (Class == "druid")
             SetCircleSpells();
+
+        if (Class == "paladin")
+            SetOathSpells();
+
+        if (Class == "cleric")
+            SetDomainSpells();
     }
 
     private void SetMonkFeatures()
@@ -466,6 +488,104 @@ public class Member
         if (Features.Select(item => item.Index).ToList().Contains("fighting-style-defense"))
             if (Armors.Any(item => item.IsEquipped && item.Index != "shield"))
                 ArmorClass += 1;
+    }
+
+    private void SetOathSpells()
+    {
+        if (Features.Select(item => item.Index).ToList().Contains("oath-spells") && Level >= 3)
+            switch (Subclass)
+            {
+                case "devotion":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "protection-from-good-and-evil").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "sanctuary").First()));
+                    break;
+                case "ancients":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "ensnaring-strike").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "speak-with-animals").First()));
+                    break;
+                case "vengeance":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "bane").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "hunters-mark").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("oath-spells") && Level >= 5)
+            switch (Subclass)
+            {
+                case "devotion":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "lesser-restoration").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "zone-of-truth").First()));
+                    break;
+                case "ancients":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "moonbeam").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "misty-step").First()));
+                    break;
+                case "vengeance":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "hold-person").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "misty-step").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("oath-spells") && Level >= 9)
+            switch (Subclass)
+            {
+                case "devotion":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "beacon-of-hope").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "dispel-magic").First()));
+                    break;
+                case "ancients":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "plant-growth").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "protection-from-energy").First()));
+                    break;
+                case "vengeance":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "haste").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "protection-from-energy").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("oath-spells") && Level >= 13)
+            switch (Subclass)
+            {
+                case "devotion":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "freedom-of-movement").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "guardian-of-faith").First()));
+                    break;
+                case "ancients":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "ice-storm").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "stoneskin").First()));
+                    break;
+                case "vengeance":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "banishment").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "dimension-door").First()));
+                    break;
+                default:
+                    break;
+            }
+
+        if (Features.Select(item => item.Index).ToList().Contains("oath-spells") && Level >= 17)
+            switch (Subclass)
+            {
+                case "devotion":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "commune").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "flame-strike").First()));
+                    break;
+                case "ancients":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "commune-with-nature").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "tree-stride").First()));
+                    break;
+                case "vengeance":
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "hold-monster").First()));
+                    Spells.Add(new Spell(Lists.spells.Where(item => item.Index == "scrying").First()));
+                    break;
+                default:
+                    break;
+            }
     }
 
     private void SetDomainSpells()
@@ -958,6 +1078,9 @@ public class Member
         if (Traits.Contains("dwarven-toughness"))
             hp += Level;
 
+        if (Features.Select(item => item.Index).Contains("draconic-resilience"))
+            hp += Level;
+
         return (short)hp;
     }
 
@@ -1057,6 +1180,14 @@ public class Member
 
         if (Class == "monk" && Features.Select(item => item.Index).ToList().Contains("purity-of-body"))
             Immunities.AddRange(new List<string>() { "poison", "disease" });
+
+        if (Class == "paladin" && Features.Select(item => item.Index).ToList().Contains("divine-health"))
+            Immunities.Add("disease");
+
+        if (Class == "warlock" && Subclass == "the-fiend" && Features.Select(item => item.Index).ToList().Contains("fiendish-resilience"))
+            Resistances.Add(new List<string>() { "bludgeoning", "slashing", "piercing", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "psychic", "radiant", "thunder" }.OrderBy(_ => new Random().Next()).First());
+    
+        
     }
 
     private void CheckFeaturesPrerequisities(List<FeatureMapper> features)
