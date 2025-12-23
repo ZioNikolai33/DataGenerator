@@ -12,12 +12,12 @@ public static class EntitiesFinder
             .First() ?? throw new Exception($"Subrace not found: {subrace.Index}");
     }
 
-    public static TraitMapper GetEntityByIndex(List<TraitMapper> traitMappers, BaseEntity race, BaseEntity trait)
+    public static TraitMapper GetEntityByIndex(List<TraitMapper> traitMappers, BaseEntity race, BaseEntity subrace, BaseEntity trait)
     {
         return traitMappers
-            .Where(sr => sr.Index == trait.Index && sr.Races.Select(item => item.Index).ToList().Contains(race.Index))
+            .Where(sr => sr.Index == trait.Index && (sr.Races.Select(item => item.Index).ToList().Contains(race.Index) || sr.Subraces.Select(item => item.Index).ToList().Contains(subrace.Index)))
             .Select(item => item)
-            .FirstOrDefault();
+            .FirstOrDefault() ?? throw new Exception($"Trait not found: {trait.Index}");
     }
 
     public static SpellMapper GetEntityByIndex(List<SpellMapper> spellMapper, BaseEntity spell)
@@ -41,7 +41,7 @@ public static class EntitiesFinder
         return equipmentMappers
             .Where(sr => sr.Index == equipment.Index)
             .Select(item => item)
-            .FirstOrDefault();
+            .FirstOrDefault() ?? throw new Exception($"Equipment not found: {equipment.Index}");
     }
 
     public static MonsterMapper GetEntityByIndex(List<MonsterMapper> monsterMappers, BaseEntity monster)
@@ -49,6 +49,6 @@ public static class EntitiesFinder
         return monsterMappers
             .Where(sr => sr.Index == monster.Index)
             .Select(item => item)
-            .FirstOrDefault();
+            .FirstOrDefault() ?? throw new Exception($"Monster not found: {monster.Index}");
     }
 }

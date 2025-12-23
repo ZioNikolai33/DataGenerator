@@ -6,7 +6,7 @@ namespace TrainingDataGenerator.Entities.Mappers;
 public class LevelMapper
 {
     [BsonElement("index")]
-    public string Index { get; set; }
+    public string Index { get; set; } = string.Empty;
     [BsonElement("level")]
     public byte Level { get; set; }
     [BsonElement("ability_score_bonuses")]
@@ -14,7 +14,7 @@ public class LevelMapper
     [BsonElement("prof_bonus")]
     public byte? ProfBonus { get; set; }
     [BsonElement("features")]
-    public List<BaseEntity> Features { get; set; }
+    public List<BaseEntity> Features { get; set; } = new List<BaseEntity>();
     [BsonElement("spellcasting")]
     public SpellcastingInfo? Spellcasting { get; set; }
     [BsonElement("class_specific")]
@@ -22,7 +22,7 @@ public class LevelMapper
     [BsonElement("subclass_specific")]
     public Dictionary<string, object>? SubclassSpecific { get; set; }
     [BsonElement("class")]
-    public BaseEntity Class { get; set; }
+    public BaseEntity Class { get; set; } = new BaseEntity();
     [BsonElement("subclass")]
     public BaseEntity? Subclass { get; set; }
 
@@ -51,5 +51,20 @@ public class LevelMapper
         public byte? SpellSlotsLevel8 { get; set; }
         [BsonElement("spell_slots_level_9")]
         public byte? SpellSlotsLevel9 { get; set; }
+
+        public SpellcastingInfo()
+        {
+            CantripsKnown = 0;
+            SpellsKnown = 0;
+            SpellSlotsLevel1 = 0;
+            SpellSlotsLevel2 = 0;
+            SpellSlotsLevel3 = 0;
+            SpellSlotsLevel4 = 0;
+            SpellSlotsLevel5 = 0;
+            SpellSlotsLevel6 = 0;
+            SpellSlotsLevel7 = 0;
+            SpellSlotsLevel8 = 0;
+            SpellSlotsLevel9 = 0;
+        }
     }
 }

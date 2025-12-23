@@ -35,17 +35,17 @@ public class TraitMapper : BaseEntity
     public class BreathWeapon
     {
         [BsonElement("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         [BsonElement("desc")]
-        public string Desc { get; set; }
+        public string Desc { get; set; } = string.Empty;
         [BsonElement("area_of_effect")]
-        public Area AreaEffect { get; set; }
+        public Area AreaEffect { get; set; } = new Area();
         [BsonElement("usage")]
-        public Usage Use { get; set; }
+        public Usage Use { get; set; } = new Usage();
         [BsonElement("dc")]
-        public DC Dc { get; set; }
+        public DC Dc { get; set; } = new DC();
         [BsonElement("damage")]
-        public List<Damage> Damage { get; set; }
+        public List<Damage> Damage { get; set; } = new List<Damage>();
     }
 
     [BsonIgnoreExtraElements]

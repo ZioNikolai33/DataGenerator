@@ -9,62 +9,62 @@ namespace TrainingDataGenerator.Entities.Mappers;
 public class StartingEquipmentOptionMapper
 {
     [BsonElement("desc")]
-    public string Desc { get; set; }
+    public string Desc { get; set; } = string.Empty;
     [BsonElement("choose")]
     public byte Choose { get; set; }
     [BsonElement("type")]
-    public string Type { get; set; }
+    public string Type { get; set; } = string.Empty;
     [BsonElement("from")]
-    public EquipmentFrom From { get; set; }
+    public EquipmentFrom From { get; set; } = new EquipmentFrom();
 
     [BsonIgnoreExtraElements]
     public class EquipmentFrom
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<EquipmentOption> Options { get; set; }
+        public List<EquipmentOption> Options { get; set; } = new List<EquipmentOption>();
         [BsonElement("equipment_category")]
-        public BaseEntity EquipmentCategory { get; set; } // For option_set_type == "equipment_category"
+        public BaseEntity EquipmentCategory { get; set; } = new BaseEntity(); // For option_set_type == "equipment_category"
     }
 
     [BsonIgnoreExtraElements]
     public class EquipmentOption
     {
         [BsonElement("option_type")]
-        public string OptionType { get; set; }
+        public string OptionType { get; set; } = string.Empty;
         [BsonElement("items")]
-        public List<EquipmentOption> Items { get; set; } // For "multiple"
+        public List<EquipmentOption> Items { get; set; } = new List<EquipmentOption>(); // For "multiple"
         [BsonElement("count")]
         public byte? Count { get; set; } // For "counted_reference"
         [BsonElement("of")]
-        public BaseEntity Of { get; set; } // For "counted_reference"
+        public BaseEntity Of { get; set; } = new BaseEntity(); // For "counted_reference"
         [BsonElement("choice")]
-        public EquipmentChoice Choice { get; set; } // For "choice"
+        public EquipmentChoice Choice { get; set; } = new EquipmentChoice(); // For "choice"
         [BsonElement("prerequisites")]
-        public List<Prerequisite> Prerequisites { get; set; } // For prerequisites
+        public List<Prerequisite> Prerequisites { get; set; } = new List<Prerequisite>(); // For prerequisites
     }
 
     [BsonIgnoreExtraElements]
     public class EquipmentChoice
     {
         [BsonElement("desc")]
-        public string Desc { get; set; }
+        public string Desc { get; set; } = string.Empty;
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public EquipmentFrom From { get; set; }
+        public EquipmentFrom From { get; set; } = new EquipmentFrom();
     }
 
     [BsonIgnoreExtraElements]
     public class Prerequisite
     {
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("proficiency")]
-        public BaseEntity Proficiency { get; set; }
+        public BaseEntity Proficiency { get; set; } = new BaseEntity();
     }
 
     public List<ClassMapper.Equipment> GetRandomEquipment()

@@ -11,8 +11,8 @@ abstract public class Weapon : Equipment
 
     public class DamageData
     {
-        public string DamageType { get; set; }
-        public string DamageDice { get; set; }
+        public string DamageType { get; set; } = string.Empty;
+        public string DamageDice { get; set; } = string.Empty;
     }
 
     public class RangeData

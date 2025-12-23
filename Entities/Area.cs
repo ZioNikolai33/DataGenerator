@@ -15,4 +15,10 @@ public class Area
         Type = type;
         Size = size;
     }
+
+    public Area()
+    {
+        Type = string.Empty;
+        Size = 0;
+    }
 }

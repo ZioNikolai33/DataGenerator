@@ -12,4 +12,10 @@ public class Result
         Outcome = outcome;
         Details = details;
     }
+
+    public Result()
+    {
+        Outcome = Results.Undecided;
+        Details = string.Empty;
+    }
 }

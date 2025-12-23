@@ -15,6 +15,13 @@ public class Attribute
         Save = (sbyte)((value - 10) / 2);
     }
 
+    public Attribute()
+    {
+        Value = 10;
+        Modifier = 0;
+        Save = 0;
+    }
+
     public void AddValue(byte value)
     {
         Value += value;

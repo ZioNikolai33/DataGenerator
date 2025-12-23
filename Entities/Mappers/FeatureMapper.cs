@@ -6,15 +6,15 @@ namespace TrainingDataGenerator.Entities.Mappers;
 public class FeatureMapper: BaseEntity
 {
     [BsonElement("class")]
-    public BaseEntity Class { get; set; }
+    public BaseEntity Class { get; set; } = new BaseEntity();
     [BsonElement("subclass")]
     public BaseEntity? Subclass { get; set; }
     [BsonElement("level")]
     public byte Level { get; set; }
     [BsonElement("prerequisites")]
-    public List<FeaturePrerequisite> Prerequisites { get; set; }
+    public List<FeaturePrerequisite> Prerequisites { get; set; } = new List<FeaturePrerequisite>();
     [BsonElement("desc")]
-    public List<string> Desc { get; set; }
+    public List<string> Desc { get; set; } = new List<string>();
     [BsonElement("feature_specific")]
     public FeatureSpecific? FeatureSpec { get; set; }
     [BsonElement("parent")]
@@ -55,9 +55,9 @@ public class FeatureMapper: BaseEntity
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public OptionSet From { get; set; }
+        public OptionSet From { get; set; } = new OptionSet();
 
         public List<string> GetRandomChoice(List<string> proficiencies)
         {
@@ -90,13 +90,13 @@ public class FeatureMapper: BaseEntity
     public class EnemyTypeOptions
     {
         [BsonElement("desc")]
-        public string Desc { get; set; }
+        public string Desc { get; set; } = string.Empty;
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public OptionSetString From { get; set; }
+        public OptionSetString From { get; set; } = new OptionSetString();
 
         public List<string> GetRandomChoice()
         {
@@ -115,13 +115,13 @@ public class FeatureMapper: BaseEntity
     public class TerrainTypeOptions
     {
         [BsonElement("desc")]
-        public string Desc { get; set; }
+        public string Desc { get; set; } = string.Empty;
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public OptionSetString From { get; set; }
+        public OptionSetString From { get; set; } = new OptionSetString();
 
         public List<string> GetRandomChoice()
         {
@@ -142,9 +142,9 @@ public class FeatureMapper: BaseEntity
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public OptionSetReference From { get; set; }
+        public OptionSetReference From { get; set; } = new OptionSetReference();
 
         public List<string> GetRandomChoice()
         {
@@ -163,34 +163,34 @@ public class FeatureMapper: BaseEntity
     public class OptionSet
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<Option> Options { get; set; }
+        public List<Option> Options { get; set; } = new List<Option>();
     }
 
     [BsonIgnoreExtraElements]
     public class OptionSetString
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<string> Options { get; set; }
+        public List<string> Options { get; set; } = new List<string>();
     }
 
     [BsonIgnoreExtraElements]
     public class OptionSetReference
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<OptionReference> Options { get; set; }
+        public List<OptionReference> Options { get; set; } = new List<OptionReference>();
     }
 
     [BsonIgnoreExtraElements]
     public class Option
     {
         [BsonElement("option_type")]
-        public string OptionType { get; set; }
+        public string OptionType { get; set; } = string.Empty;
         [BsonElement("choice")]
         public Choice? Choice { get; set; }
         [BsonElement("items")]
@@ -205,9 +205,9 @@ public class FeatureMapper: BaseEntity
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public OptionSet From { get; set; }
+        public OptionSet From { get; set; } = new OptionSet();
 
         public List<string> GetRandomChoice()
         {
@@ -216,7 +216,9 @@ public class FeatureMapper: BaseEntity
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
-                .Select(item => item.Item.Item.Index)
+                .Select(item => item.Item?.Item.Index)
+                .Where(index => index != null)
+                .Select(index => index!)
                 .ToList();
 
             return selectedOptions;
@@ -227,16 +229,16 @@ public class FeatureMapper: BaseEntity
     public class OptionReference
     {
         [BsonElement("option_type")]
-        public string OptionType { get; set; }
+        public string OptionType { get; set; } = string.Empty;
         [BsonElement("item")]
-        public BaseEntity Item { get; set; }
+        public BaseEntity Item { get; set; } = new BaseEntity();
     }
 
     [BsonIgnoreExtraElements]
     public class FeaturePrerequisite
     {
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("level")]
         public byte? Level { get; set; }
         [BsonElement("feature")]

@@ -5,7 +5,7 @@ public sealed class Encounter
     public string Id { get; set; }
     public List<Member> PartyMembers { get; set; }
     public List<Monster> Monsters { get; set; }
-    public Result Outcome { get; set; }
+    public Result Outcome { get; set; } = new Result();
 
     public Encounter(int index, CRRatios difficulty, List<Member> partyMembers, List<Monster> monsters)
     {
@@ -16,7 +16,8 @@ public sealed class Encounter
             CRRatios.Normal => "N",
             CRRatios.Hard => "H",
             CRRatios.Deadly => "D",
-            CRRatios.Impossible => "I"
+            CRRatios.Impossible => "I",
+            _ => throw new NotImplementedException()
         };
 
         var indexPadded = index.ToString().PadLeft(8, '0');
@@ -24,6 +25,5 @@ public sealed class Encounter
         Id = $"E{indexPadded}-{difficultyLetter.ToString().ToUpper()}"; // Encounter ID format: E00000001-N
         PartyMembers = partyMembers;
         Monsters = monsters;
-        Outcome = null;
     }
 }

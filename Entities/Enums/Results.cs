@@ -3,5 +3,6 @@
 public enum Results
 {
     Victory,
-    Defeat
+    Defeat,
+    Undecided
 }

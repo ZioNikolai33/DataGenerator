@@ -38,7 +38,7 @@ public static class DataGenerator
         {
             Logger.Instance.Error(ex, ex.Message);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -68,7 +68,7 @@ public static class DataGenerator
 
         for (var i = 0; i < numMembers; i++)
             party.Add(new Member(i, partyLevels[i], Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
-            //party.Add(new Member(i, 3, Lists.races.Where(item => item.Index == "dragonborn").First(), Lists.classes.Where(item => item.Index == "warlock").First()));
+            //party.Add(new Member(i, 20, Lists.races.Where(item => item.Index == "half-elf").First(), Lists.classes.Where(item => item.Index == "paladin").First()));
 
         Logger.Instance.Information($"Generated {numMembers} party members of level {string.Join(", ", partyLevels)}. Levels were in sector {section}");
 
@@ -82,18 +82,13 @@ public static class DataGenerator
         var expThresholds = ExpOperations.CalculateDifficultiesExp(levels);
         var randomNumMonsters = random.Next(1, 16);
         var randomMonsters = new List<MonsterDifficulty>();
-        var numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Number ?? 1;
+        var numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Multiplier ?? 1;
         var targetExpBeforeMultiplier = 0;
         var floorTargetExpBeforeMultiplier = 0;
+        var monstersFiltered = new List<MonsterDifficulty>();
 
         Logger.Instance.Information($"EXP Thresholds calculated for party levels {string.Join(", ", levels)}: Cakewalk {expThresholds.Cakewalk}, Easy {expThresholds.Easy}, Medium {expThresholds.Medium}, Hard {expThresholds.Hard}, Deadly {expThresholds.Deadly}, Impossible {expThresholds.Impossible}");
         Logger.Instance.Information($"Selecting monsters: ratio {ratio} - {randomNumMonsters} monsters - multiplier {numMultiplier}");
-
-        if (numMultiplier == 1 && ratio >= CRRatios.Deadly)
-        {
-            numMultiplier++;
-            Logger.Instance.Information($"New multiplier {numMultiplier}");
-        }
 
         switch (ratio)
         {
@@ -126,7 +121,57 @@ public static class DataGenerator
         Logger.Instance.Information($"Floor Target XP before multiplier: {floorTargetExpBeforeMultiplier}");
         Logger.Instance.Information($"Target XP before multiplier: {targetExpBeforeMultiplier}");
 
-        var monstersFiltered = (targetExpBeforeMultiplier == -1) ? monsters : monsters.Where(m => m.Xp <= targetExpBeforeMultiplier).ToList();
+        do
+        {
+            monstersFiltered = (targetExpBeforeMultiplier == -1) ? monsters : monsters.Where(m => m.Xp <= targetExpBeforeMultiplier).ToList();
+
+            Logger.Instance.Information($"Found {monstersFiltered.Count} monsters matching criteria.");
+
+            if (monstersFiltered.Count == 0)
+            {
+                if (randomNumMonsters == 15)
+                {
+                    Logger.Instance.Warning("Maximum number of monsters reached but no suitable monsters found. Resetting selection.");
+                    randomNumMonsters = 1;
+                }
+
+                randomNumMonsters++;
+                numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Multiplier == randomNumMonsters)?.Multiplier ?? 1;
+                Logger.Instance.Warning($"No suitable monsters found. Increasing number of monsters to {randomNumMonsters} and multiplier to {numMultiplier}");
+
+                switch (ratio)
+                {
+                    case CRRatios.Cakewalk:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                        floorTargetExpBeforeMultiplier = 0;
+                        break;
+                    case CRRatios.Easy:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                        break;
+                    case CRRatios.Normal:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                        break;
+                    case CRRatios.Hard:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                        break;
+                    case CRRatios.Deadly:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                        break;
+                    case CRRatios.Impossible:
+                        targetExpBeforeMultiplier = -1; // No upper limit
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                        break;
+                }
+
+                Logger.Instance.Information($"New Floor Target XP before multiplier: {floorTargetExpBeforeMultiplier}");
+                Logger.Instance.Information($"New Target XP before multiplier: {targetExpBeforeMultiplier}");
+            }
+        }            
+        while (monstersFiltered.Count == 0);
 
         do
         {
@@ -176,6 +221,7 @@ public static class DataGenerator
                         break;
                 }
 
+                Logger.Instance.Warning("Maximum number of monsters reached but no suitable monsters found. Resetting selection.");
                 Logger.Instance.Information($"New Floor Target XP before multiplier: {floorTargetExpBeforeMultiplier}");
                 Logger.Instance.Information($"New Target XP before multiplier: {targetExpBeforeMultiplier}");
 
@@ -213,7 +259,7 @@ public static class DataGenerator
 
     private static void SaveEncounter(Encounter encounter, DateTime startDate)
     {
-        var encounterJson = JsonSerializer.Serialize(encounter, new JsonSerializerOptions { WriteIndented = true });
+        var encounterJson = JsonSerializer.Serialize(encounter, new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
         var baseFolder = Directory.GetCurrentDirectory();
         var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", $"Generator", $"output", $"Batch_{startDate:yyyyMMdd_HHmmss}");
 

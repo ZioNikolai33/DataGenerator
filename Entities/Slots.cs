@@ -40,6 +40,19 @@ namespace TrainingDataGenerator.Entities
             Ninth = spellcasting._8 ?? 0;
         }
 
+        public Slots()
+        {
+            First = 0;
+            Second = 0;
+            Third = 0;
+            Fourth = 0;
+            Fifth = 0;
+            Sixth = 0;
+            Seventh = 0;
+            Eighth = 0;
+            Ninth = 0;
+        }
+
         public bool HasEnoughSlots(int level, int numberToCheck)
         {
             return level switch

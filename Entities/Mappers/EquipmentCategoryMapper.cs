@@ -6,7 +6,7 @@ namespace TrainingDataGenerator.Entities.Mappers;
 public class EquipmentCategoryMapper: BaseEntity
 {
     [BsonElement("equipment")]
-    public List<BaseEntity> Equipment { get; set; }
+    public List<BaseEntity> Equipment { get; set; } = new List<BaseEntity>();
 
     public EquipmentCategoryMapper(string index, string name) : base(index, name) { }
 }

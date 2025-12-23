@@ -1,13 +1,15 @@
 ﻿using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Mappers;
-using static TrainingDataGenerator.Entities.Mappers.FeatureMapper;
+using System.Text.Json.Serialization;
 
 namespace TrainingDataGenerator.Entities;
 
 public class Feature : BaseEntity
 {
     public List<string> Desc { get; set; }
+    [JsonIgnore]
     public FeatureSpecificTypes? FeatureType { get; set; }
+    [JsonIgnore]
     public List<string>? FeatureSpec { get; set; }
 
     public Feature(FeatureMapper feature, List<string> proficiencies) : base(feature.Index, feature.Name)

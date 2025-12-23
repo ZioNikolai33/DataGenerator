@@ -1,5 +1,4 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace TrainingDataGenerator.Entities.Mappers;
@@ -17,5 +16,11 @@ public class BaseEntity
     {
         Index = index;
         Name = name;
+    }
+
+    public BaseEntity()
+    {
+        Index = string.Empty;
+        Name = string.Empty;
     }
 }

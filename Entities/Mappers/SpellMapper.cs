@@ -6,17 +6,17 @@ namespace TrainingDataGenerator.Entities.Mappers;
 public class SpellMapper: BaseEntity
 {
     [BsonElement("desc")]
-    public List<string> Desc { get; set; }
+    public List<string> Desc { get; set; } = new List<string>();
     [BsonElement("higher_level")]
     public List<string>? HigherLevel { get; set; }
     [BsonElement("range")]
-    public string Range { get; set; }
+    public string Range { get; set; } = string.Empty;
     [BsonElement("duration")]
-    public string Duration { get; set; }
+    public string Duration { get; set; } = string.Empty;
     [BsonElement("concentration")]
     public bool Concentration { get; set; }
     [BsonElement("casting_time")]
-    public string CastingTime { get; set; }
+    public string CastingTime { get; set; } = string.Empty;
     [BsonElement("level")]
     public byte Level { get; set; }
     [BsonElement("attack_type")]
@@ -30,17 +30,16 @@ public class SpellMapper: BaseEntity
     [BsonElement("area_of_effect")]
     public Area? AreaOfEffect { get; set; }
     [BsonElement("school")]
-    public BaseEntity School { get; set; }
+    public BaseEntity School { get; set; } = new BaseEntity();
     [BsonElement("classes")]
-    public List<BaseEntity> Classes { get; set; }
+    public List<BaseEntity> Classes { get; set; } = new List<BaseEntity>();
     [BsonElement("subclasses")]
-    public List<BaseEntity> Subclasses { get; set; }
-
+    public List<BaseEntity> Subclasses { get; set; } = new List<BaseEntity>();
     [BsonIgnoreExtraElements]
     public class DamageInfo
     {
         [BsonElement("damage_type")]
-        public BaseEntity damage_type { get; set; }
+        public BaseEntity damage_type { get; set; } = new BaseEntity();
         [BsonElement("damage_at_slot_level")]
         public Dictionary<string, string>? damage_at_slot_level { get; set; }
         [BsonElement("damage_at_character_level")]

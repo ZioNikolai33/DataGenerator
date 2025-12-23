@@ -8,19 +8,19 @@ public class ClassMapper : BaseEntity
     [BsonElement("hit_die")]
     public short Hp { get; set; }
     [BsonElement("subclasses")]
-    public List<BaseEntity> Subclasses { get; set; }
+    public List<BaseEntity> Subclasses { get; set; } = new List<BaseEntity>();
     [BsonElement("proficiency_choices")]
-    public List<ProficiencyChoiceMapper> ProficiencyChoices { get; set; }
+    public List<ProficiencyChoiceMapper> ProficiencyChoices { get; set; } = new List<ProficiencyChoiceMapper>();
     [BsonElement("saving_throws")]
-    public List<BaseEntity> SavingThrows { get; set; }
+    public List<BaseEntity> SavingThrows { get; set; } = new List<BaseEntity>();
     [BsonElement("proficiencies")]
-    public List<BaseEntity> Proficiencies { get; set; }
+    public List<BaseEntity> Proficiencies { get; set; } = new List<BaseEntity>();
     [BsonElement("starting_equipment")]
-    public List<Equipment> StartingEquipments { get; set; }
+    public List<Equipment> StartingEquipments { get; set; } = new List<Equipment>();
     [BsonElement("starting_equipment_options")]
-    public List<StartingEquipmentOptionMapper> StartingEquipmentsOptions { get; set; }
+    public List<StartingEquipmentOptionMapper> StartingEquipmentsOptions { get; set; } = new List<StartingEquipmentOptionMapper>();
     [BsonElement("multi_classing")]
-    public Multiclass Multiclassing { get; set; }
+    public Multiclass Multiclassing { get; set; } = new Multiclass();
     [BsonElement("spellcasting")]
     public Spellcasting? SpellcastingAbility { get; set; }
 
@@ -32,7 +32,7 @@ public class ClassMapper : BaseEntity
         [BsonElement("prerequisite_options")]
         public PrerequisiteOptions? PrerequisiteOptions { get; set; }
         [BsonElement("proficiencies")]
-        public List<BaseEntity> Proficiencies { get; set; }
+        public List<BaseEntity> Proficiencies { get; set; } = new List<BaseEntity>();
         [BsonElement("proficiency_choices")]
         public List<ProficiencyChoice>? ProficiencyChoices { get; set; }
     }
@@ -41,7 +41,7 @@ public class ClassMapper : BaseEntity
     public class Prerequisite
     {
         [BsonElement("ability_score")]
-        public BaseEntity AbilityScore { get; set; }
+        public BaseEntity AbilityScore { get; set; } = new BaseEntity();
         [BsonElement("minimum_score")]
         public byte MinimumScore { get; set; }
     }
@@ -50,29 +50,29 @@ public class ClassMapper : BaseEntity
     public class PrerequisiteOptions
     {
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("from")]
-        public PrerequisiteFrom From { get; set; }
+        public PrerequisiteFrom From { get; set; } = new PrerequisiteFrom();
     }
 
     [BsonIgnoreExtraElements]
     public class PrerequisiteFrom
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<ScorePrerequisiteOption> Options { get; set; }
+        public List<ScorePrerequisiteOption> Options { get; set; } = new List<ScorePrerequisiteOption>();
     }
 
     [BsonIgnoreExtraElements]
     public class ScorePrerequisiteOption
     {
         [BsonElement("option_type")]
-        public string OptionType { get; set; }
+        public string OptionType { get; set; } = string.Empty;
         [BsonElement("ability_score")]
-        public BaseEntity AbilityScore { get; set; }
+        public BaseEntity AbilityScore { get; set; } = new BaseEntity();
         [BsonElement("minimum_score")]
         public byte MinimumScore { get; set; }
     }
@@ -81,31 +81,31 @@ public class ClassMapper : BaseEntity
     public class ProficiencyChoice
     {
         [BsonElement("desc")]
-        public string Desc { get; set; }
+        public string Desc { get; set; } = string.Empty;
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public ProficiencyFrom From { get; set; }
+        public ProficiencyFrom From { get; set; } = new ProficiencyFrom();
     }
 
     [BsonIgnoreExtraElements]
     public class ProficiencyFrom
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<ProficiencyOption> Options { get; set; }
+        public List<ProficiencyOption> Options { get; set; } = new List<ProficiencyOption>();
     }
 
     [BsonIgnoreExtraElements]
     public class ProficiencyOption
     {
         [BsonElement("option_type")]
-        public string OptionType { get; set; }
+        public string OptionType { get; set; } = string.Empty;
         [BsonElement("item")]
-        public BaseEntity Item { get; set; }
+        public BaseEntity Item { get; set; } = new BaseEntity();
     }
 
     [BsonIgnoreExtraElements]
@@ -114,7 +114,7 @@ public class ClassMapper : BaseEntity
         [BsonElement("level")]
         public byte Level { get; set; }
         [BsonElement("spellcasting_ability")]
-        public BaseEntity SpellcastingAbility { get; set; }
+        public BaseEntity SpellcastingAbility { get; set; } = new BaseEntity();
     }
 
     [BsonIgnoreExtraElements]

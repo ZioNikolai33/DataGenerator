@@ -11,17 +11,17 @@ public class RaceMapper : BaseEntity
     [BsonElement("size")]
     public Size Size { get; set; }
     [BsonElement("ability_bonuses")]
-    public List<AbilityBonus> AbilityBonuses { get; set; }
+    public List<AbilityBonus> AbilityBonuses { get; set; } = new List<AbilityBonus>();
     [BsonElement("starting_proficiencies")]
-    public List<BaseEntity> StartingProficiences { get; set; }
+    public List<BaseEntity> StartingProficiences { get; set; } = new List<BaseEntity>();
     [BsonElement("starting_proficiency_options")]
     public ProficiencyChoiceMapper? StartingProficiencesOptions { get; set; }
     [BsonElement("ability_bonus_options")]
     public AbilityBonusOptions? AbilityOptions { get; set; }
     [BsonElement("traits")]
-    public List<BaseEntity> Traits { get; set; }
+    public List<BaseEntity> Traits { get; set; } = new List<BaseEntity>();
     [BsonElement("subraces")]
-    public List<BaseEntity> Subraces { get; set; }
+    public List<BaseEntity> Subraces { get; set; } = new List<BaseEntity>();
 
     [BsonIgnoreExtraElements]
     public class AbilityBonusOptions
@@ -29,27 +29,27 @@ public class RaceMapper : BaseEntity
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("from")]
-        public OptionSet From { get; set; }
+        public OptionSet From { get; set; } = new OptionSet();
     }
 
     [BsonIgnoreExtraElements]
     public class OptionSet
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<Option> Options { get; set; }
+        public List<Option> Options { get; set; } = new List<Option>();
     }
 
     [BsonIgnoreExtraElements]
     public class Option
     {
         [BsonElement("option_type")]
-        public string OptionType { get; set; }
+        public string OptionType { get; set; } = string.Empty;
         [BsonElement("ability_score")]
-        public BaseEntity AbilityScore { get; set; }
+        public BaseEntity AbilityScore { get; set; } = new BaseEntity();
         [BsonElement("bonus")]
         public byte Bonus { get; set; }
     }

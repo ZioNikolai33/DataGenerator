@@ -6,9 +6,9 @@ namespace TrainingDataGenerator.Entities.Mappers;
 public class EquipmentMapper : BaseEntity
 {
     [BsonElement("equipment_category")]
-    public BaseEntity EquipmentCategory { get; set; }
+    public BaseEntity EquipmentCategory { get; set; } = new BaseEntity();
     [BsonElement("cost")]
-    public CostMapper Cost { get; set; }
+    public CostMapper Cost { get; set; } = new CostMapper();
     [BsonElement("quantity")]
     public short? Quantity { get; set; }
 
@@ -55,9 +55,9 @@ public class EquipmentMapper : BaseEntity
     public class DamageData
     {
         [BsonElement("damage_type")]
-        public BaseEntity DamageType { get; set; }
+        public BaseEntity DamageType { get; set; } = new BaseEntity();
         [BsonElement("damage_dice")]
-        public string DamageDice { get; set; }
+        public string DamageDice { get; set; } = string.Empty;
     }
 
     [BsonIgnoreExtraElements]
@@ -75,7 +75,7 @@ public class EquipmentMapper : BaseEntity
         [BsonElement("quantity")]
         public short Quantity { get; set; }
         [BsonElement("unit")]
-        public string Unit { get; set; }
+        public string Unit { get; set; } = string.Empty;
     }
 
     public EquipmentMapper(string index, string name) : base(index, name) { }

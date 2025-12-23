@@ -30,9 +30,9 @@ public class Database
     {
         var configText = File.ReadAllText("appsettings.json");
         var config = JsonSerializer.Deserialize<Config>(configText);
-        var client = new MongoClient(config.Database.ConnectionString);
+        var client = new MongoClient(config?.Database.ConnectionString);
 
-        _db = client.GetDatabase(config.Database.DatabaseName);
+        _db = client.GetDatabase(config?.Database.DatabaseName);
     }
 
     public Dictionary<string, IMongoCollection<BsonDocument>> GetAllCollections()

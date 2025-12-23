@@ -5,8 +5,8 @@ namespace TrainingDataGenerator.Utilities;
 
 public static class ExpOperations
 {
-    public static readonly List<ExpThreshold> ExpPointsList = JsonSerializer.Deserialize<List<ExpThreshold>>(File.ReadAllText("data/expThreshold.json"));
-    public static readonly List<MonsterMultiplier> MultiplierList = JsonSerializer.Deserialize<List<MonsterMultiplier>>(File.ReadAllText("data/expMonsterMultiplier.json"));
+    public static readonly List<ExpThreshold> ExpPointsList = JsonSerializer.Deserialize<List<ExpThreshold>>(File.ReadAllText("data/expThreshold.json")) ?? new List<ExpThreshold>();
+    public static readonly List<MonsterMultiplier> MultiplierList = JsonSerializer.Deserialize<List<MonsterMultiplier>>(File.ReadAllText("data/expMonsterMultiplier.json")) ?? new List<MonsterMultiplier>();
 
     public static Difficulty CalculateDifficultiesExp(List<byte> partyLevels)
     {
