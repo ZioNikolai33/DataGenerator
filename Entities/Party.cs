@@ -15,7 +15,7 @@ public class Member
     public byte ArmorClass { get; set; }
     public string Class { get; set; }
     public string Race { get; set; }
-    public Size Size { get; set; }
+    public string Size { get; set; }
     public short Speed { get; set; }
     public string? Subrace { get; set; }        
     public string Subclass { get; set; }
@@ -64,7 +64,7 @@ public class Member
         ProficiencyBonus = (sbyte)(2 + ((Level - 1) / 4));
         Race = randomRace.Index;
         Speed = (short)randomRace.Speed;
-        Size = randomRace.Size;
+        Size = randomRace.Size.ToString();
         Subrace = randomSubrace != null ? randomSubrace.Index : null;
         Class = randomClass.Index;
         Subclass = randomSubclass.Index;
@@ -1144,21 +1144,57 @@ public class Member
                 {
                     case 0:
                         attributes[0] += 1;
+                        if (attributes[0] > 20)
+                        {
+                            attributes[0] -= 1;
+                            k--;
+                            continue;
+                        }
                         break;
                     case 1:
                         attributes[1] += 1;
+                        if (attributes[1] > 20)
+                        {
+                            attributes[1] -= 1;
+                            k--;
+                            continue;
+                        }
                         break;
                     case 2:
                         attributes[2] += 1;
+                        if (attributes[2] > 20)
+                        {
+                            attributes[2] -= 1;
+                            k--;
+                            continue;
+                        }
                         break;
                     case 3:
                         attributes[3] += 1;
+                        if (attributes[3] > 20)
+                        {
+                            attributes[3] -= 1;
+                            k--;
+                            continue;
+                        }
                         break;
                     case 4:
                         attributes[4] += 1;
+                        if (attributes[4] > 20)
+                        {
+                            attributes[4] -= 1;
+                            k--;
+                            continue;
+                        }
                         break;
                     case 5:
                         attributes[5] += 1;
+                        if (attributes[5] > 20)
+                        {
+                            attributes[5] -= 1;
+                            k--;
+                            continue;
+                        }
                         break;
                 }
             }
@@ -1267,9 +1303,82 @@ public class Member
 
     #region outcome
 
-    private void GetTotalBaseStats()
+    internal int GetTotalBaseStats()
     {
-        var totalBaseStats = Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
+        var totalBaseStats = 0;
+        var statsValue = Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
+        var mainStats = Proficiencies.Where(item => item.StartsWith("saving-throw")).Select(item => item.Split("-")[2]).ToList();
+
+        // Calculate Level and Proficiency Bonus value
+        var profValue = (int)(ProficiencyBonus * Math.Floor((double)Level / 2));
+
+        // Calculate HP value: every hp above average is double and every hp above 3/4 average is triple
+        var maxHp = HitDie * Level + (Constitution.Modifier * Level);
+        var averageHp = HitDie + (((HitDie / 2) + Constitution.Modifier) * (Level - 1));
+        var threeQuarterHp = averageHp + (int)Math.Floor((double)(maxHp - averageHp)/2);
+        var hpValue = 0;
+
+        if (Hp <= averageHp)
+            hpValue += Hp;
+        else if (Hp > averageHp && Hp <= threeQuarterHp)
+            hpValue += Hp + ((Hp - averageHp) * 2);
+        else if (Hp > threeQuarterHp)
+            hpValue += Hp + ((threeQuarterHp - averageHp) * 2) + ((Hp - threeQuarterHp) * 3);
+
+        // Calculate speed value: for every 5ft above 30ft, add double the amount; no downgrade for less than 30ft
+        var speedValue = (int)Speed;
+        if (Speed > 30)
+        {
+            var extra = Speed - 30;
+            speedValue += 30 + (extra * 2);
+        }
+
+        // If character has saving throw proficiency in main stats, add their base stats again. Likely to be the primary attributes for the class.
+        foreach (var stat in mainStats)
+        {
+            switch (stat)
+            {
+                case "str":
+                    statsValue += Strength.Value;
+                    break;
+                case "dex":
+                    statsValue += Dexterity.Value;
+                    break;
+                case "con":
+                    statsValue += Constitution.Value;
+                    break;
+                case "int":
+                    statsValue += Intelligence.Value;
+                    break;
+                case "wis":
+                    statsValue += Wisdom.Value;
+                    break;
+                case "cha":
+                    statsValue += Charisma.Value;
+                    break;
+            }
+        }
+
+        // Calculate Skills value
+        var skillsValue = Skills.Sum(item => item.Modifier);
+
+        // Every Resistance is 3 and every Immunity is 10
+        var resistanceValue = Resistances.Count * 3;
+        var immunityValue = Immunities.Count * 10;
+        var vulnerabilityValue = Vulnerabilities.Count * -5;
+
+        totalBaseStats += profValue;
+        totalBaseStats += hpValue;
+        totalBaseStats += speedValue;
+        totalBaseStats += statsValue;
+        totalBaseStats += skillsValue;
+        totalBaseStats += resistanceValue;
+        totalBaseStats += immunityValue;
+        totalBaseStats += vulnerabilityValue;
+
+        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
+
+        return totalBaseStats;
     }
 
     #endregion

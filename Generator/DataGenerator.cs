@@ -249,7 +249,8 @@ public static class DataGenerator
 
         Logger.Instance.Information($"Random factor for Party: {randomFactorParty}% - Random factor for Monsters: {randomFactorMonsters}%");
 
-        //var baseStatsParty = encounter.PartyMembers.Sum(m => m.GetTotalBaseStats());
+        var baseStatsParty = encounter.PartyMembers.Sum(m => m.GetTotalBaseStats());
+        Logger.Instance.Information($"Total Base Stats for Party: {baseStatsParty}");
         //var baseStatsMonsters = encounter.Monsters.Sum(m => m.GetTotalBaseStats());
 
         // General Idea: Base Stats + Offensive Power + Defensive Power + Healing Power + Random Factor (+-10%)
