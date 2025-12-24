@@ -4,8 +4,10 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Project Logs & Output Folder
-Generator/logs/
-Generator/output/
+TrainingDataGenerator/Generator/logs/
+AlgorithmDataGenerator/Generator/logs/
+TrainingDataGenerator/Generator/output/
+AlgorithmDataGenerator/Generator/output/
 
 # User-specific files
 *.rsuser
