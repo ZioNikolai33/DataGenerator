@@ -378,6 +378,55 @@ public class Monster : BaseEntity
         }
     }
 
+    public int GetTotalBaseStats()
+    {
+        var totalBaseStats = 0;
+
+        totalBaseStats += HitPoints;
+        totalBaseStats += CalculateSpeedValue();
+        totalBaseStats += CalculateStatsValue();
+        totalBaseStats += CalculateSkillsValue();
+        totalBaseStats += CalculateResistancesValue();
+        totalBaseStats += CalculateArmorClassValue();
+
+        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
+
+        return totalBaseStats;
+    }
+
+    private int CalculateSpeedValue()
+    {
+        int speedValue = 0;
+
+        if (!string.IsNullOrEmpty(Speed.Walk))
+            speedValue += int.Parse(Speed.Walk.Split(' ')[0]);
+        
+        if (!string.IsNullOrEmpty(Speed.Swim))
+            speedValue += (int)(int.Parse(Speed.Swim.Split(' ')[0]) * 0.5);
+
+        if (!string.IsNullOrEmpty(Speed.Fly))
+            speedValue += int.Parse(Speed.Fly.Split(' ')[0]) * 2;
+
+        if (!string.IsNullOrEmpty(Speed.Burrow))
+            speedValue += (int)(int.Parse(Speed.Burrow.Split(' ')[0]) * 0.5);
+
+        if (!string.IsNullOrEmpty(Speed.Climb))
+            speedValue += (int)(int.Parse(Speed.Climb.Split(' ')[0]) * 0.5);
+
+        if (Speed.Hover.HasValue && Speed.Hover.Value)
+            speedValue += 10;
+
+        return speedValue;
+    }
+
+    private int CalculateStatsValue() => Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
+
+    private int CalculateSkillsValue() => Skills.Where(s => s.IsProficient).Sum(s => s.Modifier);
+
+    private int CalculateResistancesValue() => (int)((DamageResistances.Count) + (DamageImmunities.Count * 5) + (ConditionImmunities.Count) + (DamageVulnerabilities.Count * -2.5));
+
+    private int CalculateArmorClassValue() => AC.Count > 0 ? AC[0].Value : 0;
+
     public override string ToString()
     {
         var str = $"Monster: {Name} (CR: {ChallengeRating})\n";

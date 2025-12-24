@@ -68,7 +68,6 @@ public static class DataGenerator
 
         for (var i = 0; i < numMembers; i++)
             party.Add(new Member(i, partyLevels[i], Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
-            //party.Add(new Member(i, 17, Lists.races.Where(item => item.Index == "tiefling").First(), Lists.classes.Where(item => item.Index == "rogue").First()));
 
         Logger.Instance.Information($"Generated {numMembers} party members of level {string.Join(", ", partyLevels)}. Levels were in sector {section}");
 
@@ -251,9 +250,8 @@ public static class DataGenerator
 
         var baseStatsParty = encounter.PartyMembers.Sum(m => m.GetTotalBaseStats());
         Logger.Instance.Information($"Total Base Stats for Party: {baseStatsParty}");
-        //var baseStatsMonsters = encounter.Monsters.Sum(m => m.GetTotalBaseStats());
-
-        // General Idea: Base Stats + Offensive Power + Defensive Power + Healing Power + Random Factor (+-10%)
+        var baseStatsMonsters = encounter.Monsters.Sum(m => m.GetTotalBaseStats());
+        Logger.Instance.Information($"Total Base Stats for Monsters: {baseStatsMonsters}");
 
         return encounter;
     }

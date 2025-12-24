@@ -1,5 +1,4 @@
 ﻿using AlgorithmDataGenerator.Entities;
-using System.IO;
 using System.Text.Json;
 using TrainingDataGenerator.DataBase;
 using TrainingDataGenerator.Entities;
@@ -13,6 +12,7 @@ public static class DataGenerator
     {
         var random = new Random();
         var characters = new List<Member>();
+        var monsters = new List<TrainingDataGenerator.Entities.Monster>();
 
         try
         {
@@ -30,9 +30,14 @@ public static class DataGenerator
                 var level = (byte)random.Next(1, 21);
                 characters.Add(new Member(i, level, Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
             }
+
+            foreach (var monster in Lists.monsters)
+                monsters.Add(new TrainingDataGenerator.Entities.Monster(monster));
+
             Logger.Instance.Information("Data generation completed.");
 
             CalculateBaseStats(characters);
+            CalculateBaseStats(monsters);
         }
         catch (InvalidOperationException ex)
         {
@@ -60,6 +65,22 @@ public static class DataGenerator
         SaveCharacters(characters, DateTime.Now);
     }
 
+    private static void CalculateBaseStats(List<TrainingDataGenerator.Entities.Monster> mons)
+    {
+        Logger.Instance.Information($"Calculating Base Stats for {mons.Count} monsters");
+
+        var random = new Random();
+        var monsters = new List<AlgorithmDataGenerator.Entities.Monster>();
+
+        monsters.AddRange(mons.Select(item => new AlgorithmDataGenerator.Entities.Monster(item, item.GetTotalBaseStats())));
+        monsters = monsters.OrderBy(c => c.BaseStats).ToList();
+
+        Logger.Instance.Information($"{string.Join("\n", monsters)}");
+        Logger.Instance.Information("Base Stats calculation completed.\n");
+
+        SaveMonsters(monsters, DateTime.Now);
+    }
+
     private static void SaveCharacters(List<Character> characters, DateTime startDate)
     {
         var charactersJson = JsonSerializer.Serialize(characters, new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
@@ -77,5 +98,24 @@ public static class DataGenerator
 
         File.WriteAllText(filePath, charactersJson);
         Logger.Instance.Information($"Characters written to folder\n");
+    }
+
+    private static void SaveMonsters(List<AlgorithmDataGenerator.Entities.Monster> characters, DateTime startDate)
+    {
+        var monsterJson = JsonSerializer.Serialize(characters, new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+        var baseFolder = Directory.GetCurrentDirectory();
+        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", $"Generator", $"output");
+
+        if (!Directory.Exists(batchFolderName))
+        {
+            Directory.CreateDirectory(batchFolderName);
+            Logger.Instance.Information($"Created output folder");
+        }
+
+        var fileName = $"monsters_{startDate:yyyyMMdd_HHmmss}.json";
+        var filePath = Path.Combine(batchFolderName, fileName);
+
+        File.WriteAllText(filePath, monsterJson);
+        Logger.Instance.Information($"Monsters written to folder\n");
     }
 }
