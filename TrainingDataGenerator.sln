@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainingDataGenerator", "TrainingDataGenerator.csproj", "{163A9296-8DD0-4A10-9421-162D79D9A591}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgorithmDataGenerator", "..\AlgorithmDataGenerator\AlgorithmDataGenerator.csproj", "{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{163A9296-8DD0-4A10-9421-162D79D9A591}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{163A9296-8DD0-4A10-9421-162D79D9A591}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{163A9296-8DD0-4A10-9421-162D79D9A591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

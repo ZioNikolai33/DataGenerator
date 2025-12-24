@@ -1303,7 +1303,7 @@ public class Member
 
     #region outcome
 
-    internal int GetTotalBaseStats()
+    public int GetTotalBaseStats()
     {
         var totalBaseStats = 0;
 

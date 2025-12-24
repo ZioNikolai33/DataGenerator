@@ -19,8 +19,8 @@ public static class DataGenerator
 
             Logger.Instance.Information("App Settings successfully retrieved");
 
-            Logger.Instance.Information($"Start generating {config.NumberOfEncountersToGenerate} encounters\n");
-            for (var i = 1; i <= config.NumberOfEncountersToGenerate; i++)
+            Logger.Instance.Information($"Start generating {config.NumberOfCycles} encounters\n");
+            for (var i = 1; i <= config.NumberOfCycles; i++)
             {
                 Logger.Instance.Information($"Creating Encounter {i.ToString().PadLeft(8, '0')}...");
                 var bucket = GetRandomDifficulty();

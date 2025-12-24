@@ -6,15 +6,15 @@ using TrainingDataGenerator.Entities.Mappers;
 
 namespace TrainingDataGenerator.DataBase;
 
-internal class Config
+public class Config
 {
     [JsonPropertyName("database")]
     public DatabaseConfig Database { get; set; } = new DatabaseConfig();
     [JsonPropertyName("numberOfCycles")]
-    public int NumberOfEncountersToGenerate { get; set; } = 10;
+    public int NumberOfCycles { get; set; } = 10;
 }
 
-internal class DatabaseConfig
+public class DatabaseConfig
 {
     [JsonPropertyName("connectionString")]
     public string ConnectionString { get; set; } = string.Empty;
