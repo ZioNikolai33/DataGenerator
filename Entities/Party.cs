@@ -69,7 +69,7 @@ public class Member
         Class = randomClass.Index;
         Subclass = randomSubclass.Index;
 
-        SetAttributes(randomClass, randomRaceAbilityBonus, levels); // Set Attributes with Racial Bonuses and Level Improvements
+        SetAttributes(randomClass, randomRaceAbilityBonus, features); // Set Attributes with Racial Bonuses and Level Improvements
         ManageEquipments(randomClass); // Manage starting Equipments
         ManageTraitSpecifics(randomRace, randomSubrace); // Manage Trait Specifics
         SetProficiencies(randomClass, randomRace, randomSubrace);
@@ -727,7 +727,7 @@ public class Member
 
     #region attributes
 
-    private void SetAttributes(ClassMapper randomClass, List<AbilityBonus> randomRaceAbilityBonus, List<LevelMapper> levels)
+    private void SetAttributes(ClassMapper randomClass, List<AbilityBonus> randomRaceAbilityBonus, List<FeatureMapper> features)
     {
         var random = new Random();
         var attributes = AssumeAttributes(randomClass, random); // First assume random value for attributes based on Standard Array rule
@@ -735,7 +735,7 @@ public class Member
         if (randomRaceAbilityBonus.Count > 0)
             AddAttributesBonuses(attributes, randomRaceAbilityBonus);
 
-        var abilityImprovements = levels.Where(item => item.AbilityScoreBonuses != null).OrderByDescending(item => item.Level).FirstOrDefault()?.Level ?? 0;
+        var abilityImprovements = (byte)features.Count(item => item.Index.Contains("ability-score-improvement"));
         AbilityScoreImprovement(attributes, abilityImprovements);
 
         if (Class == "barbarian")
@@ -1306,16 +1306,26 @@ public class Member
     internal int GetTotalBaseStats()
     {
         var totalBaseStats = 0;
-        var statsValue = Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
-        var mainStats = Proficiencies.Where(item => item.StartsWith("saving-throw")).Select(item => item.Split("-")[2]).ToList();
 
-        // Calculate Level and Proficiency Bonus value
-        var profValue = (int)(ProficiencyBonus * Math.Floor((double)Level / 2));
+        totalBaseStats += CalculateProficiencyValue();
+        totalBaseStats += CalculateHpValue();
+        totalBaseStats += CalculateSpeedValue();
+        totalBaseStats += CalculateStatsValue();
+        totalBaseStats += CalculateSkillsValue();
+        totalBaseStats += CalculateResistancesValue();
 
-        // Calculate HP value: every hp above average is double and every hp above 3/4 average is triple
+        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
+
+        return totalBaseStats;
+    }
+
+    private int CalculateProficiencyValue() => (int)(ProficiencyBonus * Math.Floor((double)Level / 2));
+
+    private int CalculateHpValue()
+    {
         var maxHp = HitDie * Level + (Constitution.Modifier * Level);
         var averageHp = HitDie + (((HitDie / 2) + Constitution.Modifier) * (Level - 1));
-        var threeQuarterHp = averageHp + (int)Math.Floor((double)(maxHp - averageHp)/2);
+        var threeQuarterHp = averageHp + (int)Math.Floor((double)(maxHp - averageHp) / 2);
         var hpValue = 0;
 
         if (Hp <= averageHp)
@@ -1325,15 +1335,27 @@ public class Member
         else if (Hp > threeQuarterHp)
             hpValue += Hp + ((threeQuarterHp - averageHp) * 2) + ((Hp - threeQuarterHp) * 3);
 
-        // Calculate speed value: for every 5ft above 30ft, add double the amount; no downgrade for less than 30ft
+        return hpValue;
+    }
+
+    private int CalculateSpeedValue()
+    {
         var speedValue = (int)Speed;
+
         if (Speed > 30)
         {
             var extra = Speed - 30;
             speedValue += 30 + (extra * 2);
         }
 
-        // If character has saving throw proficiency in main stats, add their base stats again. Likely to be the primary attributes for the class.
+        return speedValue;
+    }
+
+    private int CalculateStatsValue()
+    {
+        var statsValue = Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
+        var mainStats = Proficiencies.Where(item => item.StartsWith("saving-throw")).Select(item => item.Split("-")[2]).ToList();
+
         foreach (var stat in mainStats)
         {
             switch (stat)
@@ -1358,28 +1380,12 @@ public class Member
                     break;
             }
         }
-
-        // Calculate Skills value
-        var skillsValue = Skills.Sum(item => item.Modifier);
-
-        // Every Resistance is 3 and every Immunity is 10
-        var resistanceValue = Resistances.Count * 3;
-        var immunityValue = Immunities.Count * 10;
-        var vulnerabilityValue = Vulnerabilities.Count * -5;
-
-        totalBaseStats += profValue;
-        totalBaseStats += hpValue;
-        totalBaseStats += speedValue;
-        totalBaseStats += statsValue;
-        totalBaseStats += skillsValue;
-        totalBaseStats += resistanceValue;
-        totalBaseStats += immunityValue;
-        totalBaseStats += vulnerabilityValue;
-
-        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
-
-        return totalBaseStats;
+        return statsValue;
     }
+
+    private int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
+
+    private int CalculateResistancesValue() => (Resistances.Count * 3) + (Immunities.Count * 10) + (Vulnerabilities.Count * -5);
 
     #endregion
 
