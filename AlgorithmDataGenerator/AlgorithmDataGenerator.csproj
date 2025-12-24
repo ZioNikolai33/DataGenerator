@@ -17,4 +17,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Generator\logs\" />
+    <Folder Include="Generator\output\" />
+  </ItemGroup>
+
 </Project>

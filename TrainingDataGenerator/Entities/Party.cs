@@ -1313,13 +1313,14 @@ public class Member
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
         totalBaseStats += CalculateResistancesValue();
+        totalBaseStats += CalculateArmorClassValue();
 
         Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
 
         return totalBaseStats;
     }
 
-    private int CalculateProficiencyValue() => (int)(ProficiencyBonus * Math.Floor((double)Level / 2));
+    private int CalculateProficiencyValue() => (int)(ProficiencyBonus * (Level * 0.75));
 
     private int CalculateHpValue()
     {
@@ -1328,12 +1329,10 @@ public class Member
         var threeQuarterHp = averageHp + (int)Math.Floor((double)(maxHp - averageHp) / 2);
         var hpValue = 0;
 
-        if (Hp <= averageHp)
+        if (Hp <= averageHp || Level == 1)
             hpValue += Hp;
-        else if (Hp > averageHp && Hp <= threeQuarterHp)
-            hpValue += Hp + ((Hp - averageHp) * 2);
         else if (Hp > threeQuarterHp)
-            hpValue += Hp + ((threeQuarterHp - averageHp) * 2) + ((Hp - threeQuarterHp) * 3);
+            hpValue += Hp + (Hp - threeQuarterHp) * 2;
 
         return hpValue;
     }
@@ -1345,7 +1344,7 @@ public class Member
         if (Speed > 30)
         {
             var extra = Speed - 30;
-            speedValue += 30 + (extra * 2);
+            speedValue += extra * 2;
         }
 
         return speedValue;
@@ -1361,22 +1360,22 @@ public class Member
             switch (stat)
             {
                 case "str":
-                    statsValue += Strength.Value;
+                    statsValue += (int)(Strength.Value * 0.75);
                     break;
                 case "dex":
-                    statsValue += Dexterity.Value;
+                    statsValue += (int)(Dexterity.Value * 0.75);
                     break;
                 case "con":
-                    statsValue += Constitution.Value;
+                    statsValue += (int)(Constitution.Value * 0.75);
                     break;
                 case "int":
-                    statsValue += Intelligence.Value;
+                    statsValue += (int)(Intelligence.Value * 0.75);
                     break;
                 case "wis":
-                    statsValue += Wisdom.Value;
+                    statsValue += (int)(Wisdom.Value * 0.75);
                     break;
                 case "cha":
-                    statsValue += Charisma.Value;
+                    statsValue += (int)(Charisma.Value * 0.75);
                     break;
             }
         }
@@ -1386,6 +1385,16 @@ public class Member
     private int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
 
     private int CalculateResistancesValue() => (Resistances.Count * 3) + (Immunities.Count * 10) + (Vulnerabilities.Count * -5);
+
+    private int CalculateArmorClassValue()
+    {
+        var acValue = ArmorClass;
+
+        if (acValue > 15)
+            acValue += (byte)((acValue - 15) * 1.5);
+
+        return acValue;
+    }
 
     #endregion
 
