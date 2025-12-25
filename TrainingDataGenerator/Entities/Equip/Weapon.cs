@@ -32,4 +32,6 @@ abstract public class Weapon : Equipment
             DamageDice = equipment.Damage?.DamageDice ?? "0d0"
         };
     }
+
+    abstract public int GetWeaponPower(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient);
 }

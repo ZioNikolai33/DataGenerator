@@ -1320,6 +1320,40 @@ public class Member
         return totalBaseStats;
     }
 
+    public int GetOffensivePower(List<Monster> monsters)
+    {
+        var offensivePower = 0;
+        var meleePower = 0;
+        var rangedPower = 0;
+        var meleeWeaponsEquipped = MeleeWeapons.Where(item => item.IsEquipped).ToList();
+        var rangedWeaponsEquipped = RangedWeapons.Where(item => item.IsEquipped).ToList();
+
+        foreach (var weapon in meleeWeaponsEquipped)
+            meleePower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+
+        foreach (var weapon in rangedWeaponsEquipped)
+            rangedPower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+
+        offensivePower += Math.Max(meleePower, rangedPower);
+
+        Logger.Instance.Information($"Offensive Power for {Name}: {offensivePower}");
+        return offensivePower;
+    }
+
+    private bool IsProficient(Weapon weapon)
+    {
+        if (Proficiencies.Contains(weapon.Index))
+            return true;
+        else if (Proficiencies.Contains(weapon.WeaponCategory.ToLower() + "-" + weapon.WeaponRange.ToLower() + "-" + "weapons"))
+            return true;
+        else if (Proficiencies.Contains(weapon.WeaponCategory.ToLower() + "-" + "weapons"))
+            return true;
+        else if (Proficiencies.Contains(weapon.WeaponRange.ToLower() + "-" + "weapons"))
+            return true;
+
+        return false;
+    }
+
     private int CalculateProficiencyValue() => (int)(ProficiencyBonus * (Level * 0.75));
 
     private int CalculateHpValue()

@@ -405,7 +405,7 @@ public class Monster : BaseEntity
             speedValue += (int)(int.Parse(Speed.Swim.Split(' ')[0]) * 0.5);
 
         if (!string.IsNullOrEmpty(Speed.Fly))
-            speedValue += int.Parse(Speed.Fly.Split(' ')[0]) * 2;
+            speedValue += int.Parse(Speed.Fly.Split(' ')[0]);
 
         if (!string.IsNullOrEmpty(Speed.Burrow))
             speedValue += (int)(int.Parse(Speed.Burrow.Split(' ')[0]) * 0.5);

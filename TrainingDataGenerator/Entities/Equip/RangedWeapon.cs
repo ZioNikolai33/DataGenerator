@@ -13,4 +13,19 @@ public class RangedWeapon : Weapon
             Long = equipment.Range?.Long ?? 0
         };
     }
+
+    public override int GetWeaponPower(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient)
+    {
+        var weaponPower = 0;
+        var damageParts = Damage.DamageDice.Split('d');
+        var averageDamage = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
+        var totalDamage = averageDamage + dexterityModifier;
+
+        if (isProficient)
+            totalDamage += proficiencyBonus;
+
+        weaponPower = totalDamage;
+
+        return weaponPower;
+    }
 }
