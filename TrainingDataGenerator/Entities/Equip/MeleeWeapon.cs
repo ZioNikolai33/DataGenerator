@@ -13,7 +13,7 @@ public class MeleeWeapon : Weapon
         TwoHandedDamage = equipment.TwoHandedDamage != null ? new DamageData { DamageDice = equipment.TwoHandedDamage.DamageDice, DamageType = equipment.TwoHandedDamage.DamageType.Index } : null;
     }
 
-    public override int GetWeaponPower(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient)
+    public override int GetWeaponPower(int strengthModifier, int dexterityModifier)
     {
         var weaponPower = 0;
         var damageParts = Damage.DamageDice.Split('d');
@@ -25,11 +25,23 @@ public class MeleeWeapon : Weapon
         else
             totalDamage += strengthModifier;
 
-        if (isProficient)
-            totalDamage += proficiencyBonus;
-
         weaponPower = totalDamage;
 
         return weaponPower;
+    }
+
+    public override int GetAttackBonus(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient)
+    {
+        var attackBonus = 0;
+
+        if (Properties.Contains("finesse") || Properties.Contains("thrown"))
+            attackBonus += Math.Max(strengthModifier, dexterityModifier);
+        else
+            attackBonus += strengthModifier;
+
+        if (isProficient)
+            attackBonus += proficiencyBonus;
+
+        return attackBonus;
     }
 }

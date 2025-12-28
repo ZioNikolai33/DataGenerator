@@ -21,4 +21,26 @@ public static class DataManipulation
 
         return filteredMonsters;
     }
+
+    public static short CalculateHitPercentage(int armorClass, int attackBonus)
+    {
+        var hitPercentage = 0;
+
+        for (var roll = 1; roll <= 20; roll++)
+        {
+            if (roll == 1)
+                continue;
+
+            if (roll == 20)
+            {
+                hitPercentage += 5;
+                continue;
+            }
+
+            if (roll + attackBonus >= armorClass)
+                hitPercentage += 5;
+        }
+
+        return (short)hitPercentage;
+    }
 }

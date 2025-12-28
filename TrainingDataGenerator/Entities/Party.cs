@@ -1325,16 +1325,31 @@ public class Member
         var offensivePower = 0;
         var meleePower = 0;
         var rangedPower = 0;
+        var attackBonus = 0;
+        var hitPercentage = 0;
+        var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
+
         var meleeWeaponsEquipped = MeleeWeapons.Where(item => item.IsEquipped).ToList();
         var rangedWeaponsEquipped = RangedWeapons.Where(item => item.IsEquipped).ToList();
 
         foreach (var weapon in meleeWeaponsEquipped)
-            meleePower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+        {
+            meleePower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
+            attackBonus += weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+        }
 
         foreach (var weapon in rangedWeaponsEquipped)
-            rangedPower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+        {
+            rangedPower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
+            attackBonus += weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+        }
 
         offensivePower += Math.Max(meleePower, rangedPower);
+        attackBonus = (int)Math.Floor((double)attackBonus / (meleeWeaponsEquipped.Count + rangedWeaponsEquipped.Count));
+
+        hitPercentage = DataManipulation.CalculateHitPercentage(averageMonsterAc, attackBonus);
+
+        offensivePower += (int)hitPercentage;
 
         Logger.Instance.Information($"Offensive Power for {Name}: {offensivePower}");
         return offensivePower;

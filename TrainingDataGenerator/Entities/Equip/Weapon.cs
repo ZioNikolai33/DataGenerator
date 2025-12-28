@@ -33,5 +33,7 @@ abstract public class Weapon : Equipment
         };
     }
 
-    abstract public int GetWeaponPower(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient);
+    abstract public int GetWeaponPower(int strengthModifier, int dexterityModifier);
+
+    abstract public int GetAttackBonus(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient);
 }

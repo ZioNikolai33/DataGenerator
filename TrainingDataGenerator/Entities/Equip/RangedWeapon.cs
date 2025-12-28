@@ -14,18 +14,25 @@ public class RangedWeapon : Weapon
         };
     }
 
-    public override int GetWeaponPower(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient)
+    public override int GetWeaponPower(int strengthModifier, int dexterityModifier)
     {
         var weaponPower = 0;
         var damageParts = Damage.DamageDice.Split('d');
         var averageDamage = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
         var totalDamage = averageDamage + dexterityModifier;
 
-        if (isProficient)
-            totalDamage += proficiencyBonus;
-
         weaponPower = totalDamage;
 
         return weaponPower;
+    }
+
+    public override int GetAttackBonus(int strengthModifier, int dexterityModifier, int proficiencyBonus, bool isProficient)
+    {
+        var attackBonus = dexterityModifier;
+
+        if (isProficient)
+            attackBonus += proficiencyBonus;
+
+        return attackBonus;
     }
 }
