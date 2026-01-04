@@ -1323,6 +1323,30 @@ public class Member
     public int GetOffensivePower(List<Monster> monsters)
     {
         var offensivePower = 0;
+
+        offensivePower += CalculateWeaponsPower(monsters);
+        // Spells offensive power
+
+        return offensivePower;
+    }
+
+    private bool IsProficient(Weapon weapon)
+    {
+        if (Proficiencies.Contains(weapon.Index))
+            return true;
+        else if (Proficiencies.Contains(weapon.WeaponCategory.ToLower() + "-" + weapon.WeaponRange.ToLower() + "-" + "weapons"))
+            return true;
+        else if (Proficiencies.Contains(weapon.WeaponCategory.ToLower() + "-" + "weapons"))
+            return true;
+        else if (Proficiencies.Contains(weapon.WeaponRange.ToLower() + "-" + "weapons"))
+            return true;
+
+        return false;
+    }
+
+    private int CalculateWeaponsPower(List<Monster> monsters)
+    {
+        var offensivePower = 0;
         var meleePower = 0;
         var rangedPower = 0;
         var attackBonus = 0;
@@ -1351,22 +1375,10 @@ public class Member
 
         offensivePower += (int)hitPercentage;
 
+        // Changes for immunities, resistances and vulnerabilities of monsters CalculateMonsterDefensesImpact(monsters, meleeWeaponsEquipped, rangedWeaponsEquipped, ref offensivePower);
+
         Logger.Instance.Information($"Offensive Power for {Name}: {offensivePower}");
         return offensivePower;
-    }
-
-    private bool IsProficient(Weapon weapon)
-    {
-        if (Proficiencies.Contains(weapon.Index))
-            return true;
-        else if (Proficiencies.Contains(weapon.WeaponCategory.ToLower() + "-" + weapon.WeaponRange.ToLower() + "-" + "weapons"))
-            return true;
-        else if (Proficiencies.Contains(weapon.WeaponCategory.ToLower() + "-" + "weapons"))
-            return true;
-        else if (Proficiencies.Contains(weapon.WeaponRange.ToLower() + "-" + "weapons"))
-            return true;
-
-        return false;
     }
 
     private int CalculateProficiencyValue() => (int)(ProficiencyBonus * (Level * 0.75));
