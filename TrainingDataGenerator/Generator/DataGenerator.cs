@@ -253,6 +253,10 @@ public static class DataGenerator
         var baseStatsMonsters = encounter.Monsters.Sum(m => m.GetTotalBaseStats());
         Logger.Instance.Information($"Total Base Stats for Monsters: {baseStatsMonsters}");
 
+        var offensivePowerParty = encounter.PartyMembers.Average(m => m.GetOffensivePower(encounter.Monsters));
+        var healingPowerParty = encounter.PartyMembers.Average(m => m.GetHealingPower());
+        var featuresPowerParty = encounter.PartyMembers.Average(m => m.GetFeaturesPower());
+
         return encounter;
     }
 

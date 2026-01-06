@@ -11,7 +11,7 @@ public class Spell: BaseEntity
     public string Duration { get; set; }
     public bool Concentration { get; set; }
     public string CastingTime { get; set; }
-    public Dictionary<string, string>? HealAtSlotLevel { get; set; }
+    public List<ClassDictionary>? HealAtSlotLevel { get; set; }
     public string School { get; set; }
     public List<string> Classes { get; set; }
     public List<string>? Subclasses { get; set; }
@@ -30,7 +30,7 @@ public class Spell: BaseEntity
         Duration = spell.Duration;
         Concentration = spell.Concentration;
         CastingTime = spell.CastingTime;
-        HealAtSlotLevel = spell.HealAtSlotLevel;
+        HealAtSlotLevel = spell.HealAtSlotLevel != null ? spell.HealAtSlotLevel.Select(item => new ClassDictionary(short.Parse(item.Key), item.Value)).ToList() : null;
         School = spell.School.Index;
         Classes = spell.Classes.Select(c => c.Index).ToList();
         Subclasses = spell.Subclasses?.Select(sc => sc.Index).ToList();
@@ -47,17 +47,17 @@ public class Spell: BaseEntity
 
         if (IsDamageSpell())
         {
-            if (Damage.DamageSlots != null)
+            if (Damage?.DamageSlots != null)
             {
                 var damageDice = Damage.DamageSlots.OrderBy(x => x.Key).First().Value;
                 var damageParts = damageDice.Split('d');
 
                 spellPower = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
-                spellPower += (spellSlots.GetSlotsLevelAvailable() - int.Parse(Damage.DamageSlots.OrderBy(x => x.Key).First().Key)) * 2;
+                spellPower += (spellSlots.GetSlotsLevelAvailable() - Damage.DamageSlots.OrderBy(x => x.Key).First().Key) * 2;
             }
-            else if (Damage.DamageAtCharacterLevel != null)
+            else if (Damage?.DamageAtCharacterLevel != null)
             {
-                var damageDice = Damage.DamageAtCharacterLevel[level.ToString()];
+                var damageDice = Damage.DamageAtCharacterLevel.OrderBy(x => x.Key).FirstOrDefault(x => x.Key <= level)?.Value ?? "0d0";
                 var damageParts = damageDice.Split('d');
 
                 spellPower = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
@@ -140,6 +140,22 @@ public class Spell: BaseEntity
         return spellPercentage;
     }
 
+    public int GetHealingPower(Slots spellSlots)
+    {
+        var healingPower = 0;
+
+        if (IsHealingSpell() && HealAtSlotLevel != null)
+        {
+            var healDice = HealAtSlotLevel.OrderBy(x => x.Key).First().Value;
+            var healParts = healDice.Split('d');
+
+            healingPower = (int.Parse(healParts[0]) * (int.Parse(healParts[1].Split(" + ")[0]) + 1)) / 2;
+            healingPower += (spellSlots.GetSlotsLevelAvailable() - HealAtSlotLevel.OrderBy(x => x.Key).First().Key) * 2;
+        }
+
+        return healingPower;
+    }
+
     public bool IsDamageSpell() => Damage != null;
     public bool IsHealingSpell() => HealAtSlotLevel != null;
     public bool RequiresAttackRoll() => AttackType != null;
@@ -149,13 +165,13 @@ public class Spell: BaseEntity
 public class SpellDamage
 {
     public string? DamageType { get; set; }
-    public Dictionary<string, string>? DamageSlots { get; set; }
-    public Dictionary<string, string>? DamageAtCharacterLevel { get; set; }
+    public List<ClassDictionary>? DamageSlots { get; set; }
+    public List<ClassDictionary>? DamageAtCharacterLevel { get; set; }
 
-    public SpellDamage(dynamic damage)
+    public SpellDamage(SpellMapper.DamageInfo damage)
     {
         DamageType = damage.damage_type != null ? damage.damage_type.Index : null;
-        DamageSlots = damage.damage_at_slot_level != null ? damage.damage_at_slot_level as Dictionary<string, string> : null;
-        DamageAtCharacterLevel = damage.damage_at_character_level != null ? damage.damage_at_character_level as Dictionary<string, string> : null;
+        DamageSlots = damage.damage_at_slot_level != null ? damage.damage_at_slot_level.Keys.Select(item => new ClassDictionary(short.Parse(item), damage.damage_at_slot_level[item])).ToList() : null;
+        DamageAtCharacterLevel = damage.damage_at_character_level != null ? damage.damage_at_character_level.Keys.Select(item => new ClassDictionary(short.Parse(item), damage.damage_at_character_level[item])).ToList() : null;
     }
 }

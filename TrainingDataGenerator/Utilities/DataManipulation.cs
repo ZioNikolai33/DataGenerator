@@ -69,4 +69,9 @@ public static class DataManipulation
     {
         return 0;
     }
+
+    public static int GetFeaturePowerValue(string feature)
+    {
+        return 0;
+    }
 }
