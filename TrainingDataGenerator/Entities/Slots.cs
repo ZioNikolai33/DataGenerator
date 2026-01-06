@@ -70,6 +70,21 @@ namespace TrainingDataGenerator.Entities
             };
         }
 
+        public byte GetSlotsLevelAvailable()
+        {
+            if (Ninth > 0) return 9;
+            if (Eighth > 0) return 8;
+            if (Seventh > 0) return 7;
+            if (Sixth > 0) return 6;
+            if (Fifth > 0) return 5;
+            if (Fourth > 0) return 4;
+            if (Third > 0) return 3;
+            if (Second > 0) return 2;
+            if (First > 0) return 1;
+
+            return 0;
+        }
+
         public override string ToString()
         {
             var str = "Spell Slots:\n";

@@ -40,6 +40,110 @@ public class Spell: BaseEntity
         AttackType = spell.AttackType;
         Uses = uses;
     }
+
+    public int GetSpellPower(short level, Slots spellSlots)
+    {
+        var spellPower = 0;
+
+        if (IsDamageSpell())
+        {
+            if (Damage.DamageSlots != null)
+            {
+                var damageDice = Damage.DamageSlots.OrderBy(x => x.Key).First().Value;
+                var damageParts = damageDice.Split('d');
+
+                spellPower = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
+                spellPower += (spellSlots.GetSlotsLevelAvailable() - int.Parse(Damage.DamageSlots.OrderBy(x => x.Key).First().Key)) * 2;
+            }
+            else if (Damage.DamageAtCharacterLevel != null)
+            {
+                var damageDice = Damage.DamageAtCharacterLevel[level.ToString()];
+                var damageParts = damageDice.Split('d');
+
+                spellPower = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
+            }
+        }
+
+        return spellPower;
+    }
+
+    public int GetSpellPercentage(Member partyMember, List<Monster> monsters)
+    {
+        var spellPercentage = 0;
+        var attackBonus = 0;
+        var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
+        var averageMonsterSaveBonus = 0;
+
+        if (IsDamageSpell())
+        {
+            if (RequiresAttackRoll())
+            {
+                switch (partyMember.SpellcastingAbility)
+                {
+                    case "strength":
+                        attackBonus = partyMember.Strength.Modifier + partyMember.ProficiencyBonus;
+                        break;
+                    case "dexterity":
+                        attackBonus = partyMember.Dexterity.Modifier + partyMember.ProficiencyBonus;
+                        break;
+                    case "constitution":
+                        attackBonus = partyMember.Constitution.Modifier + partyMember.ProficiencyBonus;
+                        break;
+                    case "intelligence":
+                        attackBonus = partyMember.Intelligence.Modifier + partyMember.ProficiencyBonus;
+                        break;
+                    case "wisdom":
+                        attackBonus = partyMember.Wisdom.Modifier + partyMember.ProficiencyBonus;
+                        break;
+                    case "charisma":
+                        attackBonus = partyMember.Charisma.Modifier + partyMember.ProficiencyBonus;
+                        break;
+                }
+
+                spellPercentage = DataManipulation.CalculateHitPercentage(averageMonsterAc, attackBonus);
+            }
+            else if (RequiresSavingThrow() && Dc != null)
+            {
+                var saveDc = 8 + partyMember.ProficiencyBonus;
+                switch (partyMember.SpellcastingAbility)
+                {
+                    case "strength":
+                        saveDc += partyMember.Strength.Modifier;
+                        averageMonsterSaveBonus = (int)monsters.Average(item => item.Strength.Modifier);
+                        break;
+                    case "dexterity":
+                        saveDc += partyMember.Dexterity.Modifier;
+                        averageMonsterSaveBonus = (int)monsters.Average(item => item.Dexterity.Modifier);
+                        break;
+                    case "constitution":
+                        saveDc += partyMember.Constitution.Modifier;
+                        averageMonsterSaveBonus = (int)monsters.Average(item => item.Constitution.Modifier);
+                        break;
+                    case "intelligence":
+                        saveDc += partyMember.Intelligence.Modifier;
+                        averageMonsterSaveBonus = (int)monsters.Average(item => item.Intelligence.Modifier);
+                        break;
+                    case "wisdom":
+                        saveDc += partyMember.Wisdom.Modifier;
+                        averageMonsterSaveBonus = (int)monsters.Average(item => item.Wisdom.Modifier);
+                        break;
+                    case "charisma":
+                        saveDc += partyMember.Charisma.Modifier;
+                        averageMonsterSaveBonus = (int)monsters.Average(item => item.Charisma.Modifier);
+                        break;
+                }
+
+                spellPercentage = DataManipulation.CalculateHitPercentage(saveDc, averageMonsterSaveBonus);
+            }
+        }
+
+        return spellPercentage;
+    }
+
+    public bool IsDamageSpell() => Damage != null;
+    public bool IsHealingSpell() => HealAtSlotLevel != null;
+    public bool RequiresAttackRoll() => AttackType != null;
+    public bool RequiresSavingThrow() => Dc != null;
 }
 
 public class SpellDamage

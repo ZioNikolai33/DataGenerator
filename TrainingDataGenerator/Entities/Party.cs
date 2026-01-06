@@ -41,6 +41,7 @@ public class Member
     public List<string> Vulnerabilities { get; set; } = new List<string>();
     public List<string> Resistances { get; set; } = new List<string>();
     public List<string> Immunities { get; set; } = new List<string>();
+    public string SpellcastingAbility { get; set; } = string.Empty;
     public Slots SpellSlots { get; set; } = new Slots();
     public List<Spell> Cantrips { get; set; } = new List<Spell>();
     public List<Spell> Spells { get; set; } = new List<Spell>();
@@ -68,6 +69,7 @@ public class Member
         Subrace = randomSubrace != null ? randomSubrace.Index : null;
         Class = randomClass.Index;
         Subclass = randomSubclass.Index;
+        SpellcastingAbility = randomClass.SpellcastingAbility != null ? DataManipulation.ConvertAbilityIndex(randomClass.SpellcastingAbility.SpellcastingAbility.Index) : string.Empty;
 
         SetAttributes(randomClass, randomRaceAbilityBonus, features); // Set Attributes with Racial Bonuses and Level Improvements
         ManageEquipments(randomClass); // Manage starting Equipments
@@ -1325,7 +1327,7 @@ public class Member
         var offensivePower = 0;
 
         offensivePower += CalculateWeaponsPower(monsters);
-        // Spells offensive power
+        offensivePower += CalculateSpellsPower(monsters);
 
         return offensivePower;
     }
@@ -1375,9 +1377,63 @@ public class Member
 
         offensivePower += (int)hitPercentage;
 
-        // Changes for immunities, resistances and vulnerabilities of monsters CalculateMonsterDefensesImpact(monsters, meleeWeaponsEquipped, rangedWeaponsEquipped, ref offensivePower);
+        CalculateMonsterDefensesImpact(monsters, meleeWeaponsEquipped, rangedWeaponsEquipped, ref offensivePower);
 
         Logger.Instance.Information($"Offensive Power for {Name}: {offensivePower}");
+        return offensivePower;
+    }
+
+    private void CalculateMonsterDefensesImpact(List<Monster> monsters, List<MeleeWeapon> meleeWeaponsEquipped, List<RangedWeapon> rangedWeaponsEquipped, ref int offensivePower)
+    {
+        var totalMonsters = monsters.Count;
+
+        foreach (var monster in monsters)
+        {
+            var monsterResistances = monster.DamageResistances;
+            var monsterImmunities = monster.DamageImmunities;
+            var monsterVulnerabilities = monster.DamageVulnerabilities;
+
+            foreach (var weapon in meleeWeaponsEquipped)
+            {
+                if (monsterResistances.Contains(weapon.Damage.DamageType))
+                    offensivePower -= 1;
+                if (monsterImmunities.Contains(weapon.Damage.DamageType))
+                    offensivePower -= 3;
+                if (monsterVulnerabilities.Contains(weapon.Damage.DamageType))
+                    offensivePower += 2;
+            }
+
+            foreach (var weapon in rangedWeaponsEquipped)
+            {
+                if (monsterResistances.Contains(weapon.Damage.DamageType))
+                    offensivePower -= 1;
+                if (monsterImmunities.Contains(weapon.Damage.DamageType))
+                    offensivePower -= 3;
+                if (monsterVulnerabilities.Contains(weapon.Damage.DamageType))
+                    offensivePower += 2;
+            }
+        }
+    }
+
+    private int CalculateSpellsPower(List<Monster> monsters)
+    {
+        var offensivePower = 0;
+        var hitPercentage = 0;
+        var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
+
+        foreach (var spell in Spells)
+        {
+            if (spell.IsDamageSpell())
+            {
+                offensivePower += spell.GetSpellPower(Level, SpellSlots);
+                hitPercentage = spell.GetSpellPercentage(this, monsters);
+
+                if (spell.RequiresAttackRoll() && spell.RequiresSavingThrow())
+                    offensivePower += DataManipulation.GetSpellsPowerValue(spell.Index);
+            }
+        }
+
+        Logger.Instance.Information($"Spells Offensive Power for {Name}: {offensivePower}");
         return offensivePower;
     }
 

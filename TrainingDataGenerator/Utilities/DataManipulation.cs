@@ -43,4 +43,30 @@ public static class DataManipulation
 
         return (short)hitPercentage;
     }
+
+    public static string ConvertAbilityIndex(string index)
+    {
+        switch (index)
+        {
+            case "str":
+                return "strength";
+            case "dex":
+                return "dexterity";
+            case "con":
+                return "constitution";
+            case "int":
+                return "intelligence";
+            case "wis":
+                return "wisdom";
+            case "cha":
+                return "charisma";
+        }
+
+        return string.Empty;
+    }
+
+    public static int GetSpellsPowerValue(string spell)
+    {
+        return 0;
+    }
 }
