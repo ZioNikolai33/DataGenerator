@@ -1400,6 +1400,9 @@ public class Member
         offensivePower += Math.Max(meleePower, rangedPower);
         attackBonus = (int)Math.Floor((double)attackBonus / (meleeWeaponsEquipped.Count + rangedWeaponsEquipped.Count));
 
+        if (Features.Any(f => f.Index.Contains("extra-attack")))
+            offensivePower *= Features.Where(f => f.Index.Contains("extra-attack")).Count();
+
         hitPercentage = DataManipulation.CalculateHitPercentage(averageMonsterAc, attackBonus);
 
         offensivePower += (int)hitPercentage;

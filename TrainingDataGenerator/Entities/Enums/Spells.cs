@@ -2,10 +2,12 @@
 
 public enum Spells
 {
+    // Cantrips
     Shillelagh = 1,
     Resistance = 1,
     Guidance = 1,
     SpareTheDying = 1,
+    // 1st Level Spells
     Longstrider = 2,
     ProtectionFromEvilAndGood = 2,
     Shield = 3,
@@ -31,6 +33,7 @@ public enum Spells
     Jump = 2,
     HideousLaughter = 2,
     UnseenServant = 2,
+    // 2nd Level Spells
     ZoneOfTruth = 1,
     Web = 3,
     WardingBond = 3,
@@ -67,6 +70,7 @@ public enum Spells
     Barkskin = 3,
     CalmEmotions = 3,
     BlindnessDeafness = 3,
+    // 3rd Level Spells
     SpeakWithPlants = 1,
     GaseousForm = 3,
     Revivify = 5,
@@ -95,6 +99,7 @@ public enum Spells
     DispelMagic = 5,
     Fear = 4,
     SpiritGuardians = 5,
+    // 4th Level Spells
     Banishment = 5,
     StoneShape = 5,
     ArcaneEye = 5,
@@ -110,6 +115,7 @@ public enum Spells
     Confusion = 5,
     Compulsion = 5,
     DeathWard = 4,
+    // 5th Level Spells
     PlanarBinding = 6,
     HoldMonster = 6,
     ModifyMemory = 5,
@@ -126,6 +132,7 @@ public enum Spells
     AntilifeShell = 6,
     DispelEvilAndGood = 6,
     WallOfStone = 6,
+    // 6th Level Spells
     IrresistibleDance = 6,
     Eyebite = 6,
     TrueSeeing = 5,
@@ -133,12 +140,14 @@ public enum Spells
     ProgrammedIllusion = 6,
     FleshToStone = 7,
     GlobeOfInvulnerability = 7,
-    ForceCage = 7,
+    // 7th Level Spells
+    Forcecage = 7,
     PlaceShift = 8,
     ProjectImage = 8,
     Sequester = 8,
     ReverseGravity = 7,
     DivineWord = 8,
+    // 8th Level Spells
     Earthquake = 9,
     AnimalShapes = 9,
     AntimagicField = 9,
@@ -148,6 +157,7 @@ public enum Spells
     Glibness = 9,
     HolyAura = 8,
     MindBlank = 9,
+    // 9th Level Spells
     ShapeChange = 9,
     Wish = 11,
     TimeStop = 11,

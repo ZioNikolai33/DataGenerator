@@ -331,8 +331,8 @@ public static class DataManipulation
                 return (int)Entities.Enums.Spells.FleshToStone;
             case "globe-of-invulnerability":
                 return (int)Entities.Enums.Spells.GlobeOfInvulnerability;
-            case "force-cage":
-                return (int)Entities.Enums.Spells.ForceCage;
+            case "forcecage":
+                return (int)Entities.Enums.Spells.Forcecage;
             case "place-shift":
                 return (int)Entities.Enums.Spells.PlaceShift;
             case "project-image":
