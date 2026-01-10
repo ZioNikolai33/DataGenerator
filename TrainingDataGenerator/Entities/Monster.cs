@@ -421,7 +421,38 @@ public class Monster : BaseEntity
 
     public int GetOffensivePower(List<Member> party)
     {
-        return 0;
+        var offensivePower = 0;
+
+        offensivePower += CalculateAttackPower(party);
+        offensivePower += CalculateSpellsPower(party);
+
+        Logger.Instance.Information($"Total Offensive Power for {Name}: {offensivePower}");
+
+        return offensivePower;
+    }
+
+    private int CalculateAttackPower(List<Member> party)
+    {
+        var offensivePower = 0;
+        var partyAvgAc = (int)party.Average(m => m.ArmorClass);
+
+        foreach (var action in Actions)
+        {
+            var attackPower = 0;
+            var attackBonus = 0;
+
+            if (action.AttackBonus.HasValue)
+            {
+                attackBonus = action.AttackBonus.Value;
+
+                foreach (var damage in action.Damage)
+                {
+                    attackPower = DataManipulation.GetDamageValue(damage.DamageDice);
+                }
+            }
+        }
+
+        return attackPower;
     }
 
     public int GetHealingPower()

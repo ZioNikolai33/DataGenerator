@@ -65,6 +65,19 @@ public static class DataManipulation
         return string.Empty;
     }
 
+    public static int GetDamageValue(string damageDice)
+    {
+        var value = 0;
+        var diceParts = damageDice.Trim().Split("d");
+
+        if (damageDice.Contains("+"))
+            value = int.Parse(diceParts[0]) + int.Parse(diceParts[1].Split("+")[0]);
+
+        //WIP
+
+        return value;
+    }
+
     public static int GetSpellsPowerValue(string spell)
     {
         switch (spell)
