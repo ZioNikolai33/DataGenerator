@@ -419,6 +419,21 @@ public class Monster : BaseEntity
         return speedValue;
     }
 
+    public int GetOffensivePower(List<Member> party)
+    {
+        return 0;
+    }
+
+    public int GetHealingPower()
+    {
+        return 0;
+    }
+
+    public int GetFeaturesPower()
+    {
+        return 0;
+    }
+
     private int CalculateStatsValue() => Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
 
     private int CalculateSkillsValue() => Skills.Where(s => s.IsProficient).Sum(s => s.Modifier);
