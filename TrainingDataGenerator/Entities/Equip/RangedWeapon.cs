@@ -16,6 +16,9 @@ public class RangedWeapon : Weapon
 
     public override int GetWeaponPower(int strengthModifier, int dexterityModifier)
     {
+        if (!Damage.DamageDice.Contains("d"))
+            return int.Parse(Damage.DamageDice.Trim());
+
         var weaponPower = 0;
         var damageParts = Damage.DamageDice.Split('d');
         var averageDamage = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;

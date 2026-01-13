@@ -1340,7 +1340,7 @@ public class Member
 
         foreach (var spell in Spells)
             if (spell.IsHealingSpell())
-                healingPower += spell.GetHealingPower(SpellSlots);
+                healingPower += spell.GetHealingPower(SpellSlots, this);
 
         Logger.Instance.Information($"Total Healing Power for {Name}: {healingPower}");
 
@@ -1479,7 +1479,7 @@ public class Member
         {
             if (spell.IsDamageSpell())
             {
-                offensivePower += spell.GetSpellPower(Level, SpellSlots);
+                offensivePower += spell.GetSpellPower(Level, SpellSlots, this);
                 offensivePower += spell.GetSpellPercentage(this, monsters);
 
                 if (spell.RequiresAttackRoll() && spell.RequiresSavingThrow())

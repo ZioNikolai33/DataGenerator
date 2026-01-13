@@ -1,4 +1,5 @@
 ﻿using TrainingDataGenerator.DataBase;
+using TrainingDataGenerator.Entities;
 
 namespace TrainingDataGenerator.Utilities;
 
@@ -65,15 +66,81 @@ public static class DataManipulation
         return string.Empty;
     }
 
-    public static int GetDamageValue(string damageDice)
+    public static short GetSpellcastingModifier(Member member)
     {
-        var value = 0;
-        var diceParts = damageDice.Trim().Split("d");
+        var ability = ConvertAbilityIndex(member.SpellcastingAbility);
 
-        if (damageDice.Contains("+"))
-            value = int.Parse(diceParts[0]) + int.Parse(diceParts[1].Split("+")[0]);
+        return ability switch
+        {
+            "strength" => member.Strength.Modifier,
+            "dexterity" => member.Dexterity.Modifier,
+            "constitution" => member.Constitution.Modifier,
+            "intelligence" => member.Intelligence.Modifier,
+            "wisdom" => member.Wisdom.Modifier,
+            "charisma" => member.Charisma.Modifier,
+            _ => 0,
+        };
+    }
 
-        //WIP
+    public static short GetSpellcastingModifier(Monster monster)
+    {
+        var ability = string.Empty;
+        var spellcastingAbility = monster.SpecialAbilities
+            .FirstOrDefault(item => item.Name.Equals("Spellcasting") && item.Spellcast != null && item.Spellcast.Ability != null);
+
+        if (spellcastingAbility?.Spellcast?.Ability?.Index != null)
+            ability = ConvertAbilityIndex(spellcastingAbility.Spellcast.Ability.Index);
+
+        return ability switch
+        {
+            "strength" => monster.Strength.Modifier,
+            "dexterity" => monster.Dexterity.Modifier,
+            "constitution" => monster.Constitution.Modifier,
+            "intelligence" => monster.Intelligence.Modifier,
+            "wisdom" => monster.Wisdom.Modifier,
+            "charisma" => monster.Charisma.Modifier,
+            _ => 0,
+        };
+    }
+
+    public static int GetDiceValue(string dice, Member member)
+    {
+        int value = 0;
+
+        if (!dice.Contains("d"))
+            return int.Parse(dice.Trim());
+
+        var diceParts = dice.Trim().Split("d");
+
+        if (dice.Contains("+"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + int.Parse(diceParts[1].Split("+")[0])) / 2;
+        else if (dice.Trim().Contains("-"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) - int.Parse(diceParts[1].Split("-")[0])) / 2;
+        else if (dice.Trim().Contains("+MOD"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + GetSpellcastingModifier(member)) / 2;
+        else
+            value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
+
+        return value;
+    }
+
+    public static int GetDiceValue(string dice, Monster monster)
+    {
+        int value = 0;
+
+        if (!dice.Contains("d"))
+            return int.Parse(dice.Trim());
+
+        var diceParts = dice.Trim().Split("d");
+
+        if (dice.Contains("+"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + int.Parse(diceParts[1].Split("+")[0])) / 2;
+        else if (dice.Trim().Contains("-"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) - int.Parse(diceParts[1].Split("-")[0])) / 2;
+        else if (dice.Trim().Contains("+MOD"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + GetSpellcastingModifier(monster)) / 2;
+        else
+            value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
 
         return value;
     }

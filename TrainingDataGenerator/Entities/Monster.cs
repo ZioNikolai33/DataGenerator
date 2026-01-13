@@ -424,7 +424,7 @@ public class Monster : BaseEntity
         var offensivePower = 0;
 
         offensivePower += CalculateAttackPower(party);
-        offensivePower += CalculateSpellsPower(party);
+        //offensivePower += CalculateSpellsPower(party);
 
         Logger.Instance.Information($"Total Offensive Power for {Name}: {offensivePower}");
 
@@ -447,12 +447,12 @@ public class Monster : BaseEntity
 
                 foreach (var damage in action.Damage)
                 {
-                    attackPower = DataManipulation.GetDamageValue(damage.DamageDice);
+                    attackPower = DataManipulation.GetDiceValue(damage.DamageDice, this);
                 }
             }
         }
 
-        return attackPower;
+        return offensivePower;
     }
 
     public int GetHealingPower()

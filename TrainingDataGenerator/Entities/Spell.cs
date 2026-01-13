@@ -41,7 +41,7 @@ public class Spell: BaseEntity
         Uses = uses;
     }
 
-    public int GetSpellPower(short level, Slots spellSlots)
+    public int GetSpellPower(short level, Slots spellSlots, Member member)
     {
         var spellPower = 0;
 
@@ -50,9 +50,8 @@ public class Spell: BaseEntity
             if (Damage?.DamageSlots != null)
             {
                 var damageDice = Damage.DamageSlots.OrderBy(x => x.Key).First().Value;
-                var damageParts = damageDice.Split('d');
 
-                spellPower = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
+                spellPower = DataManipulation.GetDiceValue(damageDice, member);
                 spellPower += (spellSlots.GetSlotsLevelAvailable() - Damage.DamageSlots.OrderBy(x => x.Key).First().Key) * 2;
             }
             else if (Damage?.DamageAtCharacterLevel != null)
@@ -60,7 +59,7 @@ public class Spell: BaseEntity
                 var damageDice = Damage.DamageAtCharacterLevel.OrderBy(x => x.Key).FirstOrDefault(x => x.Key <= level)?.Value ?? "0d0";
                 var damageParts = damageDice.Split('d');
 
-                spellPower = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
+                spellPower = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]))) / 2;
             }
         }
 
@@ -140,16 +139,15 @@ public class Spell: BaseEntity
         return spellPercentage;
     }
 
-    public int GetHealingPower(Slots spellSlots)
+    public int GetHealingPower(Slots spellSlots, Member member)
     {
         var healingPower = 0;
 
         if (IsHealingSpell() && HealAtSlotLevel != null)
         {
             var healDice = HealAtSlotLevel.OrderBy(x => x.Key).First().Value;
-            var healParts = healDice.Split('d');
 
-            healingPower = (int.Parse(healParts[0]) * (int.Parse(healParts[1].Split(" + ")[0]) + 1)) / 2;
+            healingPower = DataManipulation.GetDiceValue(healDice, member);
             healingPower += (spellSlots.GetSlotsLevelAvailable() - HealAtSlotLevel.OrderBy(x => x.Key).First().Key) * 2;
         }
 
