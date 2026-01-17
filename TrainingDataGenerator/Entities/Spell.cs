@@ -99,7 +99,7 @@ public class Spell: BaseEntity
                         break;
                 }
 
-                spellPercentage = DataManipulation.CalculateHitPercentage(averageMonsterAc, attackBonus);
+                spellPercentage = DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus);
             }
             else if (RequiresSavingThrow() && Dc != null)
             {
@@ -132,7 +132,7 @@ public class Spell: BaseEntity
                         break;
                 }
 
-                spellPercentage = DataManipulation.CalculateHitPercentage(saveDc, averageMonsterSaveBonus);
+                spellPercentage = DataManipulation.CalculateRollPercentage(saveDc, averageMonsterSaveBonus);
             }
         }
 

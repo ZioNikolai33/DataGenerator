@@ -3,6 +3,7 @@
 public sealed class Encounter
 {
     public string Id { get; set; }
+    public CRRatios Difficulty { get; set; }
     public List<Member> PartyMembers { get; set; }
     public List<Monster> Monsters { get; set; }
     public Result Outcome { get; set; } = new Result();

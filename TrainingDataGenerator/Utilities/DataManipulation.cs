@@ -1,4 +1,5 @@
-﻿using TrainingDataGenerator.DataBase;
+﻿using System.Threading;
+using TrainingDataGenerator.DataBase;
 using TrainingDataGenerator.Entities;
 
 namespace TrainingDataGenerator.Utilities;
@@ -23,26 +24,26 @@ public static class DataManipulation
         return filteredMonsters;
     }
 
-    public static short CalculateHitPercentage(int armorClass, int attackBonus)
+    public static double CalculateRollPercentage(int toReach, int bonus, short diceNumber = 20)
     {
-        var hitPercentage = 0;
+        var hitPercentage = 0.0;
 
-        for (var roll = 1; roll <= 20; roll++)
+        for (var roll = 1; roll <= diceNumber; roll++)
         {
-            if (roll == 1)
+            if (diceNumber == 20 && roll == 1)
                 continue;
 
-            if (roll == 20)
+            if (roll == diceNumber)
             {
-                hitPercentage += 5;
+                hitPercentage += diceNumber / 100;
                 continue;
             }
 
-            if (roll + attackBonus >= armorClass)
-                hitPercentage += 5;
+            if (roll + bonus >= toReach)
+                hitPercentage += diceNumber / 100;
         }
 
-        return (short)hitPercentage;
+        return (double)hitPercentage;
     }
 
     public static string ConvertAbilityIndex(string index)
@@ -141,6 +142,27 @@ public static class DataManipulation
             value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + GetSpellcastingModifier(monster)) / 2;
         else
             value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
+
+        return value;
+    }
+
+    public static int GetDiceValue(string dice)
+    {
+        int value = 0;
+
+        if (!dice.Contains("d"))
+            return int.Parse(dice.Trim());
+
+        var diceParts = dice.Trim().Split("d");
+
+        if (dice.Contains("+"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + int.Parse(diceParts[1].Split("+")[0]));
+        else if (dice.Trim().Contains("-"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) - int.Parse(diceParts[1].Split("-")[0]));
+        else if (dice.Trim().Contains("+MOD"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])));
+        else
+            value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1]));
 
         return value;
     }

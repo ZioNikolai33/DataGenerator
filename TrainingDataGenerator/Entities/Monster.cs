@@ -1,4 +1,5 @@
-﻿using TrainingDataGenerator.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Equip;
+using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Entities;
@@ -129,6 +130,7 @@ public class Monster : BaseEntity
         public byte? AttackBonus { get; set; }
         public List<Damage> Damage { get; set; }
         public Dc Dc { get; set; }
+        public Usage? Usage { get; set; }
 
         public class MultiAction
         {
@@ -150,6 +152,7 @@ public class Monster : BaseEntity
             AttackBonus = action.AttackBonus != null ? (byte?)action.AttackBonus : null;
             Damage = action.Damage?.Select(item => new Damage(item)).ToList() ?? new List<Damage>();
             Dc = new Dc(action.Dc);
+            Usage = (action.Usage != null) ? new Usage(action.Usage.Type, action.Usage.Times, action.Usage.RestTypes, action.Usage.Dice, action.Usage.MinValue) : null;
         }
     }
 
@@ -419,40 +422,121 @@ public class Monster : BaseEntity
         return speedValue;
     }
 
-    public int GetOffensivePower(List<Member> party)
+    public int GetOffensivePower(List<Member> party, CRRatios difficulty)
     {
         var offensivePower = 0;
 
-        offensivePower += CalculateAttackPower(party);
-        //offensivePower += CalculateSpellsPower(party);
+        offensivePower += Math.Average(CalculateAttackPower(party, difficulty), Actions.Count);
+        offensivePower += Math.Average(CalculateSpellsPower(party), Spells.Count);
 
         Logger.Instance.Information($"Total Offensive Power for {Name}: {offensivePower}");
 
         return offensivePower;
     }
 
-    private int CalculateAttackPower(List<Member> party)
+    private int CalculateAttackPower(List<Member> party, CRRatios difficulty)
+    {
+        var offensivePower = 0;
+
+        // For simple actions: attack bonus + average damage
+        // For DC based attacks: percentage hit -> average damage (none or half)
+        // For multiattack: sum of all attacks
+
+        offensivePower += CalculateSimpleAttacks(party, difficulty);
+        offensivePower += CalculateDcAttacks(party, difficulty);
+        offensivePower += CalculateMultiAttacks(party, difficulty);
+
+        return offensivePower;
+    }
+
+    private int CalculateSimpleAttacks(List<Member> party, CRRatios difficulty)
     {
         var offensivePower = 0;
         var partyAvgAc = (int)party.Average(m => m.ArmorClass);
+        var actions = Actions.Where(a => a.AttackBonus.HasValue && a.Damage != null && a.Damage.Count > 0).ToList();
 
-        foreach (var action in Actions)
+        foreach (var action in actions)
         {
-            var attackPower = 0;
-            var attackBonus = 0;
+            var attackBonus = action.AttackBonus.HasValue ? action.AttackBonus.Value : 0;
+            var averageDamage = action.Damage.Average(d => DataManipulation.GetDiceValue(d.DamageDice, this));
+            var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
+            var hitPercentage = DataManipulation.CalculateRollPercentage(partyAvgAc, attackBonus);
+            var usagePercentage = CalculateUsagePercentage(action, difficulty);
+            
+            offensivePower += (int)(hitPercentage * averageDamage * usagePercentage);
 
-            if (action.AttackBonus.HasValue)
-            {
-                attackBonus = action.AttackBonus.Value;
-
-                foreach (var damage in action.Damage)
-                {
-                    attackPower = DataManipulation.GetDiceValue(damage.DamageDice, this);
-                }
-            }
+            CalculatePartyDefensesImpact(party, damageTypes, ref offensivePower);
         }
 
         return offensivePower;
+    }
+
+    private int CalculateDcAttacks(List<Member> party, CRRatios difficulty)
+    {
+        var offensivePower = 0;
+        var actions = Actions.Where(a => a.Dc != null && a.Damage != null && a.Damage.Count > 0).ToList();
+
+        foreach (var action in actions)
+        {
+            var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc.DcType.Index, action.Dc.DcValue));
+            var averageDamage = action.Damage.Sum(d => DataManipulation.GetDiceValue(d.DamageDice, this));
+            var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
+            var usagePercentage = CalculateUsagePercentage(action, difficulty);
+
+            offensivePower += (int)((100 - partyAvgPercentage) * averageDamage * usagePercentage);
+
+            if (action.Dc.SuccessType.Equals("half", StringComparison.OrdinalIgnoreCase))
+                offensivePower += (int)(partyAvgPercentage * (averageDamage / 2)) * (int)usagePercentage;
+
+            CalculatePartyDefensesImpact(party, damageTypes, ref offensivePower);
+        }
+
+        return offensivePower;
+    }
+
+    private double CalculateUsagePercentage(NormalAction action, CRRatios difficulty)
+    {
+        double usagePercentage = 1.0;
+
+        if (action.Usage != null)
+            if (action.Usage.Type.Equals("recharge on roll", StringComparison.OrdinalIgnoreCase))
+                usagePercentage = DataManipulation.CalculateRollPercentage(action.Usage.MinValue ?? 0, 0, (short)DataManipulation.GetDiceValue(action.Usage.Dice ?? "0"));
+            else if (action.Usage.Type.Equals("recharge after rest", StringComparison.OrdinalIgnoreCase) || action.Usage.Type.Equals("per day", StringComparison.OrdinalIgnoreCase))
+                usagePercentage = (action.Usage.Times ?? 1) / difficulty;
+
+        return usagePercentage;
+    }
+
+    private int CalculateMultiAttacks(List<Member> party, CRRatios difficulty)
+    {
+        var offensivePower = 0;
+        var multiattackActions = Actions.Where(a => a.Actions != null && a.Actions.Count > 0).ToList();
+        var simpleActions = Actions.Where(a => a.AttackBonus.HasValue && a.Damage != null && a.Damage.Count > 0).ToList();
+        var dcActions = Actions.Where(a => a.Dc != null && a.Damage != null && a.Damage.Count > 0).ToList();
+
+        return offensivePower;
+    }
+
+    private void CalculatePartyDefensesImpact(List<Member> party, List<string> damageTypes, ref int offensivePower)
+    {
+        var totalparty = party.Count;
+
+        foreach (var member in party)
+        {
+            var memberResistances = member.Resistances;
+            var memberImmunities = member.Immunities;
+            var memberVulnerabilities = member.Vulnerabilities;
+
+            foreach (var damageType in damageTypes)
+            {
+                if (memberResistances.Contains(damageType))
+                    offensivePower -= 1;
+                if (memberImmunities.Contains(damageType))
+                    offensivePower -= 3;
+                if (memberVulnerabilities.Contains(damageType))
+                    offensivePower += 2;
+            }
+        }
     }
 
     public int GetHealingPower()

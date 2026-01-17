@@ -1,4 +1,5 @@
-﻿using TrainingDataGenerator.Entities.Enums;
+﻿using System;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Utilities;
@@ -945,6 +946,27 @@ public class Member
 
     #region utilities
 
+    public short GetSavePercentage(string index, int saveDc)
+    {
+        switch (index)
+        {
+            case "str":
+                return DataManipulation.CalculateRollPercentage(saveDc, Strength.Save);
+            case "dex":
+                return DataManipulation.CalculateRollPercentage(saveDc, Dexterity.Save);
+            case "con":
+                return DataManipulation.CalculateRollPercentage(saveDc, Constitution.Save);
+            case "int":
+                return DataManipulation.CalculateRollPercentage(saveDc, Intelligence.Save);
+            case "wis":
+                return DataManipulation.CalculateRollPercentage(saveDc, Wisdom.Save);
+            case "cha":
+                return DataManipulation.CalculateRollPercentage(saveDc, Charisma.Save);
+            default:
+                return 0;
+        }
+    }
+
     private byte CalculateArmorClass()
     {
         var ac = 10 + Dexterity.Modifier;
@@ -1376,10 +1398,6 @@ public class Member
     private int CalculateWeaponsPower(List<Monster> monsters)
     {
         var offensivePower = 0;
-        var meleePower = 0;
-        var rangedPower = 0;
-        var attackBonus = 0;
-        var hitPercentage = 0;
         var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
 
         var meleeWeaponsEquipped = MeleeWeapons.Where(item => item.IsEquipped).ToList();
@@ -1387,35 +1405,69 @@ public class Member
 
         foreach (var weapon in meleeWeaponsEquipped)
         {
-            meleePower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
-            attackBonus += weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+            var meleePower = weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
+            var attackBonus = weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+            var attackPower = (int)DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * meleePower;
+
+            CalculateMonsterDefensesImpact(monsters, weapon, ref attackPower);
+
+            offensivePower += attackPower;
         }
 
         foreach (var weapon in rangedWeaponsEquipped)
         {
-            rangedPower += weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
-            attackBonus += weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+            var rangedPower = weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
+            var attackBonus = weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
+            var attackPower = (int)DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * rangedPower;
+
+            CalculateMonsterDefensesImpact(monsters, weapon, ref attackPower);
+
+            offensivePower += attackPower;
         }
 
-        offensivePower += Math.Max(meleePower, rangedPower);
-        attackBonus = (int)Math.Floor((double)attackBonus / (meleeWeaponsEquipped.Count + rangedWeaponsEquipped.Count));
+        offensivePower = offensivePower / (meleeWeaponsEquipped.Count + rangedWeaponsEquipped.Count);
 
         if (Features.Any(f => f.Index.Contains("extra-attack")))
             offensivePower *= Features.Where(f => f.Index.Contains("extra-attack")).Count();
-
-        hitPercentage = DataManipulation.CalculateHitPercentage(averageMonsterAc, attackBonus);
-
-        offensivePower += (int)hitPercentage;
-
-        CalculateMonsterDefensesImpact(monsters, meleeWeaponsEquipped, rangedWeaponsEquipped, ref offensivePower);
 
         Logger.Instance.Information($"Offensive Power for {Name}: {offensivePower}");
         return offensivePower;
     }
 
-    private void CalculateMonsterDefensesImpact(List<Monster> monsters, List<MeleeWeapon> meleeWeaponsEquipped, List<RangedWeapon> rangedWeaponsEquipped, ref int offensivePower)
+    private int CalculateSpellsPower(List<Monster> monsters)
     {
-        var totalMonsters = monsters.Count;
+        var offensivePower = 0;
+        var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
+
+        foreach (var spell in Spells)
+        {
+            if (spell.IsDamageSpell())
+            {
+                offensivePower += spell.GetSpellPower(Level, SpellSlots, this);
+                offensivePower += spell.GetSpellPercentage(this, monsters);
+
+                // Avoided for now, too complex to calculate properly
+                //if (spell.RequiresAttackRoll() && spell.RequiresSavingThrow())
+                //    offensivePower += DataManipulation.GetSpellsPowerValue(spell.Index);
+            }
+            // Avoided for now, too complex to calculate properly
+            //else if (!spell.IsDamageSpell())
+            //    offensivePower += DataManipulation.GetSpellsPowerValue(spell.Index);
+        }
+
+        CalculateMonsterDefensesImpact(monsters, Spells, ref offensivePower);
+
+        Logger.Instance.Information($"Spells Offensive Power for {Name}: {offensivePower}");
+        return offensivePower;
+    }
+
+    private void CalculateMonsterDefensesImpact(List<Monster> monsters, MeleeWeapon meleeWeapon, ref int offensivePower)
+    {
+        var totalPower = 0;
+        var power = 0.0;
+
+        if (monsters == null || monsters.Count == 0)
+            return;
 
         foreach (var monster in monsters)
         {
@@ -1423,26 +1475,44 @@ public class Member
             var monsterImmunities = monster.DamageImmunities;
             var monsterVulnerabilities = monster.DamageVulnerabilities;
 
-            foreach (var weapon in meleeWeaponsEquipped)
-            {
-                if (monsterResistances.Contains(weapon.Damage.DamageType))
-                    offensivePower -= 1;
-                if (monsterImmunities.Contains(weapon.Damage.DamageType))
-                    offensivePower -= 3;
-                if (monsterVulnerabilities.Contains(weapon.Damage.DamageType))
-                    offensivePower += 2;
-            }
+            if (monsterResistances.Contains(meleeWeapon.Damage.DamageType))
+                power = offensivePower * 0.5;
+            if (monsterImmunities.Contains(meleeWeapon.Damage.DamageType))
+                power = 0;
+            if (monsterVulnerabilities.Contains(meleeWeapon.Damage.DamageType))
+                power = offensivePower * 2;
 
-            foreach (var weapon in rangedWeaponsEquipped)
-            {
-                if (monsterResistances.Contains(weapon.Damage.DamageType))
-                    offensivePower -= 1;
-                if (monsterImmunities.Contains(weapon.Damage.DamageType))
-                    offensivePower -= 3;
-                if (monsterVulnerabilities.Contains(weapon.Damage.DamageType))
-                    offensivePower += 2;
-            }
+            totalPower += (int)power;
         }
+
+        offensivePower = totalPower / monsters.Count;
+    }
+
+    private void CalculateMonsterDefensesImpact(List<Monster> monsters, RangedWeapon rangedWeapon, ref int offensivePower)
+    {
+        var totalPower = 0;
+        var power = 0.0;
+
+        if (monsters == null || monsters.Count == 0)
+            return;
+
+        foreach (var monster in monsters)
+        {
+            var monsterResistances = monster.DamageResistances;
+            var monsterImmunities = monster.DamageImmunities;
+            var monsterVulnerabilities = monster.DamageVulnerabilities;
+
+            if (monsterResistances.Contains(rangedWeapon.Damage.DamageType))
+                power = offensivePower * 0.5;
+            if (monsterImmunities.Contains(rangedWeapon.Damage.DamageType))
+                power = 0;
+            if (monsterVulnerabilities.Contains(rangedWeapon.Damage.DamageType))
+                power = offensivePower * 2;
+
+            totalPower += (int)power;
+        }
+
+        offensivePower = totalPower / monsters.Count;
     }
 
     private void CalculateMonsterDefensesImpact(List<Monster> monsters, List<Spell> spells, ref int offensivePower)
@@ -1468,31 +1538,6 @@ public class Member
                 }
             }
         }
-    }
-
-    private int CalculateSpellsPower(List<Monster> monsters)
-    {
-        var offensivePower = 0;
-        var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
-
-        foreach (var spell in Spells)
-        {
-            if (spell.IsDamageSpell())
-            {
-                offensivePower += spell.GetSpellPower(Level, SpellSlots, this);
-                offensivePower += spell.GetSpellPercentage(this, monsters);
-
-                if (spell.RequiresAttackRoll() && spell.RequiresSavingThrow())
-                    offensivePower += DataManipulation.GetSpellsPowerValue(spell.Index);
-            }
-            else if (!spell.IsDamageSpell())
-                offensivePower += DataManipulation.GetSpellsPowerValue(spell.Index);
-        }
-
-        CalculateMonsterDefensesImpact(monsters, Spells, ref offensivePower);
-
-        Logger.Instance.Information($"Spells Offensive Power for {Name}: {offensivePower}");
-        return offensivePower;
     }
 
     private int CalculateProficiencyValue() => (int)(ProficiencyBonus * (Level * 0.75));
