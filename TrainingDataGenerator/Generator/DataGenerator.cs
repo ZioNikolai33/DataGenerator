@@ -248,19 +248,19 @@ public static class DataGenerator
 
         Logger.Instance.Information($"Random factor for Party: {randomFactorParty}% - Random factor for Monsters: {randomFactorMonsters}%");
 
-        var baseStatsParty = encounter.PartyMembers.Average(m => m.GetTotalBaseStats());
+        var baseStatsParty = (int)encounter.PartyMembers.Average(m => m.GetTotalBaseStats());
         Logger.Instance.Information($"Total Base Stats for Party: {baseStatsParty}");
-        var baseStatsMonsters = encounter.Monsters.Average(m => m.GetTotalBaseStats());
+        var baseStatsMonsters = (int)encounter.Monsters.Average(m => m.GetTotalBaseStats());
         Logger.Instance.Information($"Total Base Stats for Monsters: {baseStatsMonsters}");
 
         var offensivePowerParty = encounter.PartyMembers.Sum(m => m.GetOffensivePower(encounter.Monsters));
         Logger.Instance.Information($"Average Offensive Power for Party: {offensivePowerParty}");
-        var offensivePowerMonsters = encounter.Monsters.Average(m => m.GetOffensivePower(encounter.PartyMembers, encounter.Difficulty));
+        var offensivePowerMonsters = encounter.Monsters.Sum(m => m.GetOffensivePower(encounter.PartyMembers, encounter.Difficulty));
         Logger.Instance.Information($"Average Offensive Power for Monsters: {offensivePowerMonsters}");
 
         var healingPowerParty = encounter.PartyMembers.Sum(m => m.GetHealingPower());
         Logger.Instance.Information($"Average Healing Power for Party: {healingPowerParty}");
-        var healingPowerMonsters = encounter.Monsters.Average(m => m.GetHealingPower());
+        var healingPowerMonsters = encounter.Monsters.Sum(m => m.GetHealingPower());
         Logger.Instance.Information($"Average Healing Power for Monsters: {healingPowerMonsters}");
 
         var totalPowerParty = (int)((baseStatsParty + offensivePowerParty + healingPowerParty) * (1 + (randomFactorParty / 100.0)));

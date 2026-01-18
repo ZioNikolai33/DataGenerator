@@ -47,11 +47,14 @@ public class Spell: BaseEntity
     {
         var spellPower = 0.0;
 
-        if (IsDamageSpell())
-            if (Damage?.DamageSlots != null)
+        if (IsDamageSpell() && Uses == "")
+            if (Damage?.DamageSlots != null && Damage.DamageSlots.Count > 0)
                 spellPower = Damage.DamageSlots.Where(item => member.SpellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
-            else if (Damage?.DamageAtCharacterLevel != null)
+            else if (Damage?.DamageAtCharacterLevel != null && Damage.DamageAtCharacterLevel.Count > 0)
                 spellPower = Damage.DamageAtCharacterLevel.Where(item => member.Level >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
+        else if (IsDamageSpell() && Uses != "")
+            if (Damage?.DamageSlots != null && Damage.DamageSlots.Count > 0)
+                spellPower = Damage?.DamageSlots.Average(item => DataManipulation.GetDiceValue(item.Value, member)) ?? 0;
 
         return (int)spellPower;
     }

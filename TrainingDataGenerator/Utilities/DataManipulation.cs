@@ -35,12 +35,12 @@ public static class DataManipulation
 
             if (roll == diceNumber)
             {
-                hitPercentage += diceNumber / 100;
+                hitPercentage += (double)1 / diceNumber;
                 continue;
             }
 
             if (roll + bonus >= toReach)
-                hitPercentage += diceNumber / 100;
+                hitPercentage += (double)1 / diceNumber;
         }
 
         return (double)hitPercentage;

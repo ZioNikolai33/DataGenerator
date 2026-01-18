@@ -1,4 +1,6 @@
-﻿using System.Reflection.Emit;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
@@ -480,23 +482,24 @@ public class Monster : BaseEntity
     private int CalculateSimpleAttacks(List<Member> party, CRRatios difficulty)
     {
         var offensivePower = 0;
-        var chooseableDamages = 0;
         var partyAvgAc = (int)party.Average(m => m.ArmorClass);
         var actions = Actions.Where(a => a.AttackBonus.HasValue && a.Damage != null && a.Damage.Count > 0).ToList();
 
         foreach (var action in actions)
         {
+            var chooseableDamages = new List<DamageOption>();
             var attackBonus = action.AttackBonus.HasValue ? action.AttackBonus.Value : 0;
 
-            if (action.Damage.Any(item => item.Choose != null))
-            {
-                foreach (var damageOption in action.Damage.Where(d => d.Choose != null))
-                {
-                    var options = damageOption.From.Options.Count;
-                }
-            }
+            if (action.Damage.Any(item => item.From != null))
+                foreach (var damage in action.Damage.Where(item => item.From != null))
+                    chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random()).Take(damage.Choose ?? 0));
 
             var averageDamage = action.Damage.Where(item => item.DamageDice != null).Average(d => DataManipulation.GetDiceValue(d.DamageDice, this));
+            var averageChooseableDamage = (chooseableDamages.Count > 0) ? chooseableDamages.Average(item => DataManipulation.GetDiceValue(item.Damage_Dice, this)) : 0;
+
+            if (averageChooseableDamage > 0)
+                averageDamage = (averageDamage + averageChooseableDamage) / 2;
+
             var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
             var hitPercentage = DataManipulation.CalculateRollPercentage(partyAvgAc, attackBonus);
             var usagePercentage = CalculateUsagePercentage(action, difficulty);            
