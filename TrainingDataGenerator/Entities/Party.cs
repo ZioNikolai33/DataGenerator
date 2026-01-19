@@ -1,5 +1,4 @@
-﻿using System;
-using TrainingDataGenerator.Entities.Enums;
+﻿using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Utilities;
@@ -1046,17 +1045,23 @@ public class Member
                                 break;
                         }
 
-                        Spells.AddRange(Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && IsSpellKnown(item.Level, spellcasting) && (Spells == null || !Spells.Any(s => s.Index == item.Index)))
-                            .OrderBy(_ => new Random().Next())
-                            .Take(spellcasting.SpellsKnown ?? 0)
-                            .Select(item => new Spell(item))
-                            .ToList());
+                        Spells.AddRange(Lists.spells.Where(item => SpellSlots.GetSlotsLevelAvailable() >= item.Level && 
+                            (item.Classes.Any(x => x.Index == Class) || 
+                            (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && 
+                            (Spells == null || !Spells.Any(s => s.Index == item.Index))))
+                                .OrderBy(_ => new Random().Next())
+                                .Take(spellcasting.SpellsKnown ?? 0)
+                                .Select(item => new Spell(item))
+                                .ToList());
 
-                        Cantrips.AddRange(Lists.spells.Where(item => item.Classes.Any(x => x.Index == Class) || (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && item.Level == 0 && (Cantrips == null || !Cantrips.Any(s => s.Index == item.Index)))
-                            .OrderBy(_ => new Random().Next())
-                            .Take(spellcasting.CantripsKnown ?? 0)
-                            .Select(item => new Spell(item))
-                            .ToList());
+                        Cantrips.AddRange(Lists.spells.Where(item => item.Level == 0 && 
+                            (item.Classes.Any(x => x.Index == Class) || 
+                            (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && 
+                            (Cantrips == null || !Cantrips.Any(s => s.Index == item.Index))))
+                                .OrderBy(_ => new Random().Next())
+                                .Take(spellcasting.CantripsKnown ?? 0)
+                                .Select(item => new Spell(item))
+                                .ToList());
                     }
                 }
 
@@ -1108,51 +1113,6 @@ public class Member
         }
 
         Features.AddRange(newFeatures);
-    }
-
-    private bool IsSpellKnown(byte level, LevelMapper.SpellcastingInfo spellcasting)
-    {
-        switch (level)
-        {
-            case 1:
-                if (spellcasting.SpellSlotsLevel1 > 0)
-                    return true;
-                break;
-            case 2:
-                if (spellcasting.SpellSlotsLevel2 > 0)
-                    return true;
-                break;
-            case 3:
-                if (spellcasting.SpellSlotsLevel3 > 0)
-                    return true;
-                break;
-            case 4:
-                if (spellcasting.SpellSlotsLevel4 > 0)
-                    return true;
-                break;
-            case 5:
-                if (spellcasting.SpellSlotsLevel5 > 0)
-                    return true;
-                break;
-            case 6:
-                if (spellcasting.SpellSlotsLevel6 > 0)
-                    return true;
-                break;
-            case 7:
-                if (spellcasting.SpellSlotsLevel7 > 0)
-                    return true;
-                break;
-            case 8:
-                if (spellcasting.SpellSlotsLevel8 > 0)
-                    return true;
-                break;
-            case 9:
-                if (spellcasting.SpellSlotsLevel9 > 0)
-                    return true;
-                break;
-        }
-
-        return false;
     }
 
     private void AbilityScoreImprovement(List<byte> attributes, byte numberImprovements)
@@ -1416,7 +1376,7 @@ public class Member
         {
             var rangedPower = weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
             var attackBonus = weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
-            var attackPower = (int)DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * rangedPower;
+            var attackPower = DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * rangedPower;
 
             ApplyMonsterDefenses(monsters, weapon, ref attackPower);
 

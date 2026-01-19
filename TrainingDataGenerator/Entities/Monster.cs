@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection.Emit;
-using TrainingDataGenerator.Entities.Enums;
-using TrainingDataGenerator.Entities.Equip;
-using TrainingDataGenerator.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Utilities;
-using static TrainingDataGenerator.Entities.Mappers.MonsterMapper;
 
 namespace TrainingDataGenerator.Entities;
 
@@ -441,6 +435,9 @@ public class Monster : BaseEntity
     private int CalculateAttackPower(List<Member> party, CRRatios difficulty)
     {
         var offensivePower = 0;
+
+        if (Actions.Count == 0)
+            return 0;
 
         offensivePower += CalculateSimpleAttacks(party, difficulty);
         offensivePower += CalculateDcAttacks(party, difficulty);
