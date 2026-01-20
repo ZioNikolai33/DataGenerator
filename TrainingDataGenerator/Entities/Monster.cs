@@ -428,13 +428,12 @@ public class Monster : BaseEntity
         offensivePower += CalculateAttackPower(party, difficulty);
         offensivePower += CalculateSpellsPower(party, difficulty);
 
-        Logger.Instance.Information($"Total Offensive Power for {Name}: {offensivePower}");
         return offensivePower;
     }
 
     private int CalculateAttackPower(List<Member> party, CRRatios difficulty)
     {
-        var offensivePower = 0;
+        var offensivePower = 0.0;
 
         if (Actions.Count == 0)
             return 0;
@@ -443,12 +442,12 @@ public class Monster : BaseEntity
         offensivePower += CalculateDcAttacks(party, difficulty);
         offensivePower += CalculateMultiAttacks(party, difficulty);
 
-        return offensivePower / Actions.Count;
+        return (int)(offensivePower / Actions.Count);
     }
 
     private int CalculateSpellsPower(List<Member> party, CRRatios difficulty)
     {
-        var offensivePower = 0;
+        var offensivePower = 0.0;
         var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Name == "Spellcasting" && sa.Spellcast != null)?.Spellcast ?? null;
         var spells = SpecialAbilities.Where(sa => sa.Name == "Spellcasting" && sa.Spellcast != null).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
 
@@ -461,11 +460,11 @@ public class Monster : BaseEntity
             {
                 var spellPower = spell.GetSpellPower(spellcast, this);
                 var hitPercentage = spell.GetSpellPercentage(spellcast, this, party);
-                var totalPower = (int)(hitPercentage * spellPower);
+                var totalPower = hitPercentage * spellPower;
 
                 if (spell.Dc != null && spell.Dc.DcType != null)
                     if (spell.Dc.DcSuccess.Equals("half", StringComparison.OrdinalIgnoreCase))
-                        totalPower += (int)(hitPercentage * (spellPower / 2));
+                        totalPower += hitPercentage * (spellPower / 2);
 
                 ApplyPartyDefenses(party, spell, ref totalPower);
 
@@ -473,12 +472,12 @@ public class Monster : BaseEntity
             }
         }
 
-        return (int)offensivePower / spells.Count(item => item.IsDamageSpell());
+        return (int)(offensivePower / spells.Count(item => item.IsDamageSpell()));
     }
 
-    private int CalculateSimpleAttacks(List<Member> party, CRRatios difficulty)
+    private double CalculateSimpleAttacks(List<Member> party, CRRatios difficulty)
     {
-        var offensivePower = 0;
+        var offensivePower = 0.0;
         var partyAvgAc = (int)party.Average(m => m.ArmorClass);
         var actions = Actions.Where(a => a.AttackBonus.HasValue && a.Damage != null && a.Damage.Count > 0).ToList();
 
@@ -487,20 +486,17 @@ public class Monster : BaseEntity
             var chooseableDamages = new List<DamageOption>();
             var attackBonus = action.AttackBonus.HasValue ? action.AttackBonus.Value : 0;
 
-            if (action.Damage.Any(item => item.From != null))
+            if (action.Damage.Any(item => item.From != null && item.From.Options.Count > 0))
                 foreach (var damage in action.Damage.Where(item => item.From != null))
-                    chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random()).Take(damage.Choose ?? 0));
+                    chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random().Next()).Take(damage.Choose ?? 0).ToList());
 
-            var averageDamage = action.Damage.Where(item => item.DamageDice != null).Average(d => DataManipulation.GetDiceValue(d.DamageDice, this));
-            var averageChooseableDamage = (chooseableDamages.Count > 0) ? chooseableDamages.Average(item => DataManipulation.GetDiceValue(item.Damage_Dice, this)) : 0;
-
-            if (averageChooseableDamage > 0)
-                averageDamage = (averageDamage + averageChooseableDamage) / 2;
+            var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => DataManipulation.GetDiceValue(d.DamageDice, this)) : 0;
+            averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => DataManipulation.GetDiceValue(item.Damage_Dice, this)) : 0;
 
             var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
             var hitPercentage = DataManipulation.CalculateRollPercentage(partyAvgAc, attackBonus);
             var usagePercentage = CalculateUsagePercentage(action, difficulty);            
-            var totalPower = (int)(hitPercentage * averageDamage * usagePercentage);
+            var totalPower = hitPercentage * averageDamage * usagePercentage;
 
             ApplyPartyDefenses(party, action, ref totalPower);
 
@@ -510,21 +506,28 @@ public class Monster : BaseEntity
         return offensivePower;
     }
 
-    private int CalculateDcAttacks(List<Member> party, CRRatios difficulty)
+    private double CalculateDcAttacks(List<Member> party, CRRatios difficulty)
     {
-        var offensivePower = 0;
+        var offensivePower = 0.0;
         var actions = Actions.Where(a => a.Dc != null && a.Damage != null && a.Damage.Count > 0).ToList();
 
         foreach (var action in actions)
         {
+            var chooseableDamages = new List<DamageOption>();
+
+            if (action.Damage.Any(item => item.From != null && item.From.Options.Count > 0))
+                foreach (var damage in action.Damage.Where(item => item.From != null))
+                    chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random().Next()).Take(damage.Choose ?? 0).ToList());
+
             var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc.DcType.Index, action.Dc.DcValue));
-            var averageDamage = action.Damage.Sum(d => DataManipulation.GetDiceValue(d.DamageDice, this));
+            var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => DataManipulation.GetDiceValue(d.DamageDice, this)) : 0;
+            averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => DataManipulation.GetDiceValue(item.Damage_Dice, this)) : 0;
             var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
             var usagePercentage = CalculateUsagePercentage(action, difficulty);
-            var totalPower = (int)((1.0 - partyAvgPercentage) * averageDamage * usagePercentage);
+            var totalPower = (1.0 - partyAvgPercentage) * averageDamage * usagePercentage;
 
             if (action.Dc.SuccessType.Equals("half", StringComparison.OrdinalIgnoreCase))
-                totalPower += (int)((partyAvgPercentage * (averageDamage / 2)) * usagePercentage);
+                totalPower += partyAvgPercentage * (averageDamage / 2) * usagePercentage;
 
             ApplyPartyDefenses(party, action, ref totalPower);
 
@@ -547,9 +550,9 @@ public class Monster : BaseEntity
         return usagePercentage;
     }
 
-    private int CalculateMultiAttacks(List<Member> party, CRRatios difficulty)
+    private double CalculateMultiAttacks(List<Member> party, CRRatios difficulty)
     {
-        var offensivePower = 0;
+        var offensivePower = 0.0;
         var multiattackActions = Actions.Where(a => a.Actions != null && a.Actions.Count > 0).Select(item => item.Name).ToList();
         var simpleActions = Actions.Where(a => a.AttackBonus.HasValue && a.Damage != null && a.Damage.Count > 0 && multiattackActions.Contains(a.Name)).ToList();
         var dcActions = Actions.Where(a => a.Dc != null && a.Damage != null && a.Damage.Count > 0 && multiattackActions.Contains(a.Name)).ToList();
@@ -560,13 +563,13 @@ public class Monster : BaseEntity
         return offensivePower;
     }
 
-    private void ApplyPartyDefenses(List<Member> party, NormalAction action, ref int offensivePower)
+    private void ApplyPartyDefenses(List<Member> party, NormalAction action, ref double offensivePower)
     {
-        var totalPower = 0;
-        var power = 0.0;
+        var totalPower = 0.0;
 
         foreach (var member in party)
         {
+            var power = offensivePower;
             var memberResistances = member.Resistances;
             var memberImmunities = member.Immunities;
             var memberVulnerabilities = member.Vulnerabilities;
@@ -574,26 +577,26 @@ public class Monster : BaseEntity
             foreach (var damageType in action.Damage.Select(d => d.DamageType).Distinct().ToList())
             {
                 if (memberResistances.Contains(damageType))
-                    power = offensivePower * 0.5;
+                    power *= 0.5;
                 if (memberImmunities.Contains(damageType))
                     power = 0;
                 if (memberVulnerabilities.Contains(damageType))
-                    power = offensivePower * 2;
+                    power *= 2;
             }
 
-            totalPower += (int)power;
+            totalPower += power;
         }
 
         offensivePower = totalPower / party.Count;
     }
 
-    private void ApplyPartyDefenses(List<Member> party, Spell spell, ref int offensivePower)
+    private void ApplyPartyDefenses(List<Member> party, Spell spell, ref double offensivePower)
     {
-        var totalPower = 0;
-        var power = 0.0;
+        var totalPower = 0.0;
 
         foreach (var member in party)
         {
+            var power = offensivePower;
             var memberResistances = member.Resistances;
             var memberImmunities = member.Immunities;
             var memberVulnerabilities = member.Vulnerabilities;
@@ -601,14 +604,14 @@ public class Monster : BaseEntity
             if (spell.Damage != null && spell.Damage.DamageType != null)
             {
                 if (memberResistances.Contains(spell.Damage.DamageType))
-                    power = offensivePower * 0.5;
+                    power *= 0.5;
                 if (memberImmunities.Contains(spell.Damage.DamageType))
                     power = 0;
                 if (memberVulnerabilities.Contains(spell.Damage.DamageType))
-                    power = offensivePower * 2;
+                    power *= 2;
             }
 
-            totalPower += (int)power;
+            totalPower += power;
         }
 
         offensivePower = totalPower / party.Count;

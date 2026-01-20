@@ -1,4 +1,5 @@
 ﻿using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Entities.Equip;
 
@@ -20,8 +21,7 @@ public class RangedWeapon : Weapon
             return int.Parse(Damage.DamageDice.Trim());
 
         var weaponPower = 0;
-        var damageParts = Damage.DamageDice.Split('d');
-        var averageDamage = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
+        var averageDamage = DataManipulation.GetDiceValue(Damage.DamageDice);
         var totalDamage = averageDamage + dexterityModifier;
 
         weaponPower = totalDamage;

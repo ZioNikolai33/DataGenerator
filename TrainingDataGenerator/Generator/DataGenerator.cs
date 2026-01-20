@@ -135,7 +135,7 @@ public static class DataGenerator
                 }
 
                 randomNumMonsters++;
-                numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Multiplier == randomNumMonsters)?.Multiplier ?? 1;
+                numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Multiplier ?? 1;
                 Logger.Instance.Warning($"No suitable monsters found. Increasing number of monsters to {randomNumMonsters} and multiplier to {numMultiplier}");
 
                 switch (ratio)
@@ -254,19 +254,19 @@ public static class DataGenerator
         Logger.Instance.Information($"Total Base Stats for Monsters: {baseStatsMonsters}");
 
         var offensivePowerParty = encounter.PartyMembers.Sum(m => m.GetOffensivePower(encounter.Monsters));
-        Logger.Instance.Information($"Average Offensive Power for Party: {offensivePowerParty}");
+        Logger.Instance.Information($"Total Offensive Power for Party: {offensivePowerParty}");
         var offensivePowerMonsters = encounter.Monsters.Sum(m => m.GetOffensivePower(encounter.PartyMembers, encounter.Difficulty));
         Logger.Instance.Information($"Average Offensive Power for Monsters: {offensivePowerMonsters}");
 
         var healingPowerParty = encounter.PartyMembers.Sum(m => m.GetHealingPower());
-        Logger.Instance.Information($"Average Healing Power for Party: {healingPowerParty}");
-        var healingPowerMonsters = encounter.Monsters.Sum(m => m.GetHealingPower());
-        Logger.Instance.Information($"Average Healing Power for Monsters: {healingPowerMonsters}");
+        Logger.Instance.Information($"Total Healing Power for Party: {healingPowerParty}");
+        //var healingPowerMonsters = encounter.Monsters.Sum(m => m.GetHealingPower());
+        //Logger.Instance.Information($"Average Healing Power for Monsters: {healingPowerMonsters}");
 
         var totalPowerParty = (int)((baseStatsParty + offensivePowerParty + healingPowerParty) * (1 + (randomFactorParty / 100.0)));
         Logger.Instance.Information($"Total Power for Party after random factor: {totalPowerParty}");
-        var totalPowerMonsters = (int)((baseStatsMonsters + offensivePowerMonsters + healingPowerMonsters) * (1 + (randomFactorMonsters / 100.0)));
-        Logger.Instance.Information($"Total Power for Monsters after random factor: {totalPowerMonsters}");
+        //var totalPowerMonsters = (int)((baseStatsMonsters + offensivePowerMonsters + healingPowerMonsters) * (1 + (randomFactorMonsters / 100.0)));
+        //Logger.Instance.Information($"Total Power for Monsters after random factor: {totalPowerMonsters}");
 
         return encounter;
     }

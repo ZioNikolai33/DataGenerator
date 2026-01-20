@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using TrainingDataGenerator.DataBase;
+﻿using TrainingDataGenerator.DataBase;
 using TrainingDataGenerator.Entities;
 
 namespace TrainingDataGenerator.Utilities;
@@ -69,9 +68,7 @@ public static class DataManipulation
 
     public static short GetSpellcastingModifier(Member member)
     {
-        var ability = ConvertAbilityIndex(member.SpellcastingAbility);
-
-        return ability switch
+        return member.SpellcastingAbility switch
         {
             "strength" => member.Strength.Modifier,
             "dexterity" => member.Dexterity.Modifier,
@@ -109,16 +106,16 @@ public static class DataManipulation
         int value = 0;
 
         if (!dice.Contains("d"))
-            return int.Parse(dice.Trim());
+            return int.Parse(dice.Trim()) / 2;
 
         var diceParts = dice.Trim().Split("d");
 
-        if (dice.Contains("+"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + int.Parse(diceParts[1].Split("+")[0])) / 2;
+        if (dice.Trim().Contains("+ MOD"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + GetSpellcastingModifier(member);
+        else if (dice.Contains("+"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + int.Parse(diceParts[1].Split("+")[0]);
         else if (dice.Trim().Contains("-"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) - int.Parse(diceParts[1].Split("-")[0])) / 2;
-        else if (dice.Trim().Contains("+MOD"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + GetSpellcastingModifier(member)) / 2;
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) / 2) - int.Parse(diceParts[1].Split("-")[0]);
         else
             value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
 
@@ -134,12 +131,12 @@ public static class DataManipulation
 
         var diceParts = dice.Trim().Split("d");
 
-        if (dice.Contains("+"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + int.Parse(diceParts[1].Split("+")[0])) / 2;
+        if (dice.Trim().Contains("+ MOD"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + GetSpellcastingModifier(monster);
+        else if (dice.Contains("+"))
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + int.Parse(diceParts[1].Split("+")[0]);
         else if (dice.Trim().Contains("-"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) - int.Parse(diceParts[1].Split("-")[0])) / 2;
-        else if (dice.Trim().Contains("+MOD"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + GetSpellcastingModifier(monster)) / 2;
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) / 2) - int.Parse(diceParts[1].Split("-")[0]);
         else
             value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
 
@@ -159,8 +156,6 @@ public static class DataManipulation
             value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + int.Parse(diceParts[1].Split("+")[0]));
         else if (dice.Trim().Contains("-"))
             value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) - int.Parse(diceParts[1].Split("-")[0]));
-        else if (dice.Trim().Contains("+MOD"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])));
         else
             value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1]));
 

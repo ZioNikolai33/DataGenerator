@@ -1,4 +1,5 @@
 ﻿using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Entities.Equip;
 
@@ -19,8 +20,7 @@ public class MeleeWeapon : Weapon
             return int.Parse(Damage.DamageDice.Trim());
 
         var weaponPower = 0;
-        var damageParts = Damage.DamageDice.Split('d');
-        var averageDamage = (int.Parse(damageParts[0]) * (int.Parse(damageParts[1]) + 1)) / 2;
+        var averageDamage = DataManipulation.GetDiceValue(Damage.DamageDice);
         var totalDamage = averageDamage;
 
         if (Properties.Contains("finesse") || Properties.Contains("thrown"))

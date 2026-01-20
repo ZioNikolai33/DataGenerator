@@ -48,10 +48,12 @@ public class Spell: BaseEntity
         var spellPower = 0.0;
 
         if (IsDamageSpell() && Uses == "")
+        {
             if (Damage?.DamageSlots != null && Damage.DamageSlots.Count > 0)
                 spellPower = Damage.DamageSlots.Where(item => member.SpellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
             else if (Damage?.DamageAtCharacterLevel != null && Damage.DamageAtCharacterLevel.Count > 0)
                 spellPower = Damage.DamageAtCharacterLevel.Where(item => member.Level >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
+        }            
         else if (IsDamageSpell() && Uses != "")
             if (Damage?.DamageSlots != null && Damage.DamageSlots.Count > 0)
                 spellPower = Damage?.DamageSlots.Average(item => DataManipulation.GetDiceValue(item.Value, member)) ?? 0;
@@ -113,7 +115,7 @@ public class Spell: BaseEntity
                         break;
                 }
 
-                spellPercentage = (int)(1.0 - DataManipulation.CalculateRollPercentage(saveDc, averageMonsterSaveBonus));
+                spellPercentage = (1.0 - DataManipulation.CalculateRollPercentage(saveDc, averageMonsterSaveBonus));
             }
         }
 
@@ -166,8 +168,10 @@ public class Spell: BaseEntity
     {
         var healingPower = 0;
 
-        if (IsHealingSpell() && HealAtSlotLevel != null)
+        if (IsHealingSpell() && HealAtSlotLevel != null && Uses == "")
             healingPower = (int)HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
+        else if (IsHealingSpell() && HealAtSlotLevel != null && Uses != "")
+            healingPower = (int)HealAtSlotLevel.Average(item => DataManipulation.GetDiceValue(item.Value, member));
 
         return healingPower;
     }
