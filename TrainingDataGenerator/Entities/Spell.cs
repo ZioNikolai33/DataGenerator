@@ -127,7 +127,7 @@ public class Spell: BaseEntity
         var spellPercentage = 1.0;
         var averagePartyAc = (int)party.Average(item => item.ArmorClass);
         var averagePartySaveBonus = 0;
-        var spellAbilityModifier = DataManipulation.GetSpellcastingModifier(monster);
+        var spellAbilityModifier = spellcast.Modifier;
 
         if (IsDamageSpell())
         {
@@ -157,7 +157,7 @@ public class Spell: BaseEntity
                         break;
                 }
 
-                spellPercentage = (int)(1.0 - DataManipulation.CalculateRollPercentage(spellcast.Dc, averagePartySaveBonus));
+                spellPercentage = (1.0 - DataManipulation.CalculateRollPercentage(spellcast.Dc, averagePartySaveBonus));
             }
         }
 

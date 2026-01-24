@@ -26,5 +26,6 @@ public sealed class Encounter
         Id = $"E{indexPadded}-{difficultyLetter.ToString().ToUpper()}"; // Encounter ID format: E00000001-N
         PartyMembers = partyMembers;
         Monsters = monsters;
+        Difficulty = difficulty;
     }
 }

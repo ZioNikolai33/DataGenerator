@@ -1,11 +1,12 @@
 ﻿using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Entities;
 
-public class Member
+public class Member : ICombatCalculator
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -64,7 +65,7 @@ public class Member
         HitDie = (byte)randomClass.Hp;
         ProficiencyBonus = (sbyte)(2 + ((Level - 1) / 4));
         Race = randomRace.Index;
-        Speed = (short)randomRace.Speed;
+        Speed = randomRace.Speed;
         Size = randomRace.Size.ToString();
         Subrace = randomSubrace != null ? randomSubrace.Index : null;
         Class = randomClass.Index;
@@ -1284,61 +1285,6 @@ public class Member
             Resistances.Add(new List<string>() { "bludgeoning", "slashing", "piercing", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "psychic", "radiant", "thunder" }.OrderBy(_ => new Random().Next()).First());
     }
 
-    #endregion
-
-    #region outcome
-
-    public int GetTotalBaseStats()
-    {
-        var totalBaseStats = 0;
-
-        totalBaseStats += CalculateProficiencyValue();
-        totalBaseStats += CalculateHpValue();
-        totalBaseStats += CalculateSpeedValue();
-        totalBaseStats += CalculateStatsValue();
-        totalBaseStats += CalculateSkillsValue();
-        totalBaseStats += CalculateResistancesValue();
-        totalBaseStats += CalculateArmorClassValue();
-
-        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
-
-        return totalBaseStats;
-    }
-
-    public int GetOffensivePower(List<Monster> monsters)
-    {
-        var offensivePower = 0;
-
-        offensivePower += CalculateWeaponsPower(monsters);
-        offensivePower += CalculateSpellsPower(monsters);
-
-        return offensivePower;
-    }
-
-    public int GetHealingPower()
-    {
-        var healingPower = 0;
-
-        foreach (var spell in Spells)
-            if (spell.IsHealingSpell())
-                healingPower += spell.GetHealingPower(SpellSlots, this);
-
-        Logger.Instance.Information($"Total Healing Power for {Name}: {healingPower}");
-        return healingPower;
-    }
-
-    public int GetFeaturesPower()
-    {
-        var featuresPower = 0;
-
-        foreach (var feature in Features)
-            featuresPower += DataManipulation.GetFeaturePowerValue(feature.Index);
-
-        Logger.Instance.Information($"Total Features Power for {Name}: {featuresPower}");
-
-        return featuresPower;
-    }
-
     private bool IsProficient(Weapon weapon)
     {
         if (Proficiencies.Contains(weapon.Index))
@@ -1351,6 +1297,108 @@ public class Member
             return true;
 
         return false;
+    }
+
+    #endregion
+
+    #region outcome
+
+    public int CalculateBaseStats()
+    {
+        var totalBaseStats = 0;
+
+        totalBaseStats += CalculateHpValue();
+        totalBaseStats += CalculateSpeedValue();
+        totalBaseStats += CalculateStatsValue();
+        totalBaseStats += CalculateSkillsValue();
+
+        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
+
+        return totalBaseStats;
+    }
+
+    public int CalculateHpValue()
+    {
+        var maxHp = HitDie * Level + (Constitution.Modifier * Level);
+        var averageHp = HitDie + (((HitDie / 2) + Constitution.Modifier) * (Level - 1));
+        var threeQuarterHp = averageHp + (int)Math.Floor((double)(maxHp - averageHp) / 2);
+        var hpValue = 0;
+
+        if (Hp <= averageHp || Level == 1)
+            hpValue += Hp;
+        else if (Hp > threeQuarterHp)
+            hpValue += Hp + (Hp - threeQuarterHp) * 2;
+
+        return hpValue;
+    }
+
+    public int CalculateSpeedValue()
+    {
+        var speedValue = (int)Speed;
+
+        if (Speed > 30)
+        {
+            var extra = Speed - 30;
+            speedValue += extra * 2;
+        }
+
+        return speedValue;
+    }
+
+    public int CalculateStatsValue()
+    {
+        var statsValue = Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
+        var mainStats = Proficiencies.Where(item => item.StartsWith("saving-throw")).Select(item => item.Split("-")[2]).ToList();
+
+        foreach (var stat in mainStats)
+        {
+            switch (stat)
+            {
+                case "str":
+                    statsValue += (int)(Strength.Value * 0.75);
+                    break;
+                case "dex":
+                    statsValue += (int)(Dexterity.Value * 0.75);
+                    break;
+                case "con":
+                    statsValue += (int)(Constitution.Value * 0.75);
+                    break;
+                case "int":
+                    statsValue += (int)(Intelligence.Value * 0.75);
+                    break;
+                case "wis":
+                    statsValue += (int)(Wisdom.Value * 0.75);
+                    break;
+                case "cha":
+                    statsValue += (int)(Charisma.Value * 0.75);
+                    break;
+            }
+        }
+        return statsValue;
+    }
+
+    public int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
+
+    public int CalculateOffensivePower<T>(List<T> monsters, CRRatios difficulty) where T : ICombatCalculator
+    {
+        var offensivePower = 0;
+
+        offensivePower += CalculateWeaponsPower(monsters.Cast<Monster>().ToList());
+        offensivePower += CalculateSpellsPower(monsters.Cast<Monster>().ToList());
+
+        return offensivePower;
+    }
+
+    public int CalculateHealingPower()
+    {
+        var healingPower = 0;
+
+        foreach (var spell in Spells)
+            if (spell.IsHealingSpell())
+                healingPower += spell.GetHealingPower(SpellSlots, this);
+
+        Logger.Instance.Information($"Total Healing Power for {Name}: {healingPower}");
+        return healingPower;
     }
 
     private int CalculateWeaponsPower(List<Monster> monsters)
@@ -1368,7 +1416,12 @@ public class Member
             var attackBonus = weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
             var attackPower = DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * meleePower;
 
-            ApplyMonsterDefenses(monsters, weapon, ref attackPower);
+            CombatCalculator.ApplyDefenses(monsters,
+                r => r.DamageResistances,
+                i => i.DamageImmunities,
+                v => v.DamageVulnerabilities,
+                weapon.Damage.DamageType,
+                ref attackPower);
 
             if (attackPower > maxMeleePower)
                 maxMeleePower = attackPower;
@@ -1380,7 +1433,12 @@ public class Member
             var attackBonus = weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
             var attackPower = DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * rangedPower;
 
-            ApplyMonsterDefenses(monsters, weapon, ref maxRangedPower);
+            CombatCalculator.ApplyDefenses(monsters,
+                r => r.DamageResistances,
+                i => i.DamageImmunities,
+                v => v.DamageVulnerabilities,
+                weapon.Damage.DamageType,
+                ref attackPower);
 
             if (attackPower > maxRangedPower)
                 maxRangedPower = attackPower;
@@ -1414,7 +1472,12 @@ public class Member
                     if (spell.Dc.DcSuccess.Equals("half", StringComparison.OrdinalIgnoreCase))
                         totalPower += (hitPercentage * (spellPower / 2));
 
-                ApplyMonsterDefenses(monsters, spell, ref totalPower);
+                CombatCalculator.ApplyDefenses(monsters,
+                    r => r.DamageResistances,
+                    i => i.DamageImmunities,
+                    v => v.DamageVulnerabilities,
+                    spell.Damage?.DamageType ?? "",
+                    ref totalPower);
 
                 offensivePower += (int)totalPower;
             }
@@ -1424,166 +1487,6 @@ public class Member
 
         Logger.Instance.Information($"Spells Power for {Name}: {(int)offensivePower}");
         return (int)offensivePower;
-    }
-
-    private void ApplyMonsterDefenses(List<Monster> monsters, MeleeWeapon meleeWeapon, ref double offensivePower)
-    {
-        var totalPower = 0.0;
-
-        if (monsters == null || monsters.Count == 0)
-            return;
-
-        foreach (var monster in monsters)
-        {
-            var power = offensivePower;
-            var monsterResistances = monster.DamageResistances;
-            var monsterImmunities = monster.DamageImmunities;
-            var monsterVulnerabilities = monster.DamageVulnerabilities;
-
-            if (monsterResistances.Contains(meleeWeapon.Damage.DamageType))
-                power *= 0.5;
-            if (monsterImmunities.Contains(meleeWeapon.Damage.DamageType))
-                power = 0;
-            if (monsterVulnerabilities.Contains(meleeWeapon.Damage.DamageType))
-                power *= 2;
-
-            totalPower += power;
-        }
-
-        offensivePower = totalPower / monsters.Count;
-    }
-
-    private void ApplyMonsterDefenses(List<Monster> monsters, RangedWeapon rangedWeapon, ref double offensivePower)
-    {
-        var totalPower = 0.0;
-
-        if (monsters == null || monsters.Count == 0)
-            return;
-
-        foreach (var monster in monsters)
-        {
-            var power = offensivePower;
-            var monsterResistances = monster.DamageResistances;
-            var monsterImmunities = monster.DamageImmunities;
-            var monsterVulnerabilities = monster.DamageVulnerabilities;
-
-            if (monsterResistances.Contains(rangedWeapon.Damage.DamageType))
-                power *= 0.5;
-            if (monsterImmunities.Contains(rangedWeapon.Damage.DamageType))
-                power = 0;
-            if (monsterVulnerabilities.Contains(rangedWeapon.Damage.DamageType))
-                power *= 2;
-
-            totalPower += power;
-        }
-
-        offensivePower = totalPower / monsters.Count;
-    }
-
-    private void ApplyMonsterDefenses(List<Monster> monsters, Spell spell, ref double offensivePower)
-    {
-        var totalPower = 0.0;
-
-        if (monsters == null || monsters.Count == 0)
-            return;
-
-        foreach (var monster in monsters)
-        {
-            var power = offensivePower;
-            var monsterResistances = monster.DamageResistances;
-            var monsterImmunities = monster.DamageImmunities;
-            var monsterVulnerabilities = monster.DamageVulnerabilities;
-
-            if (spell.Damage != null && spell.Damage.DamageType != null)
-            {
-                if (monsterResistances.Contains(spell.Damage.DamageType))
-                    power *= 0.5;
-                if (monsterImmunities.Contains(spell.Damage.DamageType))
-                    power = 0;
-                if (monsterVulnerabilities.Contains(spell.Damage.DamageType))
-                    power *= 2;
-            }
-
-            totalPower += power;
-        }
-
-        offensivePower = totalPower / monsters.Count;
-    }
-
-    private int CalculateProficiencyValue() => (int)(ProficiencyBonus * (Level * 0.75));
-
-    private int CalculateHpValue()
-    {
-        var maxHp = HitDie * Level + (Constitution.Modifier * Level);
-        var averageHp = HitDie + (((HitDie / 2) + Constitution.Modifier) * (Level - 1));
-        var threeQuarterHp = averageHp + (int)Math.Floor((double)(maxHp - averageHp) / 2);
-        var hpValue = 0;
-
-        if (Hp <= averageHp || Level == 1)
-            hpValue += Hp;
-        else if (Hp > threeQuarterHp)
-            hpValue += Hp + (Hp - threeQuarterHp) * 2;
-
-        return hpValue;
-    }
-
-    private int CalculateSpeedValue()
-    {
-        var speedValue = (int)Speed;
-
-        if (Speed > 30)
-        {
-            var extra = Speed - 30;
-            speedValue += extra * 2;
-        }
-
-        return speedValue;
-    }
-
-    private int CalculateStatsValue()
-    {
-        var statsValue = Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
-        var mainStats = Proficiencies.Where(item => item.StartsWith("saving-throw")).Select(item => item.Split("-")[2]).ToList();
-
-        foreach (var stat in mainStats)
-        {
-            switch (stat)
-            {
-                case "str":
-                    statsValue += (int)(Strength.Value * 0.75);
-                    break;
-                case "dex":
-                    statsValue += (int)(Dexterity.Value * 0.75);
-                    break;
-                case "con":
-                    statsValue += (int)(Constitution.Value * 0.75);
-                    break;
-                case "int":
-                    statsValue += (int)(Intelligence.Value * 0.75);
-                    break;
-                case "wis":
-                    statsValue += (int)(Wisdom.Value * 0.75);
-                    break;
-                case "cha":
-                    statsValue += (int)(Charisma.Value * 0.75);
-                    break;
-            }
-        }
-        return statsValue;
-    }
-
-    private int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
-
-    private int CalculateResistancesValue() => (Resistances.Count * 3) + (Immunities.Count * 10) + (Vulnerabilities.Count * -5);
-
-    private int CalculateArmorClassValue()
-    {
-        var acValue = ArmorClass;
-
-        if (acValue > 15)
-            acValue += (byte)((acValue - 15) * 1.5);
-
-        return acValue;
     }
 
     #endregion

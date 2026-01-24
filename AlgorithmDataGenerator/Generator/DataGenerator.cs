@@ -56,7 +56,7 @@ public static class DataGenerator
         var random = new Random();
         var characters = new List<Character>();
 
-        characters.AddRange(members.Select(item => new Character(item, item.GetTotalBaseStats())));
+        characters.AddRange(members.Select(item => new Character(item, item.CalculateBaseStats())));
         characters = characters.OrderBy(c => c.BaseStats).ToList();
 
         Logger.Instance.Information($"{string.Join("\n", characters)}");
@@ -72,7 +72,7 @@ public static class DataGenerator
         var random = new Random();
         var monsters = new List<AlgorithmDataGenerator.Entities.Monster>();
 
-        monsters.AddRange(mons.Select(item => new AlgorithmDataGenerator.Entities.Monster(item, item.GetTotalBaseStats())));
+        monsters.AddRange(mons.Select(item => new AlgorithmDataGenerator.Entities.Monster(item, item.CalculateBaseStats())));
         monsters = monsters.OrderBy(c => c.BaseStats).ToList();
 
         Logger.Instance.Information($"{string.Join("\n", monsters)}");
