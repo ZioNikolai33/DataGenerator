@@ -3,9 +3,9 @@
 public enum CRRatios
 {
     Cakewalk = 1,
-    Easy = 2,
-    Normal = 3,
-    Hard = 4,
-    Deadly = 5,
-    Impossible = 6
+    Easy = 3,
+    Normal = 5,
+    Hard = 6,
+    Deadly = 8,
+    Impossible = 10
 }
