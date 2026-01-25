@@ -1,6 +1,8 @@
-﻿using TrainingDataGenerator.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
+using static TrainingDataGenerator.Entities.Mappers.MonsterMapper;
 
 namespace TrainingDataGenerator.Entities;
 
@@ -415,7 +417,6 @@ public class Monster : BaseEntity, ICombatCalculator
     {
         var totalBaseStats = 0;
 
-        totalBaseStats += CalculateHpValue();
         totalBaseStats += CalculateSpeedValue();
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
@@ -424,8 +425,6 @@ public class Monster : BaseEntity, ICombatCalculator
 
         return totalBaseStats;
     }
-
-    public int CalculateHpValue() => HitPoints;
 
     public int CalculateSpeedValue()
     {
@@ -454,14 +453,14 @@ public class Monster : BaseEntity, ICombatCalculator
 
     public int CalculateStatsValue() => Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
 
-    public int CalculateSkillsValue() => Skills.Where(s => s.IsProficient).Sum(s => s.Modifier);
+    public int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
 
     public int CalculateOffensivePower<T>(List<T> party, CRRatios difficulty) where T : ICombatCalculator
     {
         var offensivePower = 0;
 
         offensivePower += CalculateAttackPower(party.Cast<Member>().ToList(), difficulty);
-        offensivePower += CalculateSpellsPower(party.Cast<Member>().ToList());
+        offensivePower += CalculateSpellsPower(party.Cast<Member>().ToList(), difficulty);
 
         return offensivePower;
     }
@@ -481,6 +480,42 @@ public class Monster : BaseEntity, ICombatCalculator
         return healingPower;
     }
 
+    public double CalculateSpellUsagePercentage(Spell spell, CRRatios difficulty)
+    {
+        var spellSlots = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0)?.Spellcast?.SpellSlots ?? null;
+        var spells = SpecialAbilities.Where(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
+
+        if (spell == null || spellSlots == null)
+            return 0.0;
+
+        if (spells.Count > 0 && spellSlots == null)
+            return 1.0;
+
+        if (spell.Level == 0)
+            return 1.0;
+
+        if (spellSlots.GetSlotsLevelAvailable() == 0 || (spellSlots.GetSlotsLevelAvailable() < spell.Level && spell.Uses == ""))
+            return 0.0;
+
+        if (spell.Uses != "")
+            return 1 / (int)difficulty;
+
+        var totalAvailableSlots = spellSlots.GetTotalSlots(spell.Level);
+        var numCompetingSpells = spells.Count(s => s.Level > 0 && s.Level <= spell.Level && s.Uses == "");
+
+        for (var level = 0; level < DataConstants.MaxSpellLevel; level++)
+            if (level < spell.Level && spellSlots.GetSlotsLevelAvailable() >= level)
+                numCompetingSpells += spells.Count(s => s.Level > 0 && s.Level <= level && s.Uses == "");
+
+        if (numCompetingSpells == 0)
+            return 0.0;
+
+        var avgSlotsPerSpell = (double)totalAvailableSlots / Math.Max(1, spells.Count(s => s.Level > 0 && s.Uses == ""));
+        var usagePercentage = Math.Min(1.0, avgSlotsPerSpell / (int)difficulty);
+
+        return usagePercentage;
+    }
+
     private int CalculateAttackPower(List<Member> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
@@ -497,7 +532,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return (int)(offensivePower / Actions.Count);
     }
 
-    private int CalculateSpellsPower(List<Member> party)
+    private int CalculateSpellsPower(List<Member> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
         var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0)?.Spellcast ?? null;
@@ -508,7 +543,7 @@ public class Monster : BaseEntity, ICombatCalculator
 
         if (spellcast != null)
             foreach (var spell in spells)
-                offensivePower += CalculateSpellPower(spellcast, spell, party);
+                offensivePower += CalculateSpellPower(spellcast, spell, party, difficulty);
         
         Logger.Instance.Information($"Spells Power for {Name}: {(int)offensivePower / spells.Count(item => item.IsDamageSpell())}");
 
@@ -593,17 +628,18 @@ public class Monster : BaseEntity, ICombatCalculator
         return totalPower;
     }
 
-    private double CalculateSpellPower(SpecialAbility.Spellcasting spellcast, Spell spell, List<Member> party)
+    private double CalculateSpellPower(SpecialAbility.Spellcasting spellcast, Spell spell, List<Member> party, CRRatios difficulty)
     {
         if (spell.IsDamageSpell() && spellcast != null)
         {
             var spellPower = spell.GetSpellPower(spellcast, this);
+            var usagePercentage = CalculateSpellUsagePercentage(spell, difficulty);
             var hitPercentage = spell.GetSpellPercentage(spellcast, this, party);
-            var totalPower = hitPercentage * spellPower;
+            var totalPower = hitPercentage * spellPower * usagePercentage;
 
             if (spell.Dc != null && spell.Dc.DcType != null)
                 if (spell.Dc.DcSuccess.Equals("half", StringComparison.OrdinalIgnoreCase))
-                    totalPower += hitPercentage * (spellPower / 2);
+                    totalPower += hitPercentage * (spellPower / 2) * usagePercentage;
 
             CombatCalculator.ApplyDefenses(party,
                 p => p.Resistances,

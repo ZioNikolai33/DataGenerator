@@ -85,6 +85,26 @@ namespace TrainingDataGenerator.Entities
             return 0;
         }
 
+        public short GetTotalSlots(short? level = null)
+        {
+            short total = 0;
+
+            if (level == null)
+                return (short)(First + Second + Third + Fourth + Fifth + Sixth + Seventh + Eighth + Ninth);
+
+            if (level >= 1) total += First;
+            if (level >= 2) total += Second;
+            if (level >= 3) total += Third;
+            if (level >= 4) total += Fourth;
+            if (level >= 5) total += Fifth;
+            if (level >= 6) total += Sixth;
+            if (level >= 7) total += Seventh;
+            if (level >= 8) total += Eighth;
+            if (level >= 9) total += Ninth;
+
+            return total;
+        }
+
         public override string ToString()
         {
             var str = "Spell Slots:\n";

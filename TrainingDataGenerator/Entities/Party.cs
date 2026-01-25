@@ -1,4 +1,5 @@
-﻿using TrainingDataGenerator.Entities.Enums;
+﻿using System;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
@@ -1307,7 +1308,6 @@ public class Member : ICombatCalculator
     {
         var totalBaseStats = 0;
 
-        totalBaseStats += CalculateHpValue();
         totalBaseStats += CalculateSpeedValue();
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
@@ -1315,21 +1315,6 @@ public class Member : ICombatCalculator
         Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
 
         return totalBaseStats;
-    }
-
-    public int CalculateHpValue()
-    {
-        var maxHp = HitDie * Level + (Constitution.Modifier * Level);
-        var averageHp = HitDie + (((HitDie / 2) + Constitution.Modifier) * (Level - 1));
-        var threeQuarterHp = averageHp + (int)Math.Floor((double)(maxHp - averageHp) / 2);
-        var hpValue = 0;
-
-        if (Hp <= averageHp || Level == 1)
-            hpValue += Hp;
-        else if (Hp > threeQuarterHp)
-            hpValue += Hp + (Hp - threeQuarterHp) * 2;
-
-        return hpValue;
     }
 
     public int CalculateSpeedValue()
@@ -1345,37 +1330,7 @@ public class Member : ICombatCalculator
         return speedValue;
     }
 
-    public int CalculateStatsValue()
-    {
-        var statsValue = Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
-        var mainStats = Proficiencies.Where(item => item.StartsWith("saving-throw")).Select(item => item.Split("-")[2]).ToList();
-
-        foreach (var stat in mainStats)
-        {
-            switch (stat)
-            {
-                case "str":
-                    statsValue += (int)(Strength.Value * 0.75);
-                    break;
-                case "dex":
-                    statsValue += (int)(Dexterity.Value * 0.75);
-                    break;
-                case "con":
-                    statsValue += (int)(Constitution.Value * 0.75);
-                    break;
-                case "int":
-                    statsValue += (int)(Intelligence.Value * 0.75);
-                    break;
-                case "wis":
-                    statsValue += (int)(Wisdom.Value * 0.75);
-                    break;
-                case "cha":
-                    statsValue += (int)(Charisma.Value * 0.75);
-                    break;
-            }
-        }
-        return statsValue;
-    }
+    public int CalculateStatsValue() => Strength.Value + Dexterity.Value + Constitution.Value + Intelligence.Value + Wisdom.Value + Charisma.Value;
 
     public int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
 
@@ -1384,7 +1339,7 @@ public class Member : ICombatCalculator
         var offensivePower = 0;
 
         offensivePower += CalculateWeaponsPower(monsters.Cast<Monster>().ToList());
-        offensivePower += CalculateSpellsPower(monsters.Cast<Monster>().ToList());
+        offensivePower += CalculateSpellsPower(monsters.Cast<Monster>().ToList(), difficulty);
 
         return offensivePower;
     }
@@ -1399,6 +1354,36 @@ public class Member : ICombatCalculator
 
         Logger.Instance.Information($"Total Healing Power for {Name}: {healingPower}");
         return healingPower;
+    }
+
+    public double CalculateSpellUsagePercentage(Spell spell, CRRatios difficulty)
+    {
+        if (spell == null || SpellSlots == null)
+            return 0.0;
+
+        if (spell.Level == 0)
+            return 1.0;
+
+        if (SpellSlots.GetSlotsLevelAvailable() == 0 || (SpellSlots.GetSlotsLevelAvailable() < spell.Level && spell.Uses == ""))
+            return 0.0;
+
+        if (spell.Uses != "")
+            return 1 / (int)difficulty;
+
+        var totalAvailableSlots = SpellSlots.GetTotalSlots(spell.Level);
+        var numCompetingSpells = Spells.Count(s => s.Level > 0 && s.Level <= spell.Level && s.Uses == "");
+
+        for (var level = 0; level < DataConstants.MaxSpellLevel; level++)
+            if (level < spell.Level && SpellSlots.GetSlotsLevelAvailable() >= level)
+                numCompetingSpells += Spells.Count(s => s.Level > 0 && s.Level <= level && s.Uses == "");
+
+        if (numCompetingSpells == 0)
+            return 0.0;
+
+        var avgSlotsPerSpell = (double)totalAvailableSlots / Math.Max(1, Spells.Count(s => s.Level > 0 && s.Uses == ""));
+        var usagePercentage = Math.Min(1.0, avgSlotsPerSpell / (int)difficulty);
+
+        return usagePercentage;
     }
 
     private int CalculateWeaponsPower(List<Monster> monsters)
@@ -1453,7 +1438,7 @@ public class Member : ICombatCalculator
         return (int)offensivePower;
     }
 
-    private int CalculateSpellsPower(List<Monster> monsters)
+    private int CalculateSpellsPower(List<Monster> monsters, CRRatios difficulty)
     {
         var offensivePower = 0;
 
@@ -1466,11 +1451,12 @@ public class Member : ICombatCalculator
             {
                 var spellPower = spell.GetSpellPower(this);
                 var hitPercentage = spell.GetSpellPercentage(this, monsters);
-                var totalPower = (hitPercentage * spellPower);
+                var usagePercentage = CalculateSpellUsagePercentage(spell, difficulty);
+                var totalPower = (hitPercentage * spellPower) * usagePercentage;
 
                 if (spell.Dc != null && spell.Dc.DcType != null)
                     if (spell.Dc.DcSuccess.Equals("half", StringComparison.OrdinalIgnoreCase))
-                        totalPower += (hitPercentage * (spellPower / 2));
+                        totalPower += (hitPercentage * (spellPower / 2)) * usagePercentage;
 
                 CombatCalculator.ApplyDefenses(monsters,
                     r => r.DamageResistances,
