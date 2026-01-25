@@ -11,7 +11,7 @@ public static class DataGenerator
     public static void Generate(Database db, DateTime startDate)
     {
         var random = new Random();
-        var characters = new List<Member>();
+        var characters = new List<PartyMember>();
         var monsters = new List<TrainingDataGenerator.Entities.Monster>();
 
         try
@@ -28,7 +28,7 @@ public static class DataGenerator
             for (var i = 1; i <= config.NumberOfCycles; i++)
             {
                 var level = (byte)random.Next(1, 21);
-                characters.Add(new Member(i, level, Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
+                characters.Add(new PartyMember(i, level, Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
             }
 
             foreach (var monster in Lists.monsters)
@@ -49,7 +49,7 @@ public static class DataGenerator
         }
     }
 
-    private static void CalculateBaseStats(List<Member> members)
+    private static void CalculateBaseStats(List<PartyMember> members)
     {
         Logger.Instance.Information($"Calculating Base Stats for {members.Count} characters");
 

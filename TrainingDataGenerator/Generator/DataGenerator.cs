@@ -55,11 +55,11 @@ public static class DataGenerator
         return selected;
     }
 
-    private static List<Member> GetRandomParty(Database db)
+    private static List<PartyMember> GetRandomParty(Database db)
     {
         var random = new Random();
         var partyLevels = new List<byte>();
-        var party = new List<Member>();
+        var party = new List<PartyMember>();
         var numMembers = random.Next(1, 8);
         var section = random.Next(1, 5);
 
@@ -67,7 +67,7 @@ public static class DataGenerator
             partyLevels.Add((byte)random.Next((5 * section) - 4, (5 * section) + 1));
 
         for (var i = 0; i < numMembers; i++)
-            party.Add(new Member(i, partyLevels[i], Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
+            party.Add(new PartyMember(i, partyLevels[i], Lists.races.OrderBy(_ => random.Next()).First(), Lists.classes.OrderBy(_ => random.Next()).First()));
 
         Logger.Instance.Information($"Generated {numMembers} party members of level {string.Join(", ", partyLevels)}. Levels were in sector {section}");
 
@@ -273,7 +273,7 @@ public static class DataGenerator
         totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1 + (randomFactorMonsters / 100.0)));
         Logger.Instance.Information($"Total Power for Monsters after random factor: {totalMonstersCombatPower}");
 
-        encounter.Outcome = CombatCalculator.CalculateCombatOutcome(encounter.PartyMembers, encounter.Monsters, totalPartyCombatPower, totalMonstersCombatPower);
+        encounter.Outcome = CombatCalculator.CalculateCombatOutcome(encounter.PartyMembers, encounter.Monsters, totalPartyCombatPower, totalMonstersCombatPower, baseStatsParty, baseStatsMonsters);
 
         return encounter;
     }

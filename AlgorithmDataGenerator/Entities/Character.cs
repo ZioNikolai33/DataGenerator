@@ -19,7 +19,7 @@ public class Character
         BaseStats = baseStats;
     }
 
-    public Character(Member member, int baseStats)
+    public Character(PartyMember member, int baseStats)
     {
         Name = member.Name;
         Level = member.Level;

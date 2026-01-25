@@ -1,4 +1,5 @@
 ﻿using System;
+using TrainingDataGenerator.Abstracts;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
@@ -7,32 +8,19 @@ using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Entities;
 
-public class Member : ICombatCalculator
+public class PartyMember : Creature, ICombatCalculator
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
     public byte Level { get; set; }
     public byte HitDie { get; set; }
-    public short Hp { get; set; }
     public byte ArmorClass { get; set; }
     public string Class { get; set; }
     public string Race { get; set; }
-    public string Size { get; set; }
     public short Speed { get; set; }
     public string? Subrace { get; set; }        
     public string Subclass { get; set; }
-    public Attribute Strength { get; set; } = new Attribute();
-    public Attribute Dexterity { get; set; } = new Attribute();
-    public Attribute Constitution { get; set; } = new Attribute();
-    public Attribute Intelligence { get; set; } = new Attribute();
-    public Attribute Wisdom { get; set; } = new Attribute();
-    public Attribute Charisma { get; set; } = new Attribute();
     public sbyte Initiative { get; set; }
-    public sbyte ProficiencyBonus { get; set; }
-    public List<Skill> Skills { get; set; } = new List<Skill>();
     public List<string> Traits { get; set; } = new List<string>();
     public List<Feature> Features { get; set; } = new List<Feature>();
-    public List<string> Proficiencies { get; set; } = new List<string>();
     public List<MeleeWeapon> MeleeWeapons { get; set; } = new List<MeleeWeapon>();
     public List<RangedWeapon> RangedWeapons { get; set; } = new List<RangedWeapon>();
     public List<Armor> Armors { get; set; } = new List<Armor>();
@@ -40,15 +28,12 @@ public class Member : ICombatCalculator
     public Dictionary<string, object>? ClassSpecific { get; set; }
     public Dictionary<string, object>? SubclassSpecific { get; set; }
     public List<string> FeatureSpecifics { get; set; } = new List<string>();
-    public List<string> Vulnerabilities { get; set; } = new List<string>();
-    public List<string> Resistances { get; set; } = new List<string>();
-    public List<string> Immunities { get; set; } = new List<string>();
     public string SpellcastingAbility { get; set; } = string.Empty;
     public Slots SpellSlots { get; set; } = new Slots();
     public List<Spell> Cantrips { get; set; } = new List<Spell>();
     public List<Spell> Spells { get; set; } = new List<Spell>();
 
-    public Member(int id, byte level, RaceMapper randomRace, ClassMapper randomClass)
+    public PartyMember(int id, byte level, RaceMapper randomRace, ClassMapper randomClass)
     {
         Logger.Instance.Information($"Generating Member {id} at Level {level}. Class {randomClass.Index} and Race {randomRace.Index}");
 
@@ -60,7 +45,7 @@ public class Member : ICombatCalculator
         var features = Lists.features.Where(item => item.Level <= level && item.Parent == null && ((item.Class.Index == randomClass.Index && item.Subclass == null) || (item.Class.Index == randomClass.Index && item.Subclass?.Index == Subclass))).ToList();
 
         // Base Information
-        Id = id;
+        Index = id.ToString();
         Name = $"Member {id}";
         Level = level;
         HitDie = (byte)randomClass.Hp;
@@ -71,7 +56,7 @@ public class Member : ICombatCalculator
         Subrace = randomSubrace != null ? randomSubrace.Index : null;
         Class = randomClass.Index;
         Subclass = randomSubclass.Index;
-        SpellcastingAbility = randomClass.SpellcastingAbility != null ? DataManipulation.ConvertAbilityIndex(randomClass.SpellcastingAbility.SpellcastingAbility.Index) : string.Empty;
+        SpellcastingAbility = randomClass.SpellcastingAbility != null ? UtilityMethods.ConvertAbilityIndexToFullName(randomClass.SpellcastingAbility.SpellcastingAbility.Index) : string.Empty;
 
         SetAttributes(randomClass, randomRaceAbilityBonus, features); // Set Attributes with Racial Bonuses and Level Improvements
         ManageEquipments(randomClass); // Manage starting Equipments
@@ -87,7 +72,7 @@ public class Member : ICombatCalculator
         ManageFeatureSpecific(); // Manage Feature Specifics (like Expertise)
 
         ArmorClass = CalculateArmorClass();
-        Hp = CalculateRandomHp(randomClass);
+        HitPoints = CalculateRandomHp(randomClass);
         Initiative = Dexterity?.Modifier ?? 0;
 
         Cantrips = Cantrips.GroupBy(c => c.Index).Select(g => g.First()).ToList();
@@ -809,31 +794,6 @@ public class Member : ICombatCalculator
 
     #region skills
 
-    private void CreateSkills()
-    {
-        Skills = new List<Skill>
-        {
-             new Skill(new BaseEntity("skill-acrobatics", "Acrobatics"), Dexterity.Modifier),
-             new Skill(new BaseEntity("skill-animal-handling", "Animal Handling"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-arcana", "Arcana"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-athletics", "Athletics"), Strength.Modifier),
-             new Skill(new BaseEntity("skill-deception", "Deception"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-history", "History"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-insight", "Insight"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-intimidation", "Intimidation"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-investigation", "Investigation"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-medicine", "Medicine"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-nature", "Nature"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-perception", "Perception"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-performance", "Performance"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-persuasion", "Persuasion"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-religion", "Religion"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-sleight-of-hand", "Sleight of Hand"), Dexterity.Modifier),
-             new Skill(new BaseEntity("skill-stealth", "Stealth"), Dexterity.Modifier),
-             new Skill(new BaseEntity("skill-survival", "Survival"), Wisdom.Modifier)
-        };
-    }
-
     private List<string> GetAllSkills() =>
         Skills.Select(item => item.Index).ToList();
 
@@ -955,17 +915,17 @@ public class Member : ICombatCalculator
         switch (index)
         {
             case "str":
-                return DataManipulation.CalculateRollPercentage(saveDc, Strength.Save);
+                return CombatCalculator.CalculateRollPercentage(saveDc, Strength.Save);
             case "dex":
-                return DataManipulation.CalculateRollPercentage(saveDc, Dexterity.Save);
+                return CombatCalculator.CalculateRollPercentage(saveDc, Dexterity.Save);
             case "con":
-                return DataManipulation.CalculateRollPercentage(saveDc, Constitution.Save);
+                return CombatCalculator.CalculateRollPercentage(saveDc, Constitution.Save);
             case "int":
-                return DataManipulation.CalculateRollPercentage(saveDc, Intelligence.Save);
+                return CombatCalculator.CalculateRollPercentage(saveDc, Intelligence.Save);
             case "wis":
-                return DataManipulation.CalculateRollPercentage(saveDc, Wisdom.Save);
+                return CombatCalculator.CalculateRollPercentage(saveDc, Wisdom.Save);
             case "cha":
-                return DataManipulation.CalculateRollPercentage(saveDc, Charisma.Save);
+                return CombatCalculator.CalculateRollPercentage(saveDc, Charisma.Save);
             default:
                 return 0;
         }
@@ -1213,7 +1173,7 @@ public class Member : ICombatCalculator
             RangedWeapons.OrderBy(_ => random.Next()).First().IsEquipped = true;
     }
 
-    private short CalculateRandomHp(ClassMapper classMapper)
+    private int CalculateRandomHp(ClassMapper classMapper)
     {
         var random = new Random();
 
@@ -1227,7 +1187,7 @@ public class Member : ICombatCalculator
         if (Features.Select(item => item.Index).Contains("draconic-resilience"))
             hp += Level;
 
-        return (short)hp;
+        return hp;
     }
 
     private void SetDamageResistances()
@@ -1399,12 +1359,12 @@ public class Member : ICombatCalculator
         {
             var meleePower = weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
             var attackBonus = weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
-            var attackPower = DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * meleePower;
+            var attackPower = CombatCalculator.CalculateRollPercentage(averageMonsterAc, attackBonus) * meleePower;
 
             CombatCalculator.ApplyDefenses(monsters,
-                r => r.DamageResistances,
-                i => i.DamageImmunities,
-                v => v.DamageVulnerabilities,
+                r => r.Resistances,
+                i => i.Immunities,
+                v => v.Vulnerabilities,
                 weapon.Damage.DamageType,
                 ref attackPower);
 
@@ -1416,12 +1376,12 @@ public class Member : ICombatCalculator
         {
             var rangedPower = weapon.GetWeaponPower(Strength.Modifier, Dexterity.Modifier);
             var attackBonus = weapon.GetAttackBonus(Strength.Modifier, Dexterity.Modifier, ProficiencyBonus, IsProficient(weapon));
-            var attackPower = DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus) * rangedPower;
+            var attackPower = CombatCalculator.CalculateRollPercentage(averageMonsterAc, attackBonus) * rangedPower;
 
             CombatCalculator.ApplyDefenses(monsters,
-                r => r.DamageResistances,
-                i => i.DamageImmunities,
-                v => v.DamageVulnerabilities,
+                r => r.Resistances,
+                i => i.Immunities,
+                v => v.Vulnerabilities,
                 weapon.Damage.DamageType,
                 ref attackPower);
 
@@ -1459,9 +1419,9 @@ public class Member : ICombatCalculator
                         totalPower += (hitPercentage * (spellPower / 2)) * usagePercentage;
 
                 CombatCalculator.ApplyDefenses(monsters,
-                    r => r.DamageResistances,
-                    i => i.DamageImmunities,
-                    v => v.DamageVulnerabilities,
+                    r => r.Resistances,
+                    i => i.Immunities,
+                    v => v.Vulnerabilities,
                     spell.Damage?.DamageType ?? "",
                     ref totalPower);
 
@@ -1481,7 +1441,7 @@ public class Member : ICombatCalculator
     {
         var subraceStr = Subrace != null ? $" {Subrace}" : "";
         var str = $"{Name} | {Race}{subraceStr} | Lv{Level} {Class}\n";
-        str += $"HP: {Hp} | Initiative: {Initiative} | Proficiency Bonus: +{ProficiencyBonus}\n";
+        str += $"HP: {HitPoints} | Initiative: {Initiative} | Proficiency Bonus: +{ProficiencyBonus}\n";
         str += $"STR: {Strength.Value} ({Strength.Modifier}) | DEX: {Dexterity.Value} ({Dexterity.Modifier}) | CON: {Constitution.Value} ({Constitution.Modifier}) | INT: {Intelligence.Value} ({Intelligence.Modifier}) | WIS: {Wisdom.Value} ({Wisdom.Modifier}) | CHA: {Charisma.Value} ({Charisma.Modifier})\n";
         str += $"Saving Throws: STR {Strength.Save}, DEX {Dexterity.Save}, CON {Constitution.Save}, INT {Intelligence.Save}, WIS {Wisdom.Save}, CHA {Charisma.Save}\n";
         str += $"Skills: {string.Join(", ", Skills.Select(skill => $"{skill.Name} {skill.Modifier}"))}\n";

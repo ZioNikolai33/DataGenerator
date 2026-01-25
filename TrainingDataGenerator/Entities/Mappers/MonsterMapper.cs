@@ -251,7 +251,7 @@ public class MonsterMapper : BaseEntity
     public class Damage
     {
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
 
         [BsonElement("damage_type")]
         public BaseEntity DamageType { get; set; } = new BaseEntity();

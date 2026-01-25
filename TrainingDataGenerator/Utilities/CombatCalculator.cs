@@ -1,9 +1,32 @@
 ﻿using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.Enums;
 
 namespace TrainingDataGenerator.Utilities;
 
 public static class CombatCalculator
 {
+    public static double CalculateRollPercentage(int toReach, int bonus, short diceNumber = 20)
+    {
+        var hitPercentage = 0.0;
+
+        for (var roll = 1; roll <= diceNumber; roll++)
+        {
+            if (diceNumber == 20 && roll == 1)
+                continue;
+
+            if (roll == diceNumber)
+            {
+                hitPercentage += (double)1 / diceNumber;
+                continue;
+            }
+
+            if (roll + bonus >= toReach)
+                hitPercentage += (double)1 / diceNumber;
+        }
+
+        return (double)hitPercentage;
+    }
+
     public static void ApplyDefenses<T>(List<T> targets,
         Func<T, List<string>> getResistances,
         Func<T, List<string>> getImmunities,
@@ -87,9 +110,37 @@ public static class CombatCalculator
         }
     }
 
-    public static Result CalculateCombatOutcome(List<Member> party, List<Monster> monsters, int totalPartyCombatPower, int totalMonstersCombatPower)
+    public static Result CalculateCombatOutcome(List<PartyMember> party, List<Monster> monsters, int totalPartyCombatPower, int totalMonstersCombatPower, int baseStatsParty, int baseStatsMonsters)
     {
         var result = new Result();
+        var totalPartyHp = party.Sum(p => p.HitPoints);
+        var totalMonstersHp = monsters.Sum(m => m.HitPoints);
+        var numberOfTurnsToDefeatMonsters = (int)Math.Ceiling((double)totalMonstersHp / totalPartyCombatPower);
+        var numberOfTurnsToDefeatParty = (int)Math.Ceiling((double)totalPartyHp / totalMonstersCombatPower);
+
+        if (numberOfTurnsToDefeatMonsters < numberOfTurnsToDefeatParty)
+        {
+            result.Outcome = Results.Victory;
+            result.Details = $"Party wins in {numberOfTurnsToDefeatMonsters} turns.";
+        }
+        else if (numberOfTurnsToDefeatMonsters > numberOfTurnsToDefeatParty)
+        {
+            result.Outcome = Results.Defeat;
+            result.Details = $"Monsters win in {numberOfTurnsToDefeatParty} turns.";
+        }
+        else if (numberOfTurnsToDefeatMonsters == numberOfTurnsToDefeatParty)
+        {
+            if (baseStatsParty >= baseStatsMonsters)
+            {
+                result.Outcome = Results.Victory;
+                result.Details = $"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.";
+            }
+            else
+            {
+                result.Outcome = Results.Defeat;
+                result.Details = $"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.";
+            }
+        }
 
         return result;
     }

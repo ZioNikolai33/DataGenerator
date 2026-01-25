@@ -4,11 +4,11 @@ public sealed class Encounter
 {
     public string Id { get; set; }
     public CRRatios Difficulty { get; set; }
-    public List<Member> PartyMembers { get; set; }
+    public List<PartyMember> PartyMembers { get; set; }
     public List<Monster> Monsters { get; set; }
     public Result Outcome { get; set; } = new Result();
 
-    public Encounter(int index, CRRatios difficulty, List<Member> partyMembers, List<Monster> monsters)
+    public Encounter(int index, CRRatios difficulty, List<PartyMember> partyMembers, List<Monster> monsters)
     {
         var difficultyLetter = difficulty switch
         {

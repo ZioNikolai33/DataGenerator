@@ -100,8 +100,8 @@ public class StartingEquipmentOptionMapper
                             selectedEquipments.AddRange(equipments.OrderBy(x => random.Next()).Take(choose).Select(x => new ClassMapper.Equipment(new BaseEntity(x.Index, x.Name), item.Choice.Choose)).ToList());
                         }
                     }
-                    else if (item.OptionType == "counted_reference")
-                        selectedEquipments.Add(new ClassMapper.Equipment(new BaseEntity(item.Of.Index, item.Of.Name), (short)item.Count));
+                    else if (item.OptionType == "counted_reference" && item.Of != null && item.Count.HasValue)
+                        selectedEquipments.Add(new ClassMapper.Equipment(new BaseEntity(item.Of.Index, item.Of.Name), (short)item.Count.Value));
 
                 }
             }

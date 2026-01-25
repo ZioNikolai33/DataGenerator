@@ -1,39 +1,24 @@
-﻿using TrainingDataGenerator.Entities.Enums;
+﻿using TrainingDataGenerator.Abstracts;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
-using static TrainingDataGenerator.Entities.Mappers.MonsterMapper;
 
 namespace TrainingDataGenerator.Entities;
 
-public class Monster : BaseEntity, ICombatCalculator
+public class Monster : Creature, ICombatCalculator
 {
     public string Desc { get; set; } = string.Empty;
-    public string Size { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Subtype { get; set; } = string.Empty;
     public string Alignment { get; set; } = string.Empty;
     public List<ArmorClass> AC { get; set; } = new List<ArmorClass>();
-    public int HitPoints { get; set; }
     public string HitDice { get; set; } = string.Empty;
     public string HitPointsRoll { get; set; } = string.Empty;
     public SpeedType Speed { get; set; } = new SpeedType();
-    public Attribute Strength { get; set; } = new Attribute();
-    public Attribute Dexterity { get; set; } = new Attribute();
-    public Attribute Constitution { get; set; } = new Attribute();
-    public Attribute Intelligence { get; set; } = new Attribute();
-    public Attribute Wisdom { get; set; } = new Attribute();
-    public Attribute Charisma { get; set; } = new Attribute();
-    public List<string> Proficiencies { get; set; } = new List<string>();
-    public List<Skill> Skills { get; set; } = new List<Skill>();
-    public List<string> DamageVulnerabilities { get; set; } = new List<string>();
-    public List<string> DamageResistances { get; set; } = new List<string>();
-    public List<string> DamageImmunities { get; set; } = new List<string>();
     public List<BaseEntity> ConditionImmunities { get; set; } = new List<BaseEntity>();
     public SensesType Senses { get; set; } = new SensesType();
     public string Languages { get; set; } = string.Empty;
     public double ChallengeRating { get; set; }
-    public byte ProficiencyBonus { get; set; }
     public int Xp { get; set; }
     public List<SpecialAbility> SpecialAbilities { get; set; } = new List<SpecialAbility>();
     public List<NormalAction> Actions { get; set; } = new List<NormalAction>();
@@ -291,8 +276,10 @@ public class Monster : BaseEntity, ICombatCalculator
         public string Damage_Dice { get; set; } = string.Empty;
     }
 
-    public Monster(MonsterMapper monster) : base(monster.Index, monster.Name)
+    public Monster(MonsterMapper monster)
     {
+        Index = monster.Index;
+        Name = monster.Name;
         Desc = monster.Desc;
         Size = monster.Size;
         Type = monster.Type;
@@ -322,9 +309,9 @@ public class Monster : BaseEntity, ICombatCalculator
         AddProfs(monster);
 
         Proficiencies = monster.Proficiencies.Select(item => item.Proficiency.Index).ToList();
-        DamageVulnerabilities = monster.DamageVulnerabilities;
-        DamageResistances = monster.DamageResistances;
-        DamageImmunities = monster.DamageImmunities;
+        Vulnerabilities = monster.DamageVulnerabilities;
+        Resistances = monster.DamageResistances;
+        Immunities = monster.DamageImmunities;
         ConditionImmunities = monster.ConditionImmunities;
         Senses = new SensesType
         {
@@ -336,37 +323,12 @@ public class Monster : BaseEntity, ICombatCalculator
         };
         Languages = monster.Languages;
         ChallengeRating = monster.ChallengeRating;
-        ProficiencyBonus = (byte)monster.ProficiencyBonus;
+        ProficiencyBonus = (sbyte)monster.ProficiencyBonus;
         Xp = monster.Xp;
         SpecialAbilities = (monster.SpecialAbilities != null) ? monster.SpecialAbilities.Select(item => new SpecialAbility(item)).ToList() : new List<SpecialAbility>();
         Actions = (monster.Actions != null) ? monster.Actions.Select(item => new NormalAction(item)).ToList() : new List<NormalAction>();
         LegendaryActions = (monster.LegendaryActions != null) ? monster.LegendaryActions.Select(item => new LegendaryAction(item)).ToList() : new List<LegendaryAction>();
         Reactions = (monster.Reactions != null) ? monster.Reactions.Select(item => new Reaction(item)).ToList() : new List<Reaction>();
-    }
-
-    private void CreateSkills()
-    {
-        Skills = new List<Skill>
-        {
-             new Skill(new BaseEntity("skill-acrobatics", "Acrobatics"), Dexterity.Modifier),
-             new Skill(new BaseEntity("skill-animal-handling", "Animal Handling"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-arcana", "Arcana"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-athletics", "Athletics"), Strength.Modifier),
-             new Skill(new BaseEntity("skill-deception", "Deception"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-history", "History"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-insight", "Insight"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-intimidation", "Intimidation"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-investigation", "Investigation"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-medicine", "Medicine"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-nature", "Nature"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-perception", "Perception"), Wisdom.Modifier),
-             new Skill(new BaseEntity("skill-performance", "Performance"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-persuasion", "Persuasion"), Charisma.Modifier),
-             new Skill(new BaseEntity("skill-religion", "Religion"), Intelligence.Modifier),
-             new Skill(new BaseEntity("skill-sleight-of-hand", "Sleight of Hand"), Dexterity.Modifier),
-             new Skill(new BaseEntity("skill-stealth", "Stealth"), Dexterity.Modifier),
-             new Skill(new BaseEntity("skill-survival", "Survival"), Wisdom.Modifier)
-        };
     }
 
     private void AddProfs(MonsterMapper monster)
@@ -459,8 +421,8 @@ public class Monster : BaseEntity, ICombatCalculator
     {
         var offensivePower = 0;
 
-        offensivePower += CalculateAttackPower(party.Cast<Member>().ToList(), difficulty);
-        offensivePower += CalculateSpellsPower(party.Cast<Member>().ToList(), difficulty);
+        offensivePower += CalculateAttackPower(party.Cast<PartyMember>().ToList(), difficulty);
+        offensivePower += CalculateSpellsPower(party.Cast<PartyMember>().ToList(), difficulty);
 
         return offensivePower;
     }
@@ -516,7 +478,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return usagePercentage;
     }
 
-    private int CalculateAttackPower(List<Member> party, CRRatios difficulty)
+    private int CalculateAttackPower(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
 
@@ -532,7 +494,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return (int)(offensivePower / Actions.Count);
     }
 
-    private int CalculateSpellsPower(List<Member> party, CRRatios difficulty)
+    private int CalculateSpellsPower(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
         var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0)?.Spellcast ?? null;
@@ -550,7 +512,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return (int)(offensivePower / spells.Count(item => item.IsDamageSpell()));
     }
 
-    private double CalculateSimpleAttacks(List<Member> party, CRRatios difficulty)
+    private double CalculateSimpleAttacks(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
         var partyAvgAc = (int)party.Average(m => m.ArmorClass);
@@ -562,7 +524,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return offensivePower;
     }
 
-    private double CalculateDcAttacks(List<Member> party, CRRatios difficulty)
+    private double CalculateDcAttacks(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
         var actions = Actions.Where(a => a.Dc.DcValue != 0 && string.IsNullOrEmpty(a.Dc.DcType.Index)).ToList();
@@ -573,7 +535,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return offensivePower;
     }
 
-    private double CalculateSimpleAttack(List<Member> party, int partyAvgAc, NormalAction action, CRRatios difficulty)
+    private double CalculateSimpleAttack(List<PartyMember> party, int partyAvgAc, NormalAction action, CRRatios difficulty)
     {
         var chooseableDamages = new List<DamageOption>();
         var attackBonus = action.AttackBonus.HasValue ? action.AttackBonus.Value : 0;
@@ -582,11 +544,11 @@ public class Monster : BaseEntity, ICombatCalculator
             foreach (var damage in action.Damage.Where(item => item.From != null))
                 chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random().Next()).Take(damage.Choose ?? 0).ToList());
 
-        var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => DataManipulation.GetDiceValue(d.DamageDice, this)) : 0;
-        averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => DataManipulation.GetDiceValue(item.Damage_Dice, this)) : 0;
+        var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
+        averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => UtilityMethods.GetDiceValue(item.Damage_Dice, this)) : 0;
 
         var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
-        var hitPercentage = DataManipulation.CalculateRollPercentage(partyAvgAc, attackBonus);
+        var hitPercentage = CombatCalculator.CalculateRollPercentage(partyAvgAc, attackBonus);
         var usagePercentage = CalculateUsagePercentage(action, difficulty);
         var totalPower = hitPercentage * averageDamage * usagePercentage;
 
@@ -600,7 +562,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return totalPower;
     }
 
-    private double CalculateDcAttack(List<Member> party, NormalAction action, CRRatios difficulty)
+    private double CalculateDcAttack(List<PartyMember> party, NormalAction action, CRRatios difficulty)
     {
         var chooseableDamages = new List<DamageOption>();
 
@@ -609,8 +571,8 @@ public class Monster : BaseEntity, ICombatCalculator
                 chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random().Next()).Take(damage.Choose ?? 0).ToList());
 
         var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc.DcType.Index, action.Dc.DcValue));
-        var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => DataManipulation.GetDiceValue(d.DamageDice, this)) : 0;
-        averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => DataManipulation.GetDiceValue(item.Damage_Dice, this)) : 0;
+        var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
+        averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => UtilityMethods.GetDiceValue(item.Damage_Dice, this)) : 0;
         var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
         var usagePercentage = CalculateUsagePercentage(action, difficulty);
         var totalPower = (1.0 - partyAvgPercentage) * averageDamage * usagePercentage;
@@ -628,7 +590,7 @@ public class Monster : BaseEntity, ICombatCalculator
         return totalPower;
     }
 
-    private double CalculateSpellPower(SpecialAbility.Spellcasting spellcast, Spell spell, List<Member> party, CRRatios difficulty)
+    private double CalculateSpellPower(SpecialAbility.Spellcasting spellcast, Spell spell, List<PartyMember> party, CRRatios difficulty)
     {
         if (spell.IsDamageSpell() && spellcast != null)
         {
@@ -660,14 +622,14 @@ public class Monster : BaseEntity, ICombatCalculator
 
         if (action.Usage != null)
             if (action.Usage.Type.Equals("recharge on roll", StringComparison.OrdinalIgnoreCase))
-                usagePercentage = DataManipulation.CalculateRollPercentage(action.Usage.MinValue ?? 0, 0, (short)DataManipulation.GetDiceValue(action.Usage.Dice ?? "0"));
+                usagePercentage = CombatCalculator.CalculateRollPercentage(action.Usage.MinValue ?? 0, 0, (short)UtilityMethods.GetDiceValue(action.Usage.Dice ?? "0"));
             else if (action.Usage.Type.Equals("recharge after rest", StringComparison.OrdinalIgnoreCase) || action.Usage.Type.Equals("per day", StringComparison.OrdinalIgnoreCase))
                 usagePercentage = (action.Usage.Times ?? 1) / (int)difficulty;
 
         return usagePercentage;
     }
 
-    private double CalculateMultiAttacks(List<Member> party, CRRatios difficulty) 
+    private double CalculateMultiAttacks(List<PartyMember> party, CRRatios difficulty) 
     {
         var offensivePower = 0.0;
         var partyAvgAc = (int)party.Average(m => m.ArmorClass);
@@ -684,7 +646,7 @@ public class Monster : BaseEntity, ICombatCalculator
 
                     if (spellcast != null)
                         foreach (var spell in spellsChosen)
-                            offensivePower += CalculateSpellPower(spellcast, spell, party);
+                            offensivePower += CalculateSpellPower(spellcast, spell, party, difficulty);
                 }
             }
             else

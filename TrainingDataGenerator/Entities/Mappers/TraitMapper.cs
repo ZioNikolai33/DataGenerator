@@ -6,11 +6,11 @@ namespace TrainingDataGenerator.Entities.Mappers;
 public class TraitMapper : BaseEntity
 {
     [BsonElement("races")]
-    public List<BaseEntity> Races { get; set; }
+    public List<BaseEntity> Races { get; set; } = new List<BaseEntity>();
     [BsonElement("subraces")]
-    public List<BaseEntity> Subraces { get; set; }
+    public List<BaseEntity> Subraces { get; set; } = new List<BaseEntity>();
     [BsonElement("proficiencies")]
-    public List<BaseEntity> Proficiencies { get; set; }
+    public List<BaseEntity> Proficiencies { get; set; } = new List<BaseEntity>();
     [BsonElement("parent")]
     public BaseEntity? Parent { get; set; }
     [BsonElement("trait_specific")]
@@ -52,18 +52,18 @@ public class TraitMapper : BaseEntity
     public class DC
     {
         [BsonElement("dc_type")]
-        public BaseEntity DcType { get; set; }
+        public BaseEntity DcType { get; set; } = new BaseEntity();
         [BsonElement("success_type")]
-        public string SuccessType { get; set; }
+        public string SuccessType { get; set; } = string.Empty;
     }
 
     [BsonIgnoreExtraElements]
     public class Damage
     {
         [BsonElement("damage_type")]
-        public BaseEntity DamageType { get; set; }
+        public BaseEntity DamageType { get; set; } = new BaseEntity();
         [BsonElement("damage_at_character_level")]
-        public Dictionary<byte, string> DamageAtCharacterLevel { get; set; }
+        public Dictionary<byte, string> DamageAtCharacterLevel { get; set; } = new Dictionary<byte, string>();
     }
 
     [BsonIgnoreExtraElements]
@@ -72,9 +72,9 @@ public class TraitMapper : BaseEntity
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("from")]
-        public SubtraitFrom From { get; set; }
+        public SubtraitFrom From { get; set; } = new SubtraitFrom();
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
 
         public List<BaseEntity> GetRandomChoice()
         {
@@ -96,7 +96,7 @@ public class TraitMapper : BaseEntity
     public class Usage
     {
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [BsonElement("times")]
         public byte? Times { get; set; }
     }
@@ -105,18 +105,18 @@ public class TraitMapper : BaseEntity
     public class SubtraitFrom
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<Option> Options { get; set; }
+        public List<Option> Options { get; set; } = new List<Option>();
     }
 
     [BsonIgnoreExtraElements]
     public class Option
     {
         [BsonElement("option_type")]
-        public string OptionType { get; set; }
+        public string OptionType { get; set; } = string.Empty;
         [BsonElement("item")]
-        public BaseEntity Item { get; set; }
+        public BaseEntity Item { get; set; } = new BaseEntity();
     }
 
     [BsonIgnoreExtraElements]
@@ -125,9 +125,9 @@ public class TraitMapper : BaseEntity
         [BsonElement("choose")]
         public byte Choose { get; set; }
         [BsonElement("from")]
-        public SpellFrom From { get; set; }
+        public SpellFrom From { get; set; } = new SpellFrom();
         [BsonElement("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
 
         public List<BaseEntity> GetRandomChoice()
         {
@@ -149,9 +149,9 @@ public class TraitMapper : BaseEntity
     public class SpellFrom
     {
         [BsonElement("option_set_type")]
-        public string OptionSetType { get; set; }
+        public string OptionSetType { get; set; } = string.Empty;
         [BsonElement("options")]
-        public List<Option> Options { get; set; }
+        public List<Option> Options { get; set; } = new List<Option>();
     }
 
     public TraitMapper(string index, string name) : base(index, name) { }

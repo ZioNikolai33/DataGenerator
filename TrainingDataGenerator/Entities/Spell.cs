@@ -43,20 +43,20 @@ public class Spell: BaseEntity
         Uses = uses;
     }
 
-    public int GetSpellPower(Member member)
+    public int GetSpellPower(PartyMember member)
     {
         var spellPower = 0.0;
 
         if (IsDamageSpell() && Uses == "")
         {
             if (Damage?.DamageSlots != null && Damage.DamageSlots.Count > 0)
-                spellPower = Damage.DamageSlots.Where(item => member.SpellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
+                spellPower = Damage.DamageSlots.Where(item => member.SpellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, member));
             else if (Damage?.DamageAtCharacterLevel != null && Damage.DamageAtCharacterLevel.Count > 0)
-                spellPower = Damage.DamageAtCharacterLevel.Where(item => member.Level >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
+                spellPower = Damage.DamageAtCharacterLevel.Where(item => member.Level >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, member));
         }            
         else if (IsDamageSpell() && Uses != "")
             if (Damage?.DamageSlots != null && Damage.DamageSlots.Count > 0)
-                spellPower = Damage?.DamageSlots.Average(item => DataManipulation.GetDiceValue(item.Value, member)) ?? 0;
+                spellPower = Damage?.DamageSlots.Average(item => UtilityMethods.GetDiceValue(item.Value, member)) ?? 0;
 
         return (int)spellPower;
     }
@@ -67,33 +67,33 @@ public class Spell: BaseEntity
 
         if (IsDamageSpell())
             if (Damage?.DamageSlots != null)
-                spellPower = Damage.DamageSlots.Where(item => spellcast.SpellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, monster));
+                spellPower = Damage.DamageSlots.Where(item => spellcast.SpellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, monster));
             else if (Damage?.DamageAtCharacterLevel != null)
-                spellPower = Damage.DamageAtCharacterLevel.Where(item => spellcast.Level >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, monster));
+                spellPower = Damage.DamageAtCharacterLevel.Where(item => spellcast.Level >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, monster));
 
         return (int)spellPower;
     }
 
-    public double GetSpellPercentage(Member partyMember, List<Monster> monsters)
+    public double GetSpellPercentage(PartyMember partyMember, List<Monster> monsters)
     {
         var spellPercentage = 1.0;
         var attackBonus = 0;
         var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
         var averageMonsterSaveBonus = 0;
-        var spellAbilityModifier = DataManipulation.GetSpellcastingModifier(partyMember);
+        var spellAbilityModifier = UtilityMethods.GetSpellcastingModifier(partyMember);
 
         if (IsDamageSpell())
         {
             if (RequiresAttackRoll())
             {
                 attackBonus = spellAbilityModifier + partyMember.ProficiencyBonus;
-                spellPercentage = DataManipulation.CalculateRollPercentage(averageMonsterAc, attackBonus);
+                spellPercentage = CombatCalculator.CalculateRollPercentage(averageMonsterAc, attackBonus);
             }
             else if (RequiresSavingThrow() && Dc != null)
             {
                 var saveDc = 8 + partyMember.ProficiencyBonus + spellAbilityModifier;
 
-                switch (DataManipulation.ConvertAbilityIndex(Dc.DcType.Index))
+                switch (UtilityMethods.ConvertAbilityIndexToFullName(Dc.DcType.Index))
                 {
                     case "strength":
                         averageMonsterSaveBonus = (int)monsters.Average(item => item.Strength.Modifier);
@@ -115,14 +115,14 @@ public class Spell: BaseEntity
                         break;
                 }
 
-                spellPercentage = (1.0 - DataManipulation.CalculateRollPercentage(saveDc, averageMonsterSaveBonus));
+                spellPercentage = (1.0 - CombatCalculator.CalculateRollPercentage(saveDc, averageMonsterSaveBonus));
             }
         }
 
         return spellPercentage;
     }
 
-    public double GetSpellPercentage(Monster.SpecialAbility.Spellcasting spellcast, Monster monster, List<Member> party)
+    public double GetSpellPercentage(Monster.SpecialAbility.Spellcasting spellcast, Monster monster, List<PartyMember> party)
     {
         var spellPercentage = 1.0;
         var averagePartyAc = (int)party.Average(item => item.ArmorClass);
@@ -132,10 +132,10 @@ public class Spell: BaseEntity
         if (IsDamageSpell())
         {
             if (RequiresAttackRoll())
-                spellPercentage = DataManipulation.CalculateRollPercentage(averagePartyAc, spellcast.Modifier);
+                spellPercentage = CombatCalculator.CalculateRollPercentage(averagePartyAc, spellcast.Modifier);
             else if (RequiresSavingThrow() && Dc != null)
             {
-                switch (DataManipulation.ConvertAbilityIndex(Dc.DcType.Index))
+                switch (UtilityMethods.ConvertAbilityIndexToFullName(Dc.DcType.Index))
                 {
                     case "strength":
                         averagePartySaveBonus = (int)party.Average(item => item.Strength.Modifier);
@@ -157,21 +157,21 @@ public class Spell: BaseEntity
                         break;
                 }
 
-                spellPercentage = (1.0 - DataManipulation.CalculateRollPercentage(spellcast.Dc, averagePartySaveBonus));
+                spellPercentage = (1.0 - CombatCalculator.CalculateRollPercentage(spellcast.Dc, averagePartySaveBonus));
             }
         }
 
         return spellPercentage;
     }
 
-    public int GetHealingPower(Slots spellSlots, Member member)
+    public int GetHealingPower(Slots spellSlots, PartyMember member)
     {
         var healingPower = 0;
 
         if (IsHealingSpell() && HealAtSlotLevel != null && Uses == "")
-            healingPower = (int)HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, member));
+            healingPower = (int)HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, member));
         else if (IsHealingSpell() && HealAtSlotLevel != null && Uses != "")
-            healingPower = (int)HealAtSlotLevel.Average(item => DataManipulation.GetDiceValue(item.Value, member));
+            healingPower = (int)HealAtSlotLevel.Average(item => UtilityMethods.GetDiceValue(item.Value, member));
 
         return healingPower;
     }
@@ -180,7 +180,7 @@ public class Spell: BaseEntity
         var healingPower = 0;
 
         if (IsHealingSpell() && HealAtSlotLevel != null)
-            healingPower = (int)HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => DataManipulation.GetDiceValue(x.Value, monster));
+            healingPower = (int)HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, monster));
 
         return healingPower;
     }

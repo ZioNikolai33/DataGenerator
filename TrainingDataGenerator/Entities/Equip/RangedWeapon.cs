@@ -21,7 +21,7 @@ public class RangedWeapon : Weapon
             return int.Parse(Damage.DamageDice.Trim());
 
         var weaponPower = 0;
-        var averageDamage = DataManipulation.GetDiceValue(Damage.DamageDice);
+        var averageDamage = UtilityMethods.GetDiceValue(Damage.DamageDice);
         var totalDamage = averageDamage + dexterityModifier;
 
         weaponPower = totalDamage;

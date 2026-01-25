@@ -20,7 +20,7 @@ public class MeleeWeapon : Weapon
             return int.Parse(Damage.DamageDice.Trim());
 
         var weaponPower = 0;
-        var averageDamage = DataManipulation.GetDiceValue(Damage.DamageDice);
+        var averageDamage = UtilityMethods.GetDiceValue(Damage.DamageDice);
         var totalDamage = averageDamage;
 
         if (Properties.Contains("finesse") || Properties.Contains("thrown"))
