@@ -143,7 +143,7 @@ public class Monster : Creature, ICombatCalculator
 
             if (action.ActionOptions != null && action.ActionOptions.From.Options.Count > 0)
             {
-                var random = new Random();
+                var random = Random.Shared;
                 var choose = action.ActionOptions.Choose;
 
                 var selectedOptions = action.ActionOptions.From.Options.OrderBy(_ => random.Next()).Take(choose).ToList();
@@ -383,7 +383,7 @@ public class Monster : Creature, ICombatCalculator
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
 
-        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
+        Logger.Instance.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
 
         return totalBaseStats;
     }
@@ -438,7 +438,7 @@ public class Monster : Creature, ICombatCalculator
                 if (spell.IsHealingSpell())
                     healingPower += spell.GetHealingPower(spellcast.SpellSlots, this);
 
-        Logger.Instance.Information($"Total Healing Power for {Name}: {healingPower}");
+        Logger.Instance.Verbose($"Total Healing Power for {Name}: {healingPower}");
         return healingPower;
     }
 
@@ -489,7 +489,7 @@ public class Monster : Creature, ICombatCalculator
         offensivePower += CalculateDcAttacks(party, difficulty);
         offensivePower += CalculateMultiAttacks(party, difficulty);
 
-        Logger.Instance.Information($"Offensive Power for {Name}: {(int)offensivePower / Actions.Count}");
+        Logger.Instance.Verbose($"Offensive Power for {Name}: {(int)offensivePower / Actions.Count}");
 
         return (int)(offensivePower / Actions.Count);
     }
@@ -507,7 +507,7 @@ public class Monster : Creature, ICombatCalculator
             foreach (var spell in spells)
                 offensivePower += CalculateSpellPower(spellcast, spell, party, difficulty);
         
-        Logger.Instance.Information($"Spells Power for {Name}: {(int)offensivePower / spells.Count(item => item.IsDamageSpell())}");
+        Logger.Instance.Verbose($"Spells Power for {Name}: {(int)offensivePower / spells.Count(item => item.IsDamageSpell())}");
 
         return (int)(offensivePower / spells.Count(item => item.IsDamageSpell()));
     }
@@ -542,7 +542,7 @@ public class Monster : Creature, ICombatCalculator
 
         if (action.Damage.Any(item => item.From != null && item.From.Options.Count > 0))
             foreach (var damage in action.Damage.Where(item => item.From != null))
-                chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random().Next()).Take(damage.Choose ?? 0).ToList());
+                chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => Random.Shared.Next()).Take(damage.Choose ?? 0).ToList());
 
         var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
         averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => UtilityMethods.GetDiceValue(item.Damage_Dice, this)) : 0;
@@ -568,7 +568,7 @@ public class Monster : Creature, ICombatCalculator
 
         if (action.Damage.Any(item => item.From != null && item.From.Options.Count > 0))
             foreach (var damage in action.Damage.Where(item => item.From != null))
-                chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => new Random().Next()).Take(damage.Choose ?? 0).ToList());
+                chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => Random.Shared.Next()).Take(damage.Choose ?? 0).ToList());
 
         var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc.DcType.Index, action.Dc.DcValue));
         var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
@@ -641,7 +641,7 @@ public class Monster : Creature, ICombatCalculator
             {
                 if (SpecialAbilities.Select(sa => sa.Name).Contains(multiattackAction.ActionName))
                 {
-                    var spellsChosen = SpecialAbilities.First(sa => sa.Name.Equals(multiattackAction.ActionName, StringComparison.OrdinalIgnoreCase)).Spellcast?.Spells.OrderBy(_ => new Random().Next()).Take(multiattackAction.Count).ToList() ?? new List<Spell>();
+                    var spellsChosen = SpecialAbilities.First(sa => sa.Name.Equals(multiattackAction.ActionName, StringComparison.OrdinalIgnoreCase)).Spellcast?.Spells.OrderBy(_ => Random.Shared.Next()).Take(multiattackAction.Count).ToList() ?? new List<Spell>();
                     var spellcast = SpecialAbilities.First(sa => sa.Name.Equals(multiattackAction.ActionName, StringComparison.OrdinalIgnoreCase)).Spellcast;
 
                     if (spellcast != null)

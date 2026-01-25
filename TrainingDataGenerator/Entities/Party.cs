@@ -35,9 +35,9 @@ public class PartyMember : Creature, ICombatCalculator
 
     public PartyMember(int id, byte level, RaceMapper randomRace, ClassMapper randomClass)
     {
-        Logger.Instance.Information($"Generating Member {id} at Level {level}. Class {randomClass.Index} and Race {randomRace.Index}");
+        Logger.Instance.Verbose($"Generating Member {id} at Level {level}. Class {randomClass.Index} and Race {randomRace.Index}");
 
-        var random = new Random();
+        var random = Random.Shared;
         var randomRaceAbilityBonus = randomRace.GetRandomAbility();
         var randomSubrace = (randomRace.Subraces.Count > 0) ? EntitiesFinder.GetEntityByIndex(Lists.subraces, new BaseEntity(randomRace.Index, randomRace.Name), randomRace.Subraces.OrderBy(_ => random.Next()).FirstOrDefault() ?? new BaseEntity()) : null;
         var randomSubclass = EntitiesFinder.GetEntityByIndex(Lists.subclasses, new BaseEntity(randomClass.Index, randomClass.Name), randomClass.Subclasses.OrderBy(_ => random.Next()).FirstOrDefault() ?? new BaseEntity());
@@ -99,7 +99,7 @@ public class PartyMember : Creature, ICombatCalculator
         if (Features.Select(item => item.Index).ToList().Contains("additional-magical-secrets"))
         {
             var spellsOptions = Lists.spells.Where(item => item.Level <= 3).ToList();
-            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => Random.Shared.Next()).Take(2).Select(item => new Spell(item)).ToList();
 
             foreach (var spell in spellsChosen)
                 if (spell.Level == 0)
@@ -111,7 +111,7 @@ public class PartyMember : Creature, ICombatCalculator
         if (Features.Select(item => item.Index).ToList().Contains("magical-secrets-1"))
         {
             var spellsOptions = Lists.spells.Where(item => item.Level <= 5).ToList();
-            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => Random.Shared.Next()).Take(2).Select(item => new Spell(item)).ToList();
 
             foreach (var spell in spellsChosen)
                 if (spell.Level == 0)
@@ -123,7 +123,7 @@ public class PartyMember : Creature, ICombatCalculator
         if (Features.Select(item => item.Index).ToList().Contains("magical-secrets-2"))
         {
             var spellsOptions = Lists.spells.Where(item => item.Level <= 7).ToList();
-            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => Random.Shared.Next()).Take(2).Select(item => new Spell(item)).ToList();
 
             foreach (var spell in spellsChosen)
                 if (spell.Level == 0)
@@ -135,7 +135,7 @@ public class PartyMember : Creature, ICombatCalculator
         if (Features.Select(item => item.Index).ToList().Contains("magical-secrets-3"))
         {
             var spellsOptions = Lists.spells.Where(item => item.Level <= 9).ToList();
-            var spellsChosen = spellsOptions.OrderBy(_ => new Random().Next()).Take(2).Select(item => new Spell(item)).ToList();
+            var spellsChosen = spellsOptions.OrderBy(_ => Random.Shared.Next()).Take(2).Select(item => new Spell(item)).ToList();
 
             foreach (var spell in spellsChosen)
                 if (spell.Level == 0)
@@ -145,22 +145,22 @@ public class PartyMember : Creature, ICombatCalculator
         }
 
         if (Features.Select(item => item.Index).ToList().Contains("pact-of-the-tome"))
-            Cantrips.AddRange(Lists.spells.Where(item => item.Level == 0).OrderBy(_ => new Random().Next()).Take(3).Select(item => new Spell(item)).ToList());
+            Cantrips.AddRange(Lists.spells.Where(item => item.Level == 0).OrderBy(_ => Random.Shared.Next()).Take(3).Select(item => new Spell(item)).ToList());
 
         if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-6th-level"))
-            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 6).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 6).OrderBy(_ => Random.Shared.Next()).First(), "1 per Long Rest"));
 
         if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-7th-level"))
-            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 7).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 7).OrderBy(_ => Random.Shared.Next()).First(), "1 per Long Rest"));
 
         if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-8th-level"))
-            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 8).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 8).OrderBy(_ => Random.Shared.Next()).First(), "1 per Long Rest"));
 
         if (Features.Select(item => item.Index).ToList().Contains("mystic-arcanum-9th-level"))
-            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 9).OrderBy(_ => new Random().Next()).First(), "1 per Long Rest"));
+            Spells.Add(new Spell(Lists.spells.Where(item => item.Level == 9).OrderBy(_ => Random.Shared.Next()).First(), "1 per Long Rest"));
 
         if (Features.Select(item => item.Index).ToList().Contains("bonus-cantrip") && Class == "druid")
-            Cantrips.Add(new Spell(Lists.spells.Where(item => item.Classes.Select(c => c.Index).Contains("druid") && item.Level == 0).OrderBy(_ => new Random().Next()).First()));
+            Cantrips.Add(new Spell(Lists.spells.Where(item => item.Classes.Select(c => c.Index).Contains("druid") && item.Level == 0).OrderBy(_ => Random.Shared.Next()).First()));
 
         if (Class == "druid")
             SetCircleSpells();
@@ -687,7 +687,7 @@ public class PartyMember : Creature, ICombatCalculator
         if (Traits.Contains("high-elf-cantrip"))
         {
             var cantripOptions = Lists.spells.Where(item => item.Level == 0 && item.Classes.Any(x => x.Index == "wizard")).ToList();
-            var cantripChosen = cantripOptions.OrderBy(_ => new Random().Next()).First();
+            var cantripChosen = cantripOptions.OrderBy(_ => Random.Shared.Next()).First();
 
             Cantrips.Add(new Spell(cantripChosen));
         }
@@ -721,7 +721,7 @@ public class PartyMember : Creature, ICombatCalculator
 
     private void SetAttributes(ClassMapper randomClass, List<AbilityBonus> randomRaceAbilityBonus, List<FeatureMapper> features)
     {
-        var random = new Random();
+        var random = Random.Shared;
         var attributes = AssumeAttributes(randomClass, random); // First assume random value for attributes based on Standard Array rule
 
         if (randomRaceAbilityBonus.Count > 0)
@@ -850,11 +850,11 @@ public class PartyMember : Creature, ICombatCalculator
     private void AddProfToSkills()
     {
         if (Traits.Contains("skill-versatility"))
-            Proficiencies.AddRange(GetAllSkills().OrderBy(_ => new Random().Next()).Take(2).ToList());
+            Proficiencies.AddRange(GetAllSkills().OrderBy(_ => Random.Shared.Next()).Take(2).ToList());
 
         if (Features.Count > 0)
             if (Class == "bard" && Features.Select(item => item.Index).ToList().Contains("bonus-proficiencies"))
-                Proficiencies.AddRange(GetAllSkills().OrderBy(_ => new Random().Next()).Take(3).ToList());
+                Proficiencies.AddRange(GetAllSkills().OrderBy(_ => Random.Shared.Next()).Take(3).ToList());
 
         foreach (var skill in Skills)
             if (Proficiencies.Select(item => item).ToList().Contains(skill.Index))
@@ -893,7 +893,7 @@ public class PartyMember : Creature, ICombatCalculator
 
     private void ManageArmorRequirements(List<Armor> allArmors)
     {
-        var random = new Random();
+        var random = Random.Shared;
 
         if (allArmors.Where(item => item.Index != "shield").ToList().Count > 0 && allArmors.Any(item => item.StrengthMinimum <= Strength?.Value))
         {
@@ -1014,7 +1014,7 @@ public class PartyMember : Creature, ICombatCalculator
                             (item.Classes.Any(x => x.Index == Class) || 
                             (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && 
                             (Spells == null || !Spells.Any(s => s.Index == item.Index))))
-                                .OrderBy(_ => new Random().Next())
+                                .OrderBy(_ => Random.Shared.Next())
                                 .Take(spellcasting.SpellsKnown ?? 0)
                                 .Select(item => new Spell(item))
                                 .ToList());
@@ -1023,7 +1023,7 @@ public class PartyMember : Creature, ICombatCalculator
                             (item.Classes.Any(x => x.Index == Class) || 
                             (item.Subclasses == null || (item.Classes.Any(x => x.Index == Class) && item.Subclasses.Any(x => x.Index == Subclass))) && 
                             (Cantrips == null || !Cantrips.Any(s => s.Index == item.Index))))
-                                .OrderBy(_ => new Random().Next())
+                                .OrderBy(_ => Random.Shared.Next())
                                 .Take(spellcasting.CantripsKnown ?? 0)
                                 .Select(item => new Spell(item))
                                 .ToList());
@@ -1086,7 +1086,7 @@ public class PartyMember : Creature, ICombatCalculator
         {
             for (int k = 0; k < 2; k++)
             {
-                var random = new Random();
+                var random = Random.Shared;
                 var attributeIndex = random.Next(0, 6);
 
                 switch (attributeIndex)
@@ -1152,7 +1152,7 @@ public class PartyMember : Creature, ICombatCalculator
 
     private void EquipRandomWeapons(List<Armor> allArmors)
     {
-        var random = new Random();
+        var random = Random.Shared;
 
         if (MeleeWeapons.Count > 0)
         {
@@ -1175,7 +1175,7 @@ public class PartyMember : Creature, ICombatCalculator
 
     private int CalculateRandomHp(ClassMapper classMapper)
     {
-        var random = new Random();
+        var random = Random.Shared;
 
         int hp = classMapper.Hp + Constitution.Modifier;
         for (int i = 2; i <= Level; i++)
@@ -1243,7 +1243,7 @@ public class PartyMember : Creature, ICombatCalculator
             Immunities.Add("disease");
 
         if (Class == "warlock" && Subclass == "the-fiend" && Features.Select(item => item.Index).ToList().Contains("fiendish-resilience"))
-            Resistances.Add(new List<string>() { "bludgeoning", "slashing", "piercing", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "psychic", "radiant", "thunder" }.OrderBy(_ => new Random().Next()).First());
+            Resistances.Add(new List<string>() { "bludgeoning", "slashing", "piercing", "acid", "cold", "fire", "force", "lightning", "necrotic", "poison", "psychic", "radiant", "thunder" }.OrderBy(_ => Random.Shared.Next()).First());
     }
 
     private bool IsProficient(Weapon weapon)
@@ -1272,7 +1272,7 @@ public class PartyMember : Creature, ICombatCalculator
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
 
-        Logger.Instance.Information($"Total Base Stats for {Name}: {totalBaseStats}");
+        Logger.Instance.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
 
         return totalBaseStats;
     }
@@ -1312,7 +1312,7 @@ public class PartyMember : Creature, ICombatCalculator
             if (spell.IsHealingSpell())
                 healingPower += spell.GetHealingPower(SpellSlots, this);
 
-        Logger.Instance.Information($"Total Healing Power for {Name}: {healingPower}");
+        Logger.Instance.Verbose($"Total Healing Power for {Name}: {healingPower}");
         return healingPower;
     }
 
@@ -1394,7 +1394,7 @@ public class PartyMember : Creature, ICombatCalculator
         if (Features.Any(f => f.Index.Contains("extra-attack")))
             offensivePower *= 1 + Features.Where(f => f.Index.Contains("extra-attack")).Count();
 
-        Logger.Instance.Information($"Offensive Power for {Name}: {(int)offensivePower}");
+        Logger.Instance.Verbose($"Offensive Power for {Name}: {(int)offensivePower}");
         return (int)offensivePower;
     }
 
@@ -1431,7 +1431,7 @@ public class PartyMember : Creature, ICombatCalculator
 
         offensivePower /= Spells.Count(item => item.IsDamageSpell());
 
-        Logger.Instance.Information($"Spells Power for {Name}: {(int)offensivePower}");
+        Logger.Instance.Verbose($"Spells Power for {Name}: {(int)offensivePower}");
         return (int)offensivePower;
     }
 

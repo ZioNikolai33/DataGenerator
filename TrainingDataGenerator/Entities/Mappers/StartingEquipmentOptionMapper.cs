@@ -69,7 +69,7 @@ public class StartingEquipmentOptionMapper
 
     public List<ClassMapper.Equipment> GetRandomEquipment()
     {
-        var random = new Random();
+        var random = Random.Shared;
         var selectedEquipments = new List<ClassMapper.Equipment>();
 
         if (From.OptionSetType == "equipment_category")
@@ -126,7 +126,7 @@ public class StartingEquipmentOptionMapper
 
     private List<ClassMapper.Equipment> GetEquipFromList()
     {
-        var random = new Random();
+        var random = Random.Shared;
         var equipments = Lists.GetEquipmentsList(From.EquipmentCategory.Index);
         var selectedEquipments = new List<ClassMapper.Equipment>();
 

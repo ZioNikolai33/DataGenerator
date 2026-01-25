@@ -122,11 +122,13 @@ public static class CombatCalculator
         {
             result.Outcome = Results.Victory;
             result.Details = $"Party wins in {numberOfTurnsToDefeatMonsters} turns.";
+            Logger.Instance.Information($"Party wins in {numberOfTurnsToDefeatMonsters} turns.");
         }
         else if (numberOfTurnsToDefeatMonsters > numberOfTurnsToDefeatParty)
         {
             result.Outcome = Results.Defeat;
             result.Details = $"Monsters win in {numberOfTurnsToDefeatParty} turns.";
+            Logger.Instance.Information($"Monsters win in {numberOfTurnsToDefeatParty} turns.");
         }
         else if (numberOfTurnsToDefeatMonsters == numberOfTurnsToDefeatParty)
         {
@@ -134,11 +136,13 @@ public static class CombatCalculator
             {
                 result.Outcome = Results.Victory;
                 result.Details = $"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.";
+                Logger.Instance.Information($"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.");
             }
             else
             {
                 result.Outcome = Results.Defeat;
                 result.Details = $"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.";
+                Logger.Instance.Information($"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.");
             }
         }
 

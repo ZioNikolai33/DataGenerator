@@ -61,7 +61,7 @@ public class RaceMapper : BaseEntity
 
     public List<AbilityBonus> GetRandomAbility()
     {
-        var random = new Random();
+        var random = Random.Shared;
         var selectedAbility = new List<AbilityBonus>();
 
         if (AbilityOptions == null)

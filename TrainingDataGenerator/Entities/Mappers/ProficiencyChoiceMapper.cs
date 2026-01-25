@@ -34,7 +34,7 @@ public class ProficiencyChoiceMapper
 
     public List<string> GetRandomChoice(List<string>? proficiencies)
     {
-        var random = new Random();
+        var random = Random.Shared;
         var selectedProficiencies = new List<string>();
 
         if (this.From.Options.All(item => item.Item != null))            

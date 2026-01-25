@@ -78,7 +78,7 @@ public class TraitMapper : BaseEntity
 
         public List<BaseEntity> GetRandomChoice()
         {
-            var random = new Random();
+            var random = Random.Shared;
             var selectedSubtrait = new List<BaseEntity>();
 
             if (this.From.Options.All(item => item.Item != null))
@@ -131,7 +131,7 @@ public class TraitMapper : BaseEntity
 
         public List<BaseEntity> GetRandomChoice()
         {
-            var random = new Random();
+            var random = Random.Shared;
             var selectedSpell = new List<BaseEntity>();
 
             if (this.From.Options.All(item => item.Item != null))

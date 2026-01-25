@@ -6,22 +6,6 @@ using TrainingDataGenerator.Entities.Mappers;
 
 namespace TrainingDataGenerator.DataBase;
 
-public class Config
-{
-    [JsonPropertyName("database")]
-    public DatabaseConfig Database { get; set; } = new DatabaseConfig();
-    [JsonPropertyName("numberOfCycles")]
-    public int NumberOfCycles { get; set; } = 10;
-}
-
-public class DatabaseConfig
-{
-    [JsonPropertyName("connectionString")]
-    public string ConnectionString { get; set; } = string.Empty;
-    [JsonPropertyName("databaseName")]
-    public string DatabaseName { get; set; } = string.Empty;
-}
-
 public class Database
 {
     private readonly IMongoDatabase _db;
@@ -29,10 +13,10 @@ public class Database
     public Database()
     {
         var configText = File.ReadAllText("appsettings.json");
-        var config = JsonSerializer.Deserialize<Config>(configText);
-        var client = new MongoClient(config?.Database.ConnectionString);
+        var config = JsonSerializer.Deserialize<Utilities.Config>(configText);
+        var client = new MongoClient(config?.Db.ConnectionString);
 
-        _db = client.GetDatabase(config?.Database.DatabaseName);
+        _db = client.GetDatabase(config?.Db.DatabaseName);
     }
 
     public Dictionary<string, IMongoCollection<BsonDocument>> GetAllCollections()

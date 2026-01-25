@@ -16,15 +16,15 @@ public static class DataGenerator
 
         try
         {
-            Logger.Instance.Information("Retrieving App Settings...");
+            Logger.Instance.Verbose("Retrieving App Settings...");
             var config = JsonSerializer.Deserialize<Config>(File.ReadAllText("appsettings.json"));
 
             if (config == null)
                 throw new InvalidOperationException("Configuration file is missing or invalid.");
 
-            Logger.Instance.Information("App Settings successfully retrieved");
+            Logger.Instance.Verbose("App Settings successfully retrieved");
 
-            Logger.Instance.Information($"Start generating {config.NumberOfCycles} party members\n");
+            Logger.Instance.Verbose($"Start generating {config.NumberOfCycles} party members\n");
             for (var i = 1; i <= config.NumberOfCycles; i++)
             {
                 var level = (byte)random.Next(1, 21);
@@ -34,7 +34,7 @@ public static class DataGenerator
             foreach (var monster in Lists.monsters)
                 monsters.Add(new TrainingDataGenerator.Entities.Monster(monster));
 
-            Logger.Instance.Information("Data generation completed.");
+            Logger.Instance.Verbose("Data generation completed.");
 
             CalculateBaseStats(characters);
             CalculateBaseStats(monsters);
@@ -51,7 +51,7 @@ public static class DataGenerator
 
     private static void CalculateBaseStats(List<PartyMember> members)
     {
-        Logger.Instance.Information($"Calculating Base Stats for {members.Count} characters");
+        Logger.Instance.Verbose($"Calculating Base Stats for {members.Count} characters");
 
         var random = new Random();
         var characters = new List<Character>();
@@ -59,15 +59,15 @@ public static class DataGenerator
         characters.AddRange(members.Select(item => new Character(item, item.CalculateBaseStats())));
         characters = characters.OrderBy(c => c.BaseStats).ToList();
 
-        Logger.Instance.Information($"{string.Join("\n", characters)}");
-        Logger.Instance.Information("Base Stats calculation completed.\n");
+        Logger.Instance.Verbose($"{string.Join("\n", characters)}");
+        Logger.Instance.Verbose("Base Stats calculation completed.\n");
 
         SaveCharacters(characters, DateTime.Now);
     }
 
     private static void CalculateBaseStats(List<TrainingDataGenerator.Entities.Monster> mons)
     {
-        Logger.Instance.Information($"Calculating Base Stats for {mons.Count} monsters");
+        Logger.Instance.Verbose($"Calculating Base Stats for {mons.Count} monsters");
 
         var random = new Random();
         var monsters = new List<AlgorithmDataGenerator.Entities.Monster>();
@@ -75,8 +75,8 @@ public static class DataGenerator
         monsters.AddRange(mons.Select(item => new AlgorithmDataGenerator.Entities.Monster(item, item.CalculateBaseStats())));
         monsters = monsters.OrderBy(c => c.BaseStats).ToList();
 
-        Logger.Instance.Information($"{string.Join("\n", monsters)}");
-        Logger.Instance.Information("Base Stats calculation completed.\n");
+        Logger.Instance.Verbose($"{string.Join("\n", monsters)}");
+        Logger.Instance.Verbose("Base Stats calculation completed.\n");
 
         SaveMonsters(monsters, DateTime.Now);
     }
@@ -90,14 +90,14 @@ public static class DataGenerator
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);
-            Logger.Instance.Information($"Created output folder");
+            Logger.Instance.Verbose($"Created output folder");
         }
 
         var fileName = $"characters_{startDate:yyyyMMdd_HHmmss}.json";
         var filePath = Path.Combine(batchFolderName, fileName);
 
         File.WriteAllText(filePath, charactersJson);
-        Logger.Instance.Information($"Characters written to folder\n");
+        Logger.Instance.Verbose($"Characters written to folder\n");
     }
 
     private static void SaveMonsters(List<AlgorithmDataGenerator.Entities.Monster> characters, DateTime startDate)
@@ -109,13 +109,13 @@ public static class DataGenerator
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);
-            Logger.Instance.Information($"Created output folder");
+            Logger.Instance.Verbose($"Created output folder");
         }
 
         var fileName = $"monsters_{startDate:yyyyMMdd_HHmmss}.json";
         var filePath = Path.Combine(batchFolderName, fileName);
 
         File.WriteAllText(filePath, monsterJson);
-        Logger.Instance.Information($"Monsters written to folder\n");
+        Logger.Instance.Verbose($"Monsters written to folder\n");
     }
 }

@@ -61,7 +61,7 @@ public class FeatureMapper: BaseEntity
 
         public List<string> GetRandomChoice(List<string> proficiencies)
         {
-            var random = new Random();
+            var random = Random.Shared;
             var selectedOptions = new List<string>();
             var selectableOptions = From.Options
                 .Where(o => proficiencies.Any(p => o.Item != null && o.Item.Item != null && p == o.Item.Item.Index))
@@ -100,7 +100,7 @@ public class FeatureMapper: BaseEntity
 
         public List<string> GetRandomChoice()
         {
-            var random = new Random();
+            var random = Random.Shared;
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
@@ -125,7 +125,7 @@ public class FeatureMapper: BaseEntity
 
         public List<string> GetRandomChoice()
         {
-            var random = new Random();
+            var random = Random.Shared;
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
@@ -148,7 +148,7 @@ public class FeatureMapper: BaseEntity
 
         public List<string> GetRandomChoice()
         {
-            var random = new Random();
+            var random = Random.Shared;
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
@@ -211,7 +211,7 @@ public class FeatureMapper: BaseEntity
 
         public List<string> GetRandomChoice()
         {
-            var random = new Random();
+            var random = Random.Shared;
 
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
