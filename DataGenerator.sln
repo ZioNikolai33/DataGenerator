@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainingDataGenerator", "Tr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgorithmDataGenerator", "AlgorithmDataGenerator\AlgorithmDataGenerator.csproj", "{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainingDataGenerator.Tests", "TrainingDataGenerator.Tests\TrainingDataGenerator.Tests.csproj", "{C67554FC-28FB-4B01-B496-8F930A43C357}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55953B16-1A38-4E6A-9DB8-BA4DF4E304E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C67554FC-28FB-4B01-B496-8F930A43C357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C67554FC-28FB-4B01-B496-8F930A43C357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C67554FC-28FB-4B01-B496-8F930A43C357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C67554FC-28FB-4B01-B496-8F930A43C357}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
