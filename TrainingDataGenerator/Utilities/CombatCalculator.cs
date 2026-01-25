@@ -1,4 +1,6 @@
-﻿namespace TrainingDataGenerator.Utilities;
+﻿using TrainingDataGenerator.Entities;
+
+namespace TrainingDataGenerator.Utilities;
 
 public static class CombatCalculator
 {
@@ -67,5 +69,28 @@ public static class CombatCalculator
         }
 
         baseDamage = totalPower / targets.Count;
+    }
+
+    public static void ApplyBaseStatsIncrement(int baseStatsParty, int baseStatsMonsters, ref int totalPartyCombatPower, ref int totalMonstersCombatPower)
+    {
+        var baseStatsDifference = Math.Max(baseStatsParty, baseStatsMonsters) - Math.Min(baseStatsParty, baseStatsMonsters);
+
+        if (baseStatsParty != baseStatsMonsters && baseStatsDifference == baseStatsParty)
+        {
+            totalPartyCombatPower = (int)(totalPartyCombatPower * (1.0 + (baseStatsMonsters / baseStatsParty)));
+            totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1.0 - (baseStatsMonsters / baseStatsParty)));
+        }
+        else if (baseStatsParty != baseStatsMonsters && baseStatsDifference == baseStatsMonsters)
+        {
+            totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1.0 + (baseStatsParty / baseStatsMonsters)));
+            totalPartyCombatPower = (int)(totalPartyCombatPower * (1.0 - (baseStatsParty / baseStatsMonsters)));
+        }
+    }
+
+    public static Result CalculateCombatOutcome(List<Member> party, List<Monster> monsters, int totalPartyCombatPower, int totalMonstersCombatPower)
+    {
+        var result = new Result();
+
+        return result;
     }
 }

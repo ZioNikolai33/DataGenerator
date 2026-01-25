@@ -263,10 +263,17 @@ public static class DataGenerator
         var healingPowerMonsters = encounter.Monsters.Sum(m => m.CalculateHealingPower());
         Logger.Instance.Information($"Total Healing Power for Monsters: {healingPowerMonsters}");
 
-        var totalPowerParty = (int)((baseStatsParty + offensivePowerParty + healingPowerParty) * (1 + (randomFactorParty / 100.0)));
-        Logger.Instance.Information($"Total Power for Party after random factor: {totalPowerParty}");
-        var totalPowerMonsters = (int)((baseStatsMonsters + offensivePowerMonsters + healingPowerMonsters) * (1 + (randomFactorMonsters / 100.0)));
-        Logger.Instance.Information($"Total Power for Monsters after random factor: {totalPowerMonsters}");
+        var totalPartyCombatPower = offensivePowerParty + healingPowerParty;
+        var totalMonstersCombatPower = offensivePowerMonsters + healingPowerMonsters;
+
+        CombatCalculator.ApplyBaseStatsIncrement(baseStatsParty, baseStatsMonsters, ref totalPartyCombatPower, ref totalMonstersCombatPower);
+
+        totalPartyCombatPower = (int)(totalPartyCombatPower * (1 + (randomFactorParty / 100.0)));
+        Logger.Instance.Information($"Total Power for Party after random factor: {totalPartyCombatPower}");
+        totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1 + (randomFactorMonsters / 100.0)));
+        Logger.Instance.Information($"Total Power for Monsters after random factor: {totalMonstersCombatPower}");
+
+        encounter.Outcome = CombatCalculator.CalculateCombatOutcome(encounter.PartyMembers, encounter.Monsters, totalPartyCombatPower, totalMonstersCombatPower);
 
         return encounter;
     }
