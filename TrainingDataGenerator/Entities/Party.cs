@@ -183,9 +183,9 @@ public class PartyMember : Creature, ICombatCalculator
 
         if (Features.Select(item => item.Index).ToList().Contains("diamond-soul"))
         {
-            Strength.Save += ProficiencyBonus;
             Constitution.Save += ProficiencyBonus;
             Intelligence.Save += ProficiencyBonus;
+            Wisdom.Save += ProficiencyBonus;
             Charisma.Save += ProficiencyBonus;
         }
     }
@@ -731,12 +731,11 @@ public class PartyMember : Creature, ICombatCalculator
         var abilityImprovements = (byte)features.Count(item => item.Index.Contains("ability-score-improvement"));
         AbilityScoreImprovement(attributes, abilityImprovements);
 
-        if (Class == "barbarian")
-            if (Features.Select(item => item.Index).ToList().Contains("primal-champion"))
-            {
-                attributes[0] += 4;
-                attributes[2] += 4;
-            }
+        if (Class.Equals("barbarian") && Features.Select(item => item.Index).Contains("primal-champion"))
+        {
+            attributes[0] += 4;
+            attributes[2] += 4;
+        }
 
         Strength = new Attribute(attributes[0]);
         Dexterity = new Attribute(attributes[1]);

@@ -22,6 +22,72 @@ public class PartyMemberTests
                     yield return new object[] { index++, i, race, className };
     }
 
+    public static IEnumerable<object[]> GetBarbarianTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "barbarian").ToList();
+
+    public static IEnumerable<object[]> GetBardTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "bard").ToList();
+
+    public static IEnumerable<object[]> GetClericTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "cleric").ToList();
+
+    public static IEnumerable<object[]> GetDruidTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "druid").ToList();
+
+    public static IEnumerable<object[]> GetFighterTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "fighter").ToList();
+
+    public static IEnumerable<object[]> GetMonkTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "monk").ToList();
+
+    public static IEnumerable<object[]> GetPaladinTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "paladin").ToList();
+
+    public static IEnumerable<object[]> GetRogueTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "rogue").ToList();
+
+    public static IEnumerable<object[]> GetSorcererTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "sorcerer").ToList();
+
+    public static IEnumerable<object[]> GetWarlockTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "warlock").ToList();
+
+    public static IEnumerable<object[]> GetWizardTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "wizard").ToList();
+
+    public static IEnumerable<object[]> GetHalfOrcTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "half-orc").ToList();
+
+    public static IEnumerable<object[]> GetElfTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "elf").ToList();
+
+    public static IEnumerable<object[]> GetHumanTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "human").ToList();
+
+    public static IEnumerable<object[]> GetHalflingTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "halfling").ToList();
+
+    public static IEnumerable<object[]> GetGnomeTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "gnome").ToList();
+
+    public static IEnumerable<object[]> GetTieflingTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "tiefling").ToList();
+
+    public static IEnumerable<object[]> GetDragonbornTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "dragonborn").ToList();
+
+    public static IEnumerable<object[]> GetHalfElfTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "half-elf").ToList();
+
+    public static IEnumerable<object[]> GetOrcTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "orc").ToList();
+
+    public static IEnumerable<object[]> GetDwarfTestData() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "dwarf").ToList();
+
+    public static IEnumerable<object[]> GetConstructorTestDataWithoutDwarves() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() != "dwarf").ToList();
+
     public static IEnumerable<object[]> GetProfBonusOf2() =>
         GetConstructorTestData().Where(data => data[1] is >= 1 and <= 4).ToList();
 
@@ -58,7 +124,7 @@ public class PartyMemberTests
 
     #endregion
 
-    #region Attribute Tests
+    #region Proficiency Bonus Tests
 
     [Theory]
     [MemberData(nameof(GetConstructorTestData))]
@@ -142,6 +208,10 @@ public class PartyMemberTests
         Assert.Equal(6, member.ProficiencyBonus);
     }
 
+    #endregion
+
+    #region Attribute Tests
+
     [Theory]
     [MemberData(nameof(GetConstructorTestData))]
     public void Attributes_ShouldNotBeNull(int index, byte level, string raceName, string className)
@@ -178,13 +248,31 @@ public class PartyMemberTests
         Assert.InRange(member.Charisma.Value, 1, 30);
     }
 
+    [Theory]
+    [MemberData(nameof(GetConstructorTestData))]
+    public void Attributes_ShouldHaveCorrectModifiers(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        // Assert
+        Assert.Equal((member.Strength.Value - 10) / 2, member.Strength.Modifier);
+        Assert.Equal((member.Dexterity.Value - 10) / 2, member.Dexterity.Modifier);
+        Assert.Equal((member.Constitution.Value - 10) / 2, member.Constitution.Modifier);
+        Assert.Equal((member.Intelligence.Value - 10) / 2, member.Intelligence.Modifier);
+        Assert.Equal((member.Wisdom.Value - 10) / 2, member.Wisdom.Modifier);
+        Assert.Equal((member.Charisma.Value - 10) / 2, member.Charisma.Modifier);
+    }
+
     #endregion
 
     #region Hit Points Tests
 
     [Theory]
-    [MemberData(nameof(GetConstructorTestData))]
-    public void HitPoints_ShouldBePositiveAndUnderTheMax(int index, byte level, string raceName, string className)
+    [MemberData(nameof(GetConstructorTestDataWithoutDwarves))]
+    public void HitPoints_ShouldBePositiveAndUnderTheMaxAnythingButDwarves(int index, byte level, string raceName, string className)
     {
         // Arrange
         var race = CreateTestRace(raceName);
@@ -193,8 +281,21 @@ public class PartyMemberTests
 
         // Assert
         Assert.True(member.HitPoints > 0);
-        Assert.True(member.HitPoints < 440); // Max HP possible: 20 levels of Barbarian (12 HP per level) + 10 Con modifier (30 Con score) = 440
         Assert.True(member.HitPoints <= (classMapper.Hp * level) + (member.Constitution.Modifier * level));
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDwarfTestData))]
+    public void HitPoints_ShouldBePositiveAndUnderTheMaxOnlyDwarves(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        // Assert
+        Assert.True(member.HitPoints > 0);
+        Assert.True(member.HitPoints <= (classMapper.Hp * level) + (member.Constitution.Modifier * level) + level);
     }
 
     [Theory]
@@ -210,6 +311,88 @@ public class PartyMemberTests
         // Assert
         Assert.Equal(1, level);
         Assert.True(member.HitPoints >= minHP);
+    }
+
+    #endregion
+
+    #region Monk Feature Tests
+
+    [Theory]
+    [MemberData(nameof(GetMonkTestData))]
+    public void Monk_UnarmoredDefense_ShouldCalculateCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        // Act & Assert
+        if (member.Features.Any(f => f.Index == "unarmored-defense-monk") && member.Armors.All(a => !a.IsEquipped))
+        {
+            var expectedAC = 10 + member.Dexterity.Modifier + member.Wisdom.Modifier;
+            Assert.Equal(expectedAC, member.ArmorClass);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetMonkTestData))]
+    public void Monk_DiamondSoul_ShouldAddProficiencyToAllSaves(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        // Act & Assert
+        if (member.Features.Any(f => f.Index == "diamond-soul"))
+        {
+            Assert.True(member.Level >= 14);
+            Assert.Equal(member.Strength.Modifier + member.ProficiencyBonus, member.Strength.Save);
+            Assert.Equal(member.Dexterity.Modifier + member.ProficiencyBonus, member.Dexterity.Save);
+            Assert.Equal(member.Constitution.Modifier + member.ProficiencyBonus, member.Constitution.Save);
+            Assert.Equal(member.Intelligence.Modifier + member.ProficiencyBonus, member.Intelligence.Save);
+            Assert.Equal(member.Wisdom.Modifier + member.ProficiencyBonus, member.Wisdom.Save);
+            Assert.Equal(member.Charisma.Modifier + member.ProficiencyBonus, member.Charisma.Save);
+        }
+    }
+
+    #endregion
+
+    #region Barbarian Feature Tests
+
+    [Theory]
+    [MemberData(nameof(GetBarbarianTestData))]
+    public void Barbarian_PrimalChampion_ShouldIncreaseStrengthAndConstitution(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        // Act & Assert
+        if (member.Features.Any(f => f.Index == "primal-champion"))
+        {
+            Assert.Equal(20, member.Level);
+            Assert.True(member.Strength.Value >= 12);
+            Assert.True(member.Constitution.Value >= 12);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetBarbarianTestData))]
+    public void Barbarian_UnarmoredDefense_ShouldUseConstitutionModifier(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        // Act & Assert
+        if (member.Features.Any(f => f.Index == "barbarian-unarmored-defense") && member.Armors.Where(a => a.Index != "shield").All(a => !a.IsEquipped))
+        {
+            var expectedAC = 10 + member.Dexterity.Modifier + member.Constitution.Modifier;
+            Assert.Equal(expectedAC, member.ArmorClass);
+        }
     }
 
     #endregion
