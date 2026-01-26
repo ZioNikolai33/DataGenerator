@@ -66,6 +66,7 @@ public class PartyMember : Creature, ICombatCalculator
         CreateSkills(); // Create Skills with basic Modifiers
         AddProfToSavings(randomClass); // Add Proficiency to Saving Throws
         SetFeatures(); // Set Features effects
+        SetBackgroundProficiencies(); // Set Background Proficiencies
         SetAdditionalProficiencies(); // Set Additional Proficiencies from Traits & Features
         AddProfToSkills(); // Add Proficiency to Skills based on Proficiencies list
         SetDamageResistances(); // Set Damage Vulnerabilities, Resistances and Immunities
@@ -823,6 +824,18 @@ public class PartyMember : Creature, ICombatCalculator
                     Proficiencies.AddRange(item.ProficiencyChoice.GetRandomChoice(Proficiencies));
 
         Proficiencies.ToHashSet().ToList(); // Remove Duplicates
+    }
+
+    private void SetBackgroundProficiencies()
+    {
+        // Custom Background Profs: 2 Skills, 2 between Tool Proficiencies or Languages (not managed)
+        var availableSkills = GetAllSkills()
+            .Where(skill => !Proficiencies.Contains(skill))
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(2)
+            .ToList();
+
+        Proficiencies.AddRange(availableSkills);
     }
 
     private void SetAdditionalProficiencies()

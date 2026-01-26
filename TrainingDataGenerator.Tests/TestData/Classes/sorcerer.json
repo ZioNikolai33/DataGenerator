@@ -1,4 +1,4 @@
-[{
+{
   "_id": {
     "$oid": "68250bd816336f2634388915"
   },
@@ -306,4 +306,4 @@
   },
   "spells": "/api/2014/classes/sorcerer/spells",
   "url": "/api/2014/classes/sorcerer"
-}]
+}

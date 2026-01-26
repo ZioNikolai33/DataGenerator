@@ -22,7 +22,10 @@
 
   <ItemGroup>
     <Folder Include="Integration\" />
-    <Folder Include="TestData\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TrainingDataGenerator\TrainingDataGenerator.csproj" />
   </ItemGroup>
 
 </Project>
