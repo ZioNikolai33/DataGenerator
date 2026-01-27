@@ -55,6 +55,9 @@ public class PartyMemberTests
     public static IEnumerable<object[]> GetWizardTestData() =>
         GetConstructorTestData().Where(data => data[3]!.ToString() == "wizard").ToList();
 
+    public static IEnumerable<object[]> GetRangerTestData() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "ranger").ToList();
+
     public static IEnumerable<object[]> GetHalfOrcTestData() =>
         GetConstructorTestData().Where(data => data[2]!.ToString() == "half-orc").ToList();
 
@@ -85,8 +88,8 @@ public class PartyMemberTests
     public static IEnumerable<object[]> GetDwarfTestData() =>
         GetConstructorTestData().Where(data => data[2]!.ToString() == "dwarf").ToList();
 
-    public static IEnumerable<object[]> GetConstructorTestDataWithoutDwarves() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() != "dwarf").ToList();
+    public static IEnumerable<object[]> GetConstructorTestDataWithoutDwarvesAndSorcerers() =>
+        GetConstructorTestData().Where(data => data[2]!.ToString() != "dwarf" && data[3]!.ToString() != "sorcerer").ToList();
 
     public static IEnumerable<object[]> GetProfBonusOf2() =>
         GetConstructorTestData().Where(data => data[1] is >= 1 and <= 4).ToList();
@@ -271,7 +274,7 @@ public class PartyMemberTests
     #region Hit Points Tests
 
     [Theory]
-    [MemberData(nameof(GetConstructorTestDataWithoutDwarves))]
+    [MemberData(nameof(GetConstructorTestDataWithoutDwarvesAndSorcerers))]
     public void HitPoints_ShouldBePositiveAndUnderTheMaxAnythingButDwarves(int index, byte level, string raceName, string className)
     {
         // Arrange
@@ -295,7 +298,29 @@ public class PartyMemberTests
 
         // Assert
         Assert.True(member.HitPoints > 0);
-        Assert.True(member.HitPoints <= (classMapper.Hp * level) + (member.Constitution.Modifier * level) + level);
+
+        if (member.Class.Equals("sorcerer"))
+            Assert.True(member.HitPoints <= (classMapper.Hp * level) + (member.Constitution.Modifier * level) + level * 2);
+        else
+            Assert.True(member.HitPoints <= (classMapper.Hp * level) + (member.Constitution.Modifier * level) + level);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetSorcererTestData))]
+    public void HitPoints_ShouldBePositiveAndUnderTheMaxOnlySorcerer(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        // Assert
+        Assert.True(member.HitPoints > 0);
+
+        if (member.Race.Equals("dwarf"))
+            Assert.True(member.HitPoints <= (classMapper.Hp * level) + (member.Constitution.Modifier * level) + level * 2);
+        else
+            Assert.True(member.HitPoints <= (classMapper.Hp * level) + (member.Constitution.Modifier * level) + level);
     }
 
     [Theory]
@@ -311,6 +336,418 @@ public class PartyMemberTests
         // Assert
         Assert.Equal(1, level);
         Assert.True(member.HitPoints >= minHP);
+    }
+
+    #endregion
+
+    #region Features Tests
+
+    [Theory]
+    [MemberData(nameof(GetBardTestData))]
+    public void Bard_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(4, member.Features.Count); break;
+            case 3: Assert.Equal(8, member.Features.Count); break;
+            case 4: Assert.Equal(9, member.Features.Count); break;
+            case 5: Assert.Equal(11, member.Features.Count); break;
+            case 6: Assert.Equal(13, member.Features.Count); break;
+            case 7: Assert.Equal(13, member.Features.Count); break;
+            case 8: Assert.Equal(14, member.Features.Count); break;
+            case 9: Assert.Equal(15, member.Features.Count); break;
+            case 10: Assert.Equal(18, member.Features.Count); break;
+            case 11: Assert.Equal(18, member.Features.Count); break;
+            case 12: Assert.Equal(19, member.Features.Count); break;
+            case 13: Assert.Equal(20, member.Features.Count); break;
+            case 14: Assert.Equal(22, member.Features.Count); break;
+            case 15: Assert.Equal(23, member.Features.Count); break;
+            case 16: Assert.Equal(24, member.Features.Count); break;
+            case 17: Assert.Equal(25, member.Features.Count); break;
+            case 18: Assert.Equal(26, member.Features.Count); break;
+            case 19: Assert.Equal(27, member.Features.Count); break;
+            case 20: Assert.Equal(28, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetWarlockTestData))]
+    public void Warlock_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(3, member.Features.Count); break;
+            case 2: Assert.Equal(4, member.Features.Count); break;
+            case 3: Assert.Equal(5, member.Features.Count); break;
+            case 4: Assert.Equal(6, member.Features.Count); break;
+            case 5: Assert.Equal(6, member.Features.Count); break;
+            case 6: Assert.Equal(7, member.Features.Count); break;
+            case 7: Assert.Equal(7, member.Features.Count); break;
+            case 8: Assert.Equal(8, member.Features.Count); break;
+            case 9: Assert.Equal(8, member.Features.Count); break;
+            case 10: Assert.Equal(9, member.Features.Count); break;
+            case 11: Assert.Equal(10, member.Features.Count); break;
+            case 12: Assert.Equal(11, member.Features.Count); break;
+            case 13: Assert.Equal(12, member.Features.Count); break;
+            case 14: Assert.Equal(13, member.Features.Count); break;
+            case 15: Assert.Equal(14, member.Features.Count); break;
+            case 16: Assert.Equal(15, member.Features.Count); break;
+            case 17: Assert.Equal(16, member.Features.Count); break;
+            case 18: Assert.Equal(16, member.Features.Count); break;
+            case 19: Assert.Equal(17, member.Features.Count); break;
+            case 20: Assert.Equal(18, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetRangerTestData))]
+    public void Ranger_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(4, member.Features.Count); break;
+            case 3: Assert.Equal(7, member.Features.Count); break;
+            case 4: Assert.Equal(8, member.Features.Count); break;
+            case 5: Assert.Equal(9, member.Features.Count); break;
+            case 6: Assert.Equal(11, member.Features.Count); break;
+            case 7: Assert.Equal(12, member.Features.Count); break;
+            case 8: Assert.Equal(14, member.Features.Count); break;
+            case 9: Assert.Equal(14, member.Features.Count); break;
+            case 10: Assert.Equal(16, member.Features.Count); break;
+            case 11: Assert.Equal(17, member.Features.Count); break;
+            case 12: Assert.Equal(18, member.Features.Count); break;
+            case 13: Assert.Equal(18, member.Features.Count); break;
+            case 14: Assert.Equal(20, member.Features.Count); break;
+            case 15: Assert.Equal(20, member.Features.Count); break;
+            case 16: Assert.Equal(21, member.Features.Count); break;
+            case 17: Assert.Equal(21, member.Features.Count); break;
+            case 18: Assert.Equal(22, member.Features.Count); break;
+            case 19: Assert.Equal(23, member.Features.Count); break;
+            case 20: Assert.Equal(24, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetRogueTestData))]
+    public void Rogue_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(3, member.Features.Count); break;
+            case 2: Assert.Equal(4, member.Features.Count); break;
+            case 3: Assert.Equal(7, member.Features.Count); break;
+            case 4: Assert.Equal(8, member.Features.Count); break;
+            case 5: Assert.Equal(9, member.Features.Count); break;
+            case 6: Assert.Equal(10, member.Features.Count); break;
+            case 7: Assert.Equal(11, member.Features.Count); break;
+            case 8: Assert.Equal(12, member.Features.Count); break;
+            case 9: Assert.Equal(13, member.Features.Count); break;
+            case 10: Assert.Equal(14, member.Features.Count); break;
+            case 11: Assert.Equal(15, member.Features.Count); break;
+            case 12: Assert.Equal(16, member.Features.Count); break;
+            case 13: Assert.Equal(17, member.Features.Count); break;
+            case 14: Assert.Equal(18, member.Features.Count); break;
+            case 15: Assert.Equal(19, member.Features.Count); break;
+            case 16: Assert.Equal(20, member.Features.Count); break;
+            case 17: Assert.Equal(21, member.Features.Count); break;
+            case 18: Assert.Equal(22, member.Features.Count); break;
+            case 19: Assert.Equal(23, member.Features.Count); break;
+            case 20: Assert.Equal(24, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetSorcererTestData))]
+    public void Sorcerer_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(4, member.Features.Count); break;
+            case 2: Assert.Equal(7, member.Features.Count); break;
+            case 3: Assert.Equal(8, member.Features.Count); break;
+            case 4: Assert.Equal(9, member.Features.Count); break;
+            case 5: Assert.Equal(9, member.Features.Count); break;
+            case 6: Assert.Equal(10, member.Features.Count); break;
+            case 7: Assert.Equal(10, member.Features.Count); break;
+            case 8: Assert.Equal(11, member.Features.Count); break;
+            case 9: Assert.Equal(11, member.Features.Count); break;
+            case 10: Assert.Equal(12, member.Features.Count); break;
+            case 11: Assert.Equal(12, member.Features.Count); break;
+            case 12: Assert.Equal(13, member.Features.Count); break;
+            case 13: Assert.Equal(13, member.Features.Count); break;
+            case 14: Assert.Equal(14, member.Features.Count); break;
+            case 15: Assert.Equal(14, member.Features.Count); break;
+            case 16: Assert.Equal(15, member.Features.Count); break;
+            case 17: Assert.Equal(16, member.Features.Count); break;
+            case 18: Assert.Equal(17, member.Features.Count); break;
+            case 19: Assert.Equal(18, member.Features.Count); break;
+            case 20: Assert.Equal(19, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetBarbarianTestData))]
+    public void Barbarian_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(4, member.Features.Count); break;
+            case 3: Assert.Equal(6, member.Features.Count); break;
+            case 4: Assert.Equal(7, member.Features.Count); break;
+            case 5: Assert.Equal(9, member.Features.Count); break;
+            case 6: Assert.Equal(10, member.Features.Count); break;
+            case 7: Assert.Equal(11, member.Features.Count); break;
+            case 8: Assert.Equal(12, member.Features.Count); break;
+            case 9: Assert.Equal(13, member.Features.Count); break;
+            case 10: Assert.Equal(14, member.Features.Count); break;
+            case 11: Assert.Equal(15, member.Features.Count); break;
+            case 12: Assert.Equal(16, member.Features.Count); break;
+            case 13: Assert.Equal(17, member.Features.Count); break;
+            case 14: Assert.Equal(18, member.Features.Count); break;
+            case 15: Assert.Equal(19, member.Features.Count); break;
+            case 16: Assert.Equal(20, member.Features.Count); break;
+            case 17: Assert.Equal(21, member.Features.Count); break;
+            case 18: Assert.Equal(22, member.Features.Count); break;
+            case 19: Assert.Equal(23, member.Features.Count); break;
+            case 20: Assert.Equal(24, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetFighterTestData))]
+    public void Fighter_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(3, member.Features.Count); break;
+            case 3: Assert.Equal(5, member.Features.Count); break;
+            case 4: Assert.Equal(6, member.Features.Count); break;
+            case 5: Assert.Equal(7, member.Features.Count); break;
+            case 6: Assert.Equal(8, member.Features.Count); break;
+            case 7: Assert.Equal(9, member.Features.Count); break;
+            case 8: Assert.Equal(10, member.Features.Count); break;
+            case 9: Assert.Equal(11, member.Features.Count); break;
+            case 10: Assert.Equal(12, member.Features.Count); break;
+            case 11: Assert.Equal(13, member.Features.Count); break;
+            case 12: Assert.Equal(14, member.Features.Count); break;
+            case 13: Assert.Equal(15, member.Features.Count); break;
+            case 14: Assert.Equal(16, member.Features.Count); break;
+            case 15: Assert.Equal(17, member.Features.Count); break;
+            case 16: Assert.Equal(18, member.Features.Count); break;
+            case 17: Assert.Equal(20, member.Features.Count); break;
+            case 18: Assert.Equal(21, member.Features.Count); break;
+            case 19: Assert.Equal(22, member.Features.Count); break;
+            case 20: Assert.Equal(23, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetClericTestData))]
+    public void Cleric_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(5, member.Features.Count); break;
+            case 2: Assert.Equal(8, member.Features.Count); break;
+            case 3: Assert.Equal(9, member.Features.Count); break;
+            case 4: Assert.Equal(10, member.Features.Count); break;
+            case 5: Assert.Equal(12, member.Features.Count); break;
+            case 6: Assert.Equal(14, member.Features.Count); break;
+            case 7: Assert.Equal(15, member.Features.Count); break;
+            case 8: Assert.Equal(18, member.Features.Count); break;
+            case 9: Assert.Equal(19, member.Features.Count); break;
+            case 10: Assert.Equal(20, member.Features.Count); break;
+            case 11: Assert.Equal(21, member.Features.Count); break;
+            case 12: Assert.Equal(22, member.Features.Count); break;
+            case 13: Assert.Equal(22, member.Features.Count); break;
+            case 14: Assert.Equal(23, member.Features.Count); break;
+            case 15: Assert.Equal(23, member.Features.Count); break;
+            case 16: Assert.Equal(24, member.Features.Count); break;
+            case 17: Assert.Equal(26, member.Features.Count); break;
+            case 18: Assert.Equal(27, member.Features.Count); break;
+            case 19: Assert.Equal(28, member.Features.Count); break;
+            case 20: Assert.Equal(29, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDruidTestData))]
+    public void Druid_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(4, member.Features.Count); break;
+            case 3: Assert.Equal(4, member.Features.Count); break;
+            case 4: Assert.Equal(6, member.Features.Count); break;
+            case 5: Assert.Equal(6, member.Features.Count); break;
+            case 6: Assert.Equal(7, member.Features.Count); break;
+            case 7: Assert.Equal(7, member.Features.Count); break;
+            case 8: Assert.Equal(9, member.Features.Count); break;
+            case 9: Assert.Equal(9, member.Features.Count); break;
+            case 10: Assert.Equal(10, member.Features.Count); break;
+            case 11: Assert.Equal(10, member.Features.Count); break;
+            case 12: Assert.Equal(11, member.Features.Count); break;
+            case 13: Assert.Equal(11, member.Features.Count); break;
+            case 14: Assert.Equal(12, member.Features.Count); break;
+            case 15: Assert.Equal(12, member.Features.Count); break;
+            case 16: Assert.Equal(13, member.Features.Count); break;
+            case 17: Assert.Equal(13, member.Features.Count); break;
+            case 18: Assert.Equal(15, member.Features.Count); break;
+            case 19: Assert.Equal(16, member.Features.Count); break;
+            case 20: Assert.Equal(17, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetPaladinTestData))]
+    public void Paladin_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(5, member.Features.Count); break;
+            case 3: Assert.Equal(11, member.Features.Count); break;
+            case 4: Assert.Equal(12, member.Features.Count); break;
+            case 5: Assert.Equal(13, member.Features.Count); break;
+            case 6: Assert.Equal(14, member.Features.Count); break;
+            case 7: Assert.Equal(15, member.Features.Count); break;
+            case 8: Assert.Equal(16, member.Features.Count); break;
+            case 9: Assert.Equal(16, member.Features.Count); break;
+            case 10: Assert.Equal(17, member.Features.Count); break;
+            case 11: Assert.Equal(18, member.Features.Count); break;
+            case 12: Assert.Equal(19, member.Features.Count); break;
+            case 13: Assert.Equal(19, member.Features.Count); break;
+            case 14: Assert.Equal(20, member.Features.Count); break;
+            case 15: Assert.Equal(21, member.Features.Count); break;
+            case 16: Assert.Equal(22, member.Features.Count); break;
+            case 17: Assert.Equal(22, member.Features.Count); break;
+            case 18: Assert.Equal(23, member.Features.Count); break;
+            case 19: Assert.Equal(23, member.Features.Count); break;
+            case 20: Assert.Equal(23, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetWizardTestData))]
+    public void Wizard_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(5, member.Features.Count); break;
+            case 3: Assert.Equal(5, member.Features.Count); break;
+            case 4: Assert.Equal(6, member.Features.Count); break;
+            case 5: Assert.Equal(6, member.Features.Count); break;
+            case 6: Assert.Equal(7, member.Features.Count); break;
+            case 7: Assert.Equal(7, member.Features.Count); break;
+            case 8: Assert.Equal(8, member.Features.Count); break;
+            case 9: Assert.Equal(8, member.Features.Count); break;
+            case 10: Assert.Equal(9, member.Features.Count); break;
+            case 11: Assert.Equal(9, member.Features.Count); break;
+            case 12: Assert.Equal(10, member.Features.Count); break;
+            case 13: Assert.Equal(10, member.Features.Count); break;
+            case 14: Assert.Equal(11, member.Features.Count); break;
+            case 15: Assert.Equal(11, member.Features.Count); break;
+            case 16: Assert.Equal(12, member.Features.Count); break;
+            case 17: Assert.Equal(12, member.Features.Count); break;
+            case 18: Assert.Equal(13, member.Features.Count); break;
+            case 19: Assert.Equal(14, member.Features.Count); break;
+            case 20: Assert.Equal(15, member.Features.Count); break;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetMonkTestData))]
+    public void Monk_NumberOfFeatures_ShouldMatchLevel(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+
+        switch (level)
+        {
+            case 1: Assert.Equal(2, member.Features.Count); break;
+            case 2: Assert.Equal(7, member.Features.Count); break;
+            case 3: Assert.Equal(10, member.Features.Count); break;
+            case 4: Assert.Equal(12, member.Features.Count); break;
+            case 5: Assert.Equal(14, member.Features.Count); break;
+            case 6: Assert.Equal(16, member.Features.Count); break;
+            case 7: Assert.Equal(17, member.Features.Count); break;
+            case 8: Assert.Equal(18, member.Features.Count); break;
+            case 9: Assert.Equal(19, member.Features.Count); break;
+            case 10: Assert.Equal(20, member.Features.Count); break;
+            case 11: Assert.Equal(21, member.Features.Count); break;
+            case 12: Assert.Equal(22, member.Features.Count); break;
+            case 13: Assert.Equal(23, member.Features.Count); break;
+            case 14: Assert.Equal(24, member.Features.Count); break;
+            case 15: Assert.Equal(25, member.Features.Count); break;
+            case 16: Assert.Equal(26, member.Features.Count); break;
+            case 17: Assert.Equal(27, member.Features.Count); break;
+            case 18: Assert.Equal(28, member.Features.Count); break;
+            case 19: Assert.Equal(29, member.Features.Count); break;
+            case 20: Assert.Equal(30, member.Features.Count); break;
+        }
     }
 
     #endregion

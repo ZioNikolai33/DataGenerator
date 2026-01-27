@@ -12,7 +12,6 @@ public class PartyMember : Creature, ICombatCalculator
 {
     public byte Level { get; set; }
     public byte HitDie { get; set; }
-    public byte ArmorClass { get; set; }
     public string Class { get; set; }
     public string Race { get; set; }
     public short Speed { get; set; }
@@ -41,8 +40,8 @@ public class PartyMember : Creature, ICombatCalculator
         var randomRaceAbilityBonus = randomRace.GetRandomAbility();
         var randomSubrace = (randomRace.Subraces.Count > 0) ? EntitiesFinder.GetEntityByIndex(Lists.subraces, new BaseEntity(randomRace.Index, randomRace.Name), randomRace.Subraces.OrderBy(_ => random.Next()).FirstOrDefault() ?? new BaseEntity()) : null;
         var randomSubclass = EntitiesFinder.GetEntityByIndex(Lists.subclasses, new BaseEntity(randomClass.Index, randomClass.Name), randomClass.Subclasses.OrderBy(_ => random.Next()).FirstOrDefault() ?? new BaseEntity());
-        var levels = Lists.levels.Where(item => item.Level <= level && ((item.Class.Index == randomClass.Index && item.Subclass == null) || (item.Class.Index == randomClass.Index && item.Subclass?.Index == Subclass))).ToList();
-        var features = Lists.features.Where(item => item.Level <= level && item.Parent == null && ((item.Class.Index == randomClass.Index && item.Subclass == null) || (item.Class.Index == randomClass.Index && item.Subclass?.Index == Subclass))).ToList();
+        var levels = Lists.levels.Where(item => item.Level <= level && item.Class.Index == randomClass.Index && (item.Subclass == null || item.Subclass.Index == randomSubclass.Index)).ToList();
+        var features = Lists.features.Where(item => item.Level <= level && item.Parent == null && item.Class.Index == randomClass.Index && (item.Subclass == null || item.Subclass.Index == randomSubclass.Index)).ToList();
 
         // Base Information
         Index = id.ToString();
@@ -731,11 +730,12 @@ public class PartyMember : Creature, ICombatCalculator
         var abilityImprovements = (byte)features.Count(item => item.Index.Contains("ability-score-improvement"));
         AbilityScoreImprovement(attributes, abilityImprovements);
 
-        if (Class.Equals("barbarian") && Features.Select(item => item.Index).Contains("primal-champion"))
-        {
-            attributes[0] += 4;
-            attributes[2] += 4;
-        }
+        if (Class.Equals("barbarian"))
+            if (Features.Select(item => item.Index).Contains("primal-champion"))
+            {
+                attributes[0] += 4;
+                attributes[2] += 4;
+            }
 
         Strength = new Attribute(attributes[0]);
         Dexterity = new Attribute(attributes[1]);
@@ -978,17 +978,11 @@ public class PartyMember : Creature, ICombatCalculator
     {
         for (int i = 1; i <= Level; i++)
         {
-            List<LevelMapper> currentLevels = levels.Where(item => item.Class.Index == Class && item.Level == i).ToList();
+            List<LevelMapper> currentLevels = levels.Where(item => item.Class.Index == Class && item.Level == i && (item.Subclass == null || item.Subclass.Index == Subclass)).ToList();
+            List<FeatureMapper> levelFeatures = features.Where(item => item.Level == i && (item.Subclass == null || item.Subclass.Index == Subclass)).ToList();
 
-            foreach (var level in currentLevels)
-            {
-                var levelFeatures = features.Where(item => item.Level == i).ToList();
-
-                if (levelFeatures.Count == 0)
-                    continue;
-
+            if (levelFeatures.Count > 0)
                 Features.AddRange(levelFeatures.Select(item => new Feature(item, Proficiencies)));
-            }
 
             if (i == Level)
             {
@@ -1361,7 +1355,7 @@ public class PartyMember : Creature, ICombatCalculator
     private int CalculateWeaponsPower(List<Monster> monsters)
     {
         var offensivePower = 0.0;
-        var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
+        var averageMonsterAc = (int)monsters.Average(item => item.ArmorClass);
         var meleeWeaponsEquipped = MeleeWeapons.Where(item => item.IsEquipped).ToList();
         var rangedWeaponsEquipped = RangedWeapons.Where(item => item.IsEquipped).ToList();
         var maxMeleePower = 0.0;

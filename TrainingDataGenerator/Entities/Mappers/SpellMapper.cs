@@ -26,7 +26,7 @@ public class SpellMapper: BaseEntity
     [BsonElement("heal_at_slot_level")]
     public HealInfo? HealAtSlotLevel { get; set; }
     [BsonElement("dc")]
-    public DifficultyClass? Dc { get; set; }
+    public DifficultyClassMapper? Dc { get; set; }
     [BsonElement("area_of_effect")]
     public Area? AreaOfEffect { get; set; }
     [BsonElement("school")]

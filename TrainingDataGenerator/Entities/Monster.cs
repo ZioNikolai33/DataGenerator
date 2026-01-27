@@ -1,7 +1,9 @@
 ﻿using TrainingDataGenerator.Abstracts;
 using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Entities.MonsterEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
+using static TrainingDataGenerator.Entities.MonsterEntities.Damage;
 
 namespace TrainingDataGenerator.Entities;
 
@@ -11,7 +13,6 @@ public class Monster : Creature, ICombatCalculator
     public string Type { get; set; } = string.Empty;
     public string Subtype { get; set; } = string.Empty;
     public string Alignment { get; set; } = string.Empty;
-    public List<ArmorClass> AC { get; set; } = new List<ArmorClass>();
     public string HitDice { get; set; } = string.Empty;
     public string HitPointsRoll { get; set; } = string.Empty;
     public SpeedType Speed { get; set; } = new SpeedType();
@@ -25,257 +26,6 @@ public class Monster : Creature, ICombatCalculator
     public List<LegendaryAction> LegendaryActions { get; set; } = new List<LegendaryAction>();
     public List<Reaction> Reactions { get; set; } = new List<Reaction>();
 
-    public class ArmorClass
-    {
-        public string Desc { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
-        public int Value { get; set; }
-        public List<BaseEntity> Armor { get; set; } = new List<BaseEntity>();
-        public BaseEntity Spell { get; set; } = new BaseEntity();
-        public BaseEntity Condition { get; set; } = new BaseEntity();
-
-        public ArmorClass(MonsterMapper.ArmorClass armorClass)
-        {
-            Desc = armorClass.Desc;
-            Type = armorClass.Type;
-            Value = armorClass.Value;
-            Armor = armorClass.Armor ?? new List<BaseEntity>();
-            Spell = armorClass.Spell;
-            Condition = armorClass.Condition;
-        }
-    }
-
-    public class SpeedType
-    {
-        public string? Walk { get; set; }
-        public string? Swim { get; set; }
-        public string? Fly { get; set; }
-        public string? Burrow { get; set; }
-        public string? Climb { get; set; }
-        public bool? Hover { get; set; }
-    }
-
-    public class SensesType
-    {
-        public string? Darkvision { get; set; }
-        public string? Tremorsense { get; set; }
-        public string? Blindsight { get; set; }
-        public string? Truesight { get; set; }
-        public byte? PassivePerception { get; set; }
-    }
-
-    public class SpecialAbility
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Desc { get; set; } = string.Empty;
-        public Spellcasting? Spellcast { get; set; }
-        public Usage? Usage { get; set; }
-        public Dc? Dc { get; set; }
-        public List<Damage>? Damage { get; set; }
-
-        public class Spellcasting
-        {
-            public int Level { get; set; }
-            public BaseEntity Ability { get; set; } = new BaseEntity();
-            public int Dc { get; set; }
-            public int Modifier { get; set; }
-            public List<string> ComponentsRequired { get; set; } = new List<string>();
-            public string School { get; set; } = string.Empty;
-            public Slots SpellSlots { get; set; } = new Slots();
-            public List<Spell> Spells { get; set; } = new List<Spell>();
-        }
-
-        public SpecialAbility(MonsterMapper.SpecialAbility ability)
-        {
-            Name = ability.Name;
-            Desc = ability.Desc;
-            if (ability.Spellcasting != null)
-            {
-                Spellcast = new Spellcasting
-                {
-                    Level = ability.Spellcasting.Level ?? 0,
-                    Ability = ability.Spellcasting.Ability ?? new BaseEntity(),
-                    Dc = ability.Spellcasting.Dc ?? 0,
-                    Modifier = ability.Spellcasting.Modifier ?? 0,
-                    ComponentsRequired = ability.Spellcasting.ComponentsRequired ?? new List<string>(),
-                    School = ability.Spellcasting.School ?? string.Empty,
-                    SpellSlots = (ability.Spellcasting.Slots != null) ? new Slots(ability.Spellcasting.Slots) : new Slots(),
-                    Spells = ability.Spellcasting.Spells?.Select(item => new Spell(EntitiesFinder.GetEntityByIndex(Lists.spells, new BaseEntity(item.Url.Substring(item.Url.LastIndexOf('/') + 1), item.Name)))).ToList() ?? new List<Spell>()
-                };
-            }
-            Usage = (ability.Usage != null) ? new Usage(ability.Usage.Type, ability.Usage.Times, ability.Usage.RestTypes, ability.Usage.Dice, ability.Usage.MinValue) : null;
-            Dc = new Dc(ability.Dc);
-            Damage = (ability.Damage != null) ? ability.Damage.Select(item => new Damage(item)).ToList() : null;
-        }
-    }
-
-    public class NormalAction
-    {
-        public string Name { get; set; }
-        public string Desc { get; set; }
-        public List<MultiAction> Actions { get; set; }
-        public byte? AttackBonus { get; set; }
-        public List<Damage> Damage { get; set; }
-        public Dc Dc { get; set; }
-        public Usage? Usage { get; set; }
-
-        public class MultiAction
-        {
-            public string ActionName { get; set; } = string.Empty;
-            public int Count { get; set; }
-            public string Type { get; set; } = string.Empty;
-        }
-
-        public NormalAction(MonsterMapper.NormalAction action)
-        {
-            Name = action.Name;
-            Desc = action.Desc;
-            Actions = action.Actions?.Select(item => new MultiAction
-            {
-                ActionName = item.ActionName,
-                Count = (item.Count != null) ? (item.Count is string ? -1 : (int)item.Count) : 0,
-                Type = item.Type
-            }).ToList() ?? new List<MultiAction>();
-            AttackBonus = action.AttackBonus != null ? (byte?)action.AttackBonus : null;
-            Damage = action.Damage?.Select(item => new Damage(item)).ToList() ?? new List<Damage>();
-            Dc = new Dc(action.Dc);
-            Usage = (action.Usage != null) ? new Usage(action.Usage.Type, action.Usage.Times, action.Usage.RestTypes, action.Usage.Dice, action.Usage.MinValue) : null;
-
-            if (action.ActionOptions != null && action.ActionOptions.From.Options.Count > 0)
-            {
-                var random = Random.Shared;
-                var choose = action.ActionOptions.Choose;
-
-                var selectedOptions = action.ActionOptions.From.Options.OrderBy(_ => random.Next()).Take(choose).ToList();
-
-                foreach (var option in selectedOptions)
-                {
-                    if (option.OptionType.Equals("multiple", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Actions.AddRange(option.Items.Select(item => new MultiAction
-                        {
-                            ActionName = item.ActionName,
-                            Count = (item.Count != null) ? (int)item.Count : 0,
-                            Type = item.Type
-                        }).ToList());
-                    }
-                    else
-                    {
-                        Actions.Add(new MultiAction
-                        {
-                            ActionName = option.ActionName,
-                            Count = (option.Count != null) ? (int)option.Count : 0,
-                            Type = option.Type
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    public class LegendaryAction
-    {
-        public string Name { get; set; }
-        public string Desc { get; set; }
-        public int? AttackBonus { get; set; }
-        public Dc? Dc { get; set; }
-        public List<Damage>? Damage { get; set; }
-
-        public LegendaryAction(MonsterMapper.LegendaryAction action)
-        {
-            Name = action.Name;
-            Desc = action.Desc;
-            AttackBonus = action.AttackBonus;
-            Dc = new Dc(action.Dc);
-            Damage = (action.Damage != null) ? action.Damage.Select(item => new Damage(item)).ToList() : null;
-        }
-    }
-
-    public class Reaction
-    {
-        public string Name { get; set; }
-        public string Desc { get; set; }
-        public int? AttackBonus { get; set; }
-        public Dc Dc { get; set; }
-        public List<Damage> Damage { get; set; } = new List<Damage>();
-
-        public Reaction(MonsterMapper.Reaction reaction)
-        {
-            Name = reaction.Name;
-            Desc = reaction.Desc;
-            AttackBonus = reaction.AttackBonus;
-            Dc = new Dc(reaction.Dc);
-            Damage = (reaction.Damage != null) ? reaction.Damage.Select(item => new Damage(item)).ToList() : new List<Damage>();
-        }
-    }
-
-    public class Dc
-    {
-        public BaseEntity DcType { get; set; } = new BaseEntity();
-        public int DcValue { get; set; }
-        public string SuccessType { get; set; } = string.Empty;
-
-        public Dc(MonsterMapper.Dc? dc)
-        {
-            if (dc != null)
-            {
-                DcType = dc.DcType;
-                DcValue = dc.DcValue;
-                SuccessType = dc.SuccessType;
-            }
-        }
-    }
-
-    public class Damage
-    {
-        public string Type { get; set; } = string.Empty;
-        public string DamageType { get; set; } = string.Empty;
-        public string DamageDice { get; set; } = string.Empty;
-        public Dc? Dc { get; set; }
-        public byte? Choose { get; set; }
-        public DamageOptionSet From { get; set; } = new DamageOptionSet(new MonsterMapper.DamageOptionSet());
-
-        public Damage(MonsterMapper.Damage? damage)
-        {
-            if (damage != null)
-            {
-                Type = damage.Type;
-                DamageType = damage.DamageType?.Index ?? string.Empty;
-                DamageDice = damage.DamageDice;
-                Dc = new Dc(damage.Dc);
-                Choose = damage.Choose != null ? (byte?)damage.Choose : null;
-                From = damage.From != null ? new DamageOptionSet(damage.From) : new DamageOptionSet(new MonsterMapper.DamageOptionSet());
-            }
-        }
-    }
-
-    public class DamageOptionSet
-    {
-        public string Option_Set_Type { get; set; }
-        public List<DamageOption> Options { get; set; }
-
-        public DamageOptionSet(MonsterMapper.DamageOptionSet damage)
-        {
-            Option_Set_Type = damage.Option_Set_Type;
-            Options = damage.Options.Select(item => new DamageOption
-            {
-                Option_Type = item.Option_Type,
-                Notes = item.Notes,
-                Damage_Type = item.Damage_Type.Index,
-                Damage_Dice = item.Damage_Dice
-            }).ToList();
-        }
-    }
-
-    public class DamageOption
-    {
-        public string Desc { get; set; } = string.Empty;
-        public string Option_Type { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
-        public string Damage_Type { get; set; } = string.Empty;
-        public string Damage_Dice { get; set; } = string.Empty;
-    }
-
     public Monster(MonsterMapper monster)
     {
         Index = monster.Index;
@@ -285,7 +35,7 @@ public class Monster : Creature, ICombatCalculator
         Type = monster.Type;
         Subtype = monster.Subtype;
         Alignment = monster.Alignment;
-        AC = monster.AC.Select(item => new ArmorClass(item)).ToList();
+        ArmorClass = (byte)monster.AC.Average(a => a.Value);
         HitPoints = monster.HitPoints;
         HitDice = monster.HitDice;
         HitPointsRoll = monster.HitPointsRoll;
@@ -527,7 +277,7 @@ public class Monster : Creature, ICombatCalculator
     private double CalculateDcAttacks(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
-        var actions = Actions.Where(a => a.Dc.DcValue != 0 && string.IsNullOrEmpty(a.Dc.DcType.Index)).ToList();
+        var actions = Actions.Where(a => a.Dc?.DcValue != 0 && string.IsNullOrEmpty(a.Dc?.DcType)).ToList();
 
         foreach (var action in actions)
             offensivePower += CalculateDcAttack(party, action, difficulty);
@@ -570,14 +320,14 @@ public class Monster : Creature, ICombatCalculator
             foreach (var damage in action.Damage.Where(item => item.From != null))
                 chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => Random.Shared.Next()).Take(damage.Choose ?? 0).ToList());
 
-        var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc.DcType.Index, action.Dc.DcValue));
+        var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc?.DcType ?? string.Empty, action.Dc?.DcValue ?? 0));
         var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
         averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => UtilityMethods.GetDiceValue(item.Damage_Dice, this)) : 0;
         var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
         var usagePercentage = CalculateUsagePercentage(action, difficulty);
         var totalPower = (1.0 - partyAvgPercentage) * averageDamage * usagePercentage;
 
-        if (action.Dc.SuccessType.Equals("half", StringComparison.OrdinalIgnoreCase))
+        if (action.Dc?.DcSuccess.Equals("half", StringComparison.OrdinalIgnoreCase) == true)
             totalPower += partyAvgPercentage * (averageDamage / 2) * usagePercentage;
 
         CombatCalculator.ApplyDefenses(party,
@@ -658,7 +408,7 @@ public class Monster : Creature, ICombatCalculator
 
                 if (action.Damage.Count > 0)
                     offensivePower += CalculateSimpleAttack(party, partyAvgAc, action, difficulty) * actionCount;
-                else if (action.Dc.DcValue != 0 && !string.IsNullOrEmpty(action.Dc.DcType.Index))
+                else if (action.Dc?.DcValue != 0 && !string.IsNullOrEmpty(action.Dc?.DcType))
                     offensivePower += CalculateDcAttack(party, action, difficulty) * actionCount;
             }
         }
@@ -670,7 +420,7 @@ public class Monster : Creature, ICombatCalculator
     {
         var str = $"Monster: {Name} (CR: {ChallengeRating})\n";
         str += $" Type: {Size} {Type}, Alignment: {Alignment}\n";
-        str += $" HP: {HitPoints} ({HitDice}) | AC: {string.Join(", ", AC.Select(ac => ac.Value.ToString()))}\n";
+        str += $" HP: {HitPoints} ({HitDice}) | AC: {string.Join(", ", ArmorClass)}\n";
         str += $" STR: {Strength.Value} ({Strength.Modifier}), DEX: {Dexterity.Value} ({Dexterity.Modifier}), CON: {Constitution.Value} ({Constitution.Modifier}), INT: {Intelligence.Value} ({Intelligence.Modifier}), WIS: {Wisdom.Value} ({Wisdom.Modifier}), CHA: {Charisma.Value} ({Charisma.Modifier})\n";
         str += $" Skills: {string.Join(", ", Skills.Where(s => s.IsProficient).Select(s => $"{s.Name} (+{s.Modifier})"))}\n";
         str += $" Languages: {Languages}\n";

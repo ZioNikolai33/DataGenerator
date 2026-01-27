@@ -1,8 +1,6 @@
-﻿using TrainingDataGenerator.Entities.Enums;
-using TrainingDataGenerator.Entities.Mappers;
+﻿using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Entities.MonsterEntities;
 using TrainingDataGenerator.Utilities;
-using static MongoDB.Bson.Serialization.Serializers.SerializerHelper;
-using static TrainingDataGenerator.Entities.Mappers.MonsterMapper;
 
 namespace TrainingDataGenerator.Entities;
 
@@ -37,7 +35,7 @@ public class Spell: BaseEntity
         Classes = spell.Classes.Select(c => c.Index).ToList();
         Subclasses = spell.Subclasses?.Select(sc => sc.Index).ToList();
         AreaEffect = spell.AreaOfEffect;
-        Dc = spell.Dc;
+        Dc = spell.Dc != null ? new DifficultyClass(spell.Dc.DcType.Index, spell.Dc.DcSuccess) : null;
         Damage = spell.Damage != null ? new SpellDamage(spell.Damage) : null;
         AttackType = spell.AttackType;
         Uses = uses;
@@ -61,7 +59,7 @@ public class Spell: BaseEntity
         return (int)spellPower;
     }
 
-    public int GetSpellPower(Monster.SpecialAbility.Spellcasting spellcast, Monster monster)
+    public int GetSpellPower(SpecialAbility.Spellcasting spellcast, Monster monster)
     {
         var spellPower = 0.0;
 
@@ -78,7 +76,7 @@ public class Spell: BaseEntity
     {
         var spellPercentage = 1.0;
         var attackBonus = 0;
-        var averageMonsterAc = (int)monsters.Average(item => item.AC.Average(x => x.Value));
+        var averageMonsterAc = (int)monsters.Average(item => item.ArmorClass);
         var averageMonsterSaveBonus = 0;
         var spellAbilityModifier = UtilityMethods.GetSpellcastingModifier(partyMember);
 
@@ -93,7 +91,7 @@ public class Spell: BaseEntity
             {
                 var saveDc = 8 + partyMember.ProficiencyBonus + spellAbilityModifier;
 
-                switch (UtilityMethods.ConvertAbilityIndexToFullName(Dc.DcType.Index))
+                switch (UtilityMethods.ConvertAbilityIndexToFullName(Dc.DcType))
                 {
                     case "strength":
                         averageMonsterSaveBonus = (int)monsters.Average(item => item.Strength.Modifier);
@@ -122,7 +120,7 @@ public class Spell: BaseEntity
         return spellPercentage;
     }
 
-    public double GetSpellPercentage(Monster.SpecialAbility.Spellcasting spellcast, Monster monster, List<PartyMember> party)
+    public double GetSpellPercentage(SpecialAbility.Spellcasting spellcast, Monster monster, List<PartyMember> party)
     {
         var spellPercentage = 1.0;
         var averagePartyAc = (int)party.Average(item => item.ArmorClass);
@@ -135,7 +133,7 @@ public class Spell: BaseEntity
                 spellPercentage = CombatCalculator.CalculateRollPercentage(averagePartyAc, spellcast.Modifier);
             else if (RequiresSavingThrow() && Dc != null)
             {
-                switch (UtilityMethods.ConvertAbilityIndexToFullName(Dc.DcType.Index))
+                switch (UtilityMethods.ConvertAbilityIndexToFullName(Dc.DcType))
                 {
                     case "strength":
                         averagePartySaveBonus = (int)party.Average(item => item.Strength.Modifier);

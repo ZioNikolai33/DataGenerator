@@ -9,6 +9,7 @@ public abstract class Creature
     public string Name { get; set; } = string.Empty;
     public string Size { get; set; } = string.Empty;
     public int HitPoints { get; set; }
+    public byte ArmorClass { get; set; }
     public sbyte ProficiencyBonus { get; set; }
     public Entities.Attribute Strength { get; set; } = new Entities.Attribute();
     public Entities.Attribute Dexterity { get; set; } = new Entities.Attribute();
