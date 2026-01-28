@@ -271,6 +271,186 @@ public class PartyMemberTests
 
     #endregion
 
+    #region Skills Tests
+
+    [Theory]
+    [MemberData(nameof(GetConstructorTestData))]
+    public void Skills_ShouldHaveCorrectModifiers(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember(index, level, race, classMapper);
+        var skills = member.Skills;
+
+        // Assert
+        Assert.NotNull(skills);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades") || f.Index.Equals("remarkable-athlete")) && !skills.Where(s => s.Index.Equals("skill-acrobatics")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-acrobatics")).First().Modifier == member.Dexterity.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-acrobatics")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-acrobatics")).First().Modifier == member.Dexterity.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-acrobatics")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-acrobatics")).First().Modifier == member.Dexterity.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-acrobatics")).First().Modifier == member.Dexterity.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-animal-handling")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-animal-handling")).First().Modifier == member.Wisdom.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-animal-handling")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-animal-handling")).First().Modifier == member.Wisdom.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-animal-handling")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-animal-handling")).First().Modifier == member.Wisdom.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-animal-handling")).First().Modifier == member.Wisdom.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-arcana")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-arcana")).First().Modifier == member.Intelligence.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-arcana")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-arcana")).First().Modifier == member.Intelligence.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-arcana")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-arcana")).First().Modifier == member.Intelligence.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-arcana")).First().Modifier == member.Intelligence.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades") || f.Index.Equals("remarkable-athlete")) && !skills.Where(s => s.Index.Equals("skill-athletics")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-athletics")).First().Modifier == member.Strength.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-athletics")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-athletics")).First().Modifier == member.Strength.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-athletics")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-athletics")).First().Modifier == member.Strength.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-athletics")).First().Modifier == member.Strength.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-deception")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-deception")).First().Modifier == member.Charisma.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-deception")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-deception")).First().Modifier == member.Charisma.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-deception")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-deception")).First().Modifier == member.Charisma.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-deception")).First().Modifier == member.Charisma.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-history")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-history")).First().Modifier == member.Intelligence.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-history")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-history")).First().Modifier == member.Intelligence.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-history")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-history")).First().Modifier == member.Intelligence.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-history")).First().Modifier == member.Intelligence.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-insight")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-insight")).First().Modifier == member.Wisdom.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-insight")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-insight")).First().Modifier == member.Wisdom.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-insight")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-insight")).First().Modifier == member.Wisdom.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-insight")).First().Modifier == member.Wisdom.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-intimidation")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-intimidation")).First().Modifier == member.Charisma.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-intimidation")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-intimidation")).First().Modifier == member.Charisma.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-intimidation")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-intimidation")).First().Modifier == member.Charisma.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-intimidation")).First().Modifier == member.Charisma.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-investigation")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-investigation")).First().Modifier == member.Intelligence.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-investigation")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-investigation")).First().Modifier == member.Intelligence.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-investigation")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-investigation")).First().Modifier == member.Intelligence.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-investigation")).First().Modifier == member.Intelligence.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-medicine")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-medicine")).First().Modifier == member.Wisdom.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-medicine")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-medicine")).First().Modifier == member.Wisdom.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-medicine")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-medicine")).First().Modifier == member.Wisdom.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-medicine")).First().Modifier == member.Wisdom.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-nature")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-nature")).First().Modifier == member.Intelligence.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-nature")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-nature")).First().Modifier == member.Intelligence.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-nature")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-nature")).First().Modifier == member.Intelligence.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-nature")).First().Modifier == member.Intelligence.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-perception")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-perception")).First().Modifier == member.Wisdom.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-perception")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-perception")).First().Modifier == member.Wisdom.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-perception")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-perception")).First().Modifier == member.Wisdom.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-perception")).First().Modifier == member.Wisdom.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-performance")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-performance")).First().Modifier == member.Charisma.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-performance")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-performance")).First().Modifier == member.Charisma.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-performance")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-performance")).First().Modifier == member.Charisma.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-performance")).First().Modifier == member.Charisma.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-persuasion")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-persuasion")).First().Modifier == member.Charisma.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-persuasion")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-persuasion")).First().Modifier == member.Charisma.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-persuasion")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-persuasion")).First().Modifier == member.Charisma.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-persuasion")).First().Modifier == member.Charisma.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-religion")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-religion")).First().Modifier == member.Intelligence.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-religion")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-religion")).First().Modifier == member.Intelligence.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-religion")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-religion")).First().Modifier == member.Intelligence.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-religion")).First().Modifier == member.Intelligence.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades") || f.Index.Equals("remarkable-athlete")) && !skills.Where(s => s.Index.Equals("skill-sleight-of-hand")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-sleight-of-hand")).First().Modifier == member.Dexterity.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-sleight-of-hand")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-sleight-of-hand")).First().Modifier == member.Dexterity.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-sleight-of-hand")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-sleight-of-hand")).First().Modifier == member.Dexterity.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-sleight-of-hand")).First().Modifier == member.Dexterity.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades") || f.Index.Equals("remarkable-athlete")) && !skills.Where(s => s.Index.Equals("skill-stealth")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-stealth")).First().Modifier == member.Dexterity.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-stealth")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-stealth")).First().Modifier == member.Dexterity.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-stealth")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-stealth")).First().Modifier == member.Dexterity.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-stealth")).First().Modifier == member.Dexterity.Modifier);
+
+        if (member.Features.Any(f => f.Index.Equals("jack-of-all-trades")) && !skills.Where(s => s.Index.Equals("skill-survival")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-survival")).First().Modifier == member.Wisdom.Modifier + (member.ProficiencyBonus / 2));
+        else if (skills.Where(s => s.Index.Equals("skill-survival")).First().IsExpert)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-survival")).First().Modifier == member.Wisdom.Modifier + (2 * member.ProficiencyBonus));
+        else if (skills.Where(s => s.Index.Equals("skill-survival")).First().IsProficient)
+            Assert.True(skills.Where(s => s.Index.Equals("skill-survival")).First().Modifier == member.Wisdom.Modifier + member.ProficiencyBonus);
+        else
+            Assert.True(skills.Where(s => s.Index.Equals("skill-survival")).First().Modifier == member.Wisdom.Modifier);
+    }
+
+    #endregion
+
     #region Hit Points Tests
 
     [Theory]
