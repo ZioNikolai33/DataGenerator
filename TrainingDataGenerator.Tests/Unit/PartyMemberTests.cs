@@ -23,93 +23,93 @@ public class PartyMemberTests
     }
 
     public static IEnumerable<object[]> GetBarbarianTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "barbarian").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "barbarian");
 
     public static IEnumerable<object[]> GetBardTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "bard").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "bard");
 
     public static IEnumerable<object[]> GetClericTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "cleric").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "cleric");
 
     public static IEnumerable<object[]> GetDruidTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "druid").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "druid");
 
     public static IEnumerable<object[]> GetFighterTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "fighter").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "fighter");
 
     public static IEnumerable<object[]> GetMonkTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "monk").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "monk");
 
     public static IEnumerable<object[]> GetPaladinTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "paladin").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "paladin");
 
     public static IEnumerable<object[]> GetRogueTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "rogue").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "rogue");
 
     public static IEnumerable<object[]> GetSorcererTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "sorcerer").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "sorcerer");
 
     public static IEnumerable<object[]> GetWarlockTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "warlock").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "warlock");
 
     public static IEnumerable<object[]> GetWizardTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "wizard").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "wizard");
 
     public static IEnumerable<object[]> GetRangerTestData() =>
-        GetConstructorTestData().Where(data => data[3]!.ToString() == "ranger").ToList();
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "ranger");
 
     public static IEnumerable<object[]> GetHalfOrcTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "half-orc").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "half-orc");
 
     public static IEnumerable<object[]> GetElfTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "elf").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "elf");
 
     public static IEnumerable<object[]> GetHumanTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "human").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "human");
 
     public static IEnumerable<object[]> GetHalflingTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "halfling").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "halfling");
 
     public static IEnumerable<object[]> GetGnomeTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "gnome").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "gnome");
 
     public static IEnumerable<object[]> GetTieflingTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "tiefling").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "tiefling");
 
     public static IEnumerable<object[]> GetDragonbornTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "dragonborn").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "dragonborn");
 
     public static IEnumerable<object[]> GetHalfElfTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "half-elf").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "half-elf");
 
     public static IEnumerable<object[]> GetOrcTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "orc").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "orc");
 
     public static IEnumerable<object[]> GetDwarfTestData() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() == "dwarf").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() == "dwarf");
 
     public static IEnumerable<object[]> GetConstructorTestDataWithoutDwarvesAndSorcerers() =>
-        GetConstructorTestData().Where(data => data[2]!.ToString() != "dwarf" && data[3]!.ToString() != "sorcerer").ToList();
+        GetConstructorTestData().Where(data => data[2]!.ToString() != "dwarf" && data[3]!.ToString() != "sorcerer");
 
     public static IEnumerable<object[]> GetProfBonusOf2() =>
-        GetConstructorTestData().Where(data => data[1] is >= 1 and <= 4).ToList();
+        GetConstructorTestData().Where(data => data[1] is >= 1 and <= 4);
 
     public static IEnumerable<object[]> GetProfBonusOf3() =>
-        GetConstructorTestData().Where(data => data[1] is >= 5 and <= 8).ToList();
+        GetConstructorTestData().Where(data => data[1] is >= 5 and <= 8);
 
     public static IEnumerable<object[]> GetProfBonusOf4() =>
-        GetConstructorTestData().Where(data => data[1] is >= 9 and <= 12).ToList();
+        GetConstructorTestData().Where(data => data[1] is >= 9 and <= 12);
 
     public static IEnumerable<object[]> GetProfBonusOf5() =>
-        GetConstructorTestData().Where(data => data[1] is >= 13 and <= 16).ToList();
+        GetConstructorTestData().Where(data => data[1] is >= 13 and <= 16);
 
     public static IEnumerable<object[]> GetProfBonusOf6() =>
-        GetConstructorTestData().Where(data => data[1] is >= 17 and <= 20).ToList();
+        GetConstructorTestData().Where(data => data[1] is >= 17 and <= 20);
 
     public static IEnumerable<object[]> GetFirstLevels() =>
-        GetConstructorTestData().Where(data => data[1] is 1).ToList();
+        GetConstructorTestData().Where(data => data[1] is 1);
 
-    private ClassMapper CreateTestClass(string className)
+    private static ClassMapper CreateTestClass(string className)
     {
         var classFilePath = Path.Combine(classesFolder, $"{className}.json");
         var classJson = File.ReadAllText(classFilePath);
@@ -117,7 +117,7 @@ public class PartyMemberTests
         return BsonSerializer.Deserialize<ClassMapper>(classJson)!;
     }
 
-    private RaceMapper CreateTestRace(string raceName)
+    private static RaceMapper CreateTestRace(string raceName)
     {
         var raceFilePath = Path.Combine(racesFolder, $"{raceName}.json");
         var raceJson = File.ReadAllText(raceFilePath);
@@ -388,25 +388,25 @@ public class PartyMemberTests
         switch (level)
         {
             case 1: Assert.Equal(3, member.Features.Count); break;
-            case 2: Assert.Equal(4, member.Features.Count); break;
-            case 3: Assert.Equal(5, member.Features.Count); break;
-            case 4: Assert.Equal(6, member.Features.Count); break;
-            case 5: Assert.Equal(6, member.Features.Count); break;
-            case 6: Assert.Equal(7, member.Features.Count); break;
-            case 7: Assert.Equal(7, member.Features.Count); break;
-            case 8: Assert.Equal(8, member.Features.Count); break;
-            case 9: Assert.Equal(8, member.Features.Count); break;
-            case 10: Assert.Equal(9, member.Features.Count); break;
-            case 11: Assert.Equal(10, member.Features.Count); break;
-            case 12: Assert.Equal(11, member.Features.Count); break;
-            case 13: Assert.Equal(12, member.Features.Count); break;
-            case 14: Assert.Equal(13, member.Features.Count); break;
-            case 15: Assert.Equal(14, member.Features.Count); break;
-            case 16: Assert.Equal(15, member.Features.Count); break;
-            case 17: Assert.Equal(16, member.Features.Count); break;
-            case 18: Assert.Equal(16, member.Features.Count); break;
-            case 19: Assert.Equal(17, member.Features.Count); break;
-            case 20: Assert.Equal(18, member.Features.Count); break;
+            case 2: Assert.Equal(6, member.Features.Count); break;
+            case 3: Assert.Equal(8, member.Features.Count); break;
+            case 4: Assert.Equal(9, member.Features.Count); break;
+            case 5: Assert.Equal(10, member.Features.Count); break;
+            case 6: Assert.Equal(11, member.Features.Count); break;
+            case 7: Assert.Equal(12, member.Features.Count); break;
+            case 8: Assert.Equal(13, member.Features.Count); break;
+            case 9: Assert.Equal(14, member.Features.Count); break;
+            case 10: Assert.Equal(15, member.Features.Count); break;
+            case 11: Assert.Equal(16, member.Features.Count); break;
+            case 12: Assert.Equal(18, member.Features.Count); break;
+            case 13: Assert.Equal(19, member.Features.Count); break;
+            case 14: Assert.Equal(20, member.Features.Count); break;
+            case 15: Assert.Equal(22, member.Features.Count); break;
+            case 16: Assert.Equal(23, member.Features.Count); break;
+            case 17: Assert.Equal(24, member.Features.Count); break;
+            case 18: Assert.Equal(25, member.Features.Count); break;
+            case 19: Assert.Equal(26, member.Features.Count); break;
+            case 20: Assert.Equal(27, member.Features.Count); break;
         }
     }
 
@@ -422,25 +422,25 @@ public class PartyMemberTests
         switch (level)
         {
             case 1: Assert.Equal(2, member.Features.Count); break;
-            case 2: Assert.Equal(4, member.Features.Count); break;
-            case 3: Assert.Equal(7, member.Features.Count); break;
-            case 4: Assert.Equal(8, member.Features.Count); break;
-            case 5: Assert.Equal(9, member.Features.Count); break;
-            case 6: Assert.Equal(11, member.Features.Count); break;
-            case 7: Assert.Equal(12, member.Features.Count); break;
-            case 8: Assert.Equal(14, member.Features.Count); break;
-            case 9: Assert.Equal(14, member.Features.Count); break;
-            case 10: Assert.Equal(16, member.Features.Count); break;
-            case 11: Assert.Equal(17, member.Features.Count); break;
-            case 12: Assert.Equal(18, member.Features.Count); break;
-            case 13: Assert.Equal(18, member.Features.Count); break;
-            case 14: Assert.Equal(20, member.Features.Count); break;
-            case 15: Assert.Equal(20, member.Features.Count); break;
-            case 16: Assert.Equal(21, member.Features.Count); break;
-            case 17: Assert.Equal(21, member.Features.Count); break;
-            case 18: Assert.Equal(22, member.Features.Count); break;
-            case 19: Assert.Equal(23, member.Features.Count); break;
-            case 20: Assert.Equal(24, member.Features.Count); break;
+            case 2: Assert.Equal(5, member.Features.Count); break;
+            case 3: Assert.Equal(9, member.Features.Count); break;
+            case 4: Assert.Equal(10, member.Features.Count); break;
+            case 5: Assert.Equal(11, member.Features.Count); break;
+            case 6: Assert.Equal(13, member.Features.Count); break;
+            case 7: Assert.Equal(15, member.Features.Count); break;
+            case 8: Assert.Equal(17, member.Features.Count); break;
+            case 9: Assert.Equal(17, member.Features.Count); break;
+            case 10: Assert.Equal(19, member.Features.Count); break;
+            case 11: Assert.Equal(21, member.Features.Count); break;
+            case 12: Assert.Equal(22, member.Features.Count); break;
+            case 13: Assert.Equal(22, member.Features.Count); break;
+            case 14: Assert.Equal(24, member.Features.Count); break;
+            case 15: Assert.Equal(26, member.Features.Count); break;
+            case 16: Assert.Equal(27, member.Features.Count); break;
+            case 17: Assert.Equal(27, member.Features.Count); break;
+            case 18: Assert.Equal(28, member.Features.Count); break;
+            case 19: Assert.Equal(29, member.Features.Count); break;
+            case 20: Assert.Equal(30, member.Features.Count); break;
         }
     }
 
@@ -489,26 +489,26 @@ public class PartyMemberTests
 
         switch (level)
         {
-            case 1: Assert.Equal(4, member.Features.Count); break;
-            case 2: Assert.Equal(7, member.Features.Count); break;
-            case 3: Assert.Equal(8, member.Features.Count); break;
-            case 4: Assert.Equal(9, member.Features.Count); break;
-            case 5: Assert.Equal(9, member.Features.Count); break;
-            case 6: Assert.Equal(10, member.Features.Count); break;
-            case 7: Assert.Equal(10, member.Features.Count); break;
-            case 8: Assert.Equal(11, member.Features.Count); break;
-            case 9: Assert.Equal(11, member.Features.Count); break;
-            case 10: Assert.Equal(12, member.Features.Count); break;
-            case 11: Assert.Equal(12, member.Features.Count); break;
-            case 12: Assert.Equal(13, member.Features.Count); break;
-            case 13: Assert.Equal(13, member.Features.Count); break;
-            case 14: Assert.Equal(14, member.Features.Count); break;
-            case 15: Assert.Equal(14, member.Features.Count); break;
-            case 16: Assert.Equal(15, member.Features.Count); break;
-            case 17: Assert.Equal(16, member.Features.Count); break;
-            case 18: Assert.Equal(17, member.Features.Count); break;
-            case 19: Assert.Equal(18, member.Features.Count); break;
-            case 20: Assert.Equal(19, member.Features.Count); break;
+            case 1: Assert.Equal(5, member.Features.Count); break;
+            case 2: Assert.Equal(8, member.Features.Count); break;
+            case 3: Assert.Equal(12, member.Features.Count); break;
+            case 4: Assert.Equal(13, member.Features.Count); break;
+            case 5: Assert.Equal(13, member.Features.Count); break;
+            case 6: Assert.Equal(14, member.Features.Count); break;
+            case 7: Assert.Equal(14, member.Features.Count); break;
+            case 8: Assert.Equal(15, member.Features.Count); break;
+            case 9: Assert.Equal(15, member.Features.Count); break;
+            case 10: Assert.Equal(17, member.Features.Count); break;
+            case 11: Assert.Equal(17, member.Features.Count); break;
+            case 12: Assert.Equal(18, member.Features.Count); break;
+            case 13: Assert.Equal(18, member.Features.Count); break;
+            case 14: Assert.Equal(19, member.Features.Count); break;
+            case 15: Assert.Equal(19, member.Features.Count); break;
+            case 16: Assert.Equal(20, member.Features.Count); break;
+            case 17: Assert.Equal(22, member.Features.Count); break;
+            case 18: Assert.Equal(23, member.Features.Count); break;
+            case 19: Assert.Equal(24, member.Features.Count); break;
+            case 20: Assert.Equal(25, member.Features.Count); break;
         }
     }
 
@@ -557,26 +557,26 @@ public class PartyMemberTests
 
         switch (level)
         {
-            case 1: Assert.Equal(2, member.Features.Count); break;
-            case 2: Assert.Equal(3, member.Features.Count); break;
-            case 3: Assert.Equal(5, member.Features.Count); break;
-            case 4: Assert.Equal(6, member.Features.Count); break;
-            case 5: Assert.Equal(7, member.Features.Count); break;
-            case 6: Assert.Equal(8, member.Features.Count); break;
-            case 7: Assert.Equal(9, member.Features.Count); break;
-            case 8: Assert.Equal(10, member.Features.Count); break;
-            case 9: Assert.Equal(11, member.Features.Count); break;
-            case 10: Assert.Equal(12, member.Features.Count); break;
-            case 11: Assert.Equal(13, member.Features.Count); break;
-            case 12: Assert.Equal(14, member.Features.Count); break;
-            case 13: Assert.Equal(15, member.Features.Count); break;
-            case 14: Assert.Equal(16, member.Features.Count); break;
-            case 15: Assert.Equal(17, member.Features.Count); break;
-            case 16: Assert.Equal(18, member.Features.Count); break;
-            case 17: Assert.Equal(20, member.Features.Count); break;
-            case 18: Assert.Equal(21, member.Features.Count); break;
-            case 19: Assert.Equal(22, member.Features.Count); break;
-            case 20: Assert.Equal(23, member.Features.Count); break;
+            case 1: Assert.Equal(3, member.Features.Count); break;
+            case 2: Assert.Equal(4, member.Features.Count); break;
+            case 3: Assert.Equal(6, member.Features.Count); break;
+            case 4: Assert.Equal(7, member.Features.Count); break;
+            case 5: Assert.Equal(8, member.Features.Count); break;
+            case 6: Assert.Equal(9, member.Features.Count); break;
+            case 7: Assert.Equal(10, member.Features.Count); break;
+            case 8: Assert.Equal(11, member.Features.Count); break;
+            case 9: Assert.Equal(12, member.Features.Count); break;
+            case 10: Assert.Equal(14, member.Features.Count); break;
+            case 11: Assert.Equal(15, member.Features.Count); break;
+            case 12: Assert.Equal(16, member.Features.Count); break;
+            case 13: Assert.Equal(17, member.Features.Count); break;
+            case 14: Assert.Equal(18, member.Features.Count); break;
+            case 15: Assert.Equal(19, member.Features.Count); break;
+            case 16: Assert.Equal(20, member.Features.Count); break;
+            case 17: Assert.Equal(22, member.Features.Count); break;
+            case 18: Assert.Equal(23, member.Features.Count); break;
+            case 19: Assert.Equal(24, member.Features.Count); break;
+            case 20: Assert.Equal(25, member.Features.Count); break;
         }
     }
 
@@ -626,25 +626,25 @@ public class PartyMemberTests
         switch (level)
         {
             case 1: Assert.Equal(2, member.Features.Count); break;
-            case 2: Assert.Equal(4, member.Features.Count); break;
-            case 3: Assert.Equal(4, member.Features.Count); break;
-            case 4: Assert.Equal(6, member.Features.Count); break;
-            case 5: Assert.Equal(6, member.Features.Count); break;
-            case 6: Assert.Equal(7, member.Features.Count); break;
-            case 7: Assert.Equal(7, member.Features.Count); break;
-            case 8: Assert.Equal(9, member.Features.Count); break;
-            case 9: Assert.Equal(9, member.Features.Count); break;
-            case 10: Assert.Equal(10, member.Features.Count); break;
-            case 11: Assert.Equal(10, member.Features.Count); break;
-            case 12: Assert.Equal(11, member.Features.Count); break;
-            case 13: Assert.Equal(11, member.Features.Count); break;
-            case 14: Assert.Equal(12, member.Features.Count); break;
-            case 15: Assert.Equal(12, member.Features.Count); break;
-            case 16: Assert.Equal(13, member.Features.Count); break;
-            case 17: Assert.Equal(13, member.Features.Count); break;
-            case 18: Assert.Equal(15, member.Features.Count); break;
-            case 19: Assert.Equal(16, member.Features.Count); break;
-            case 20: Assert.Equal(17, member.Features.Count); break;
+            case 2: Assert.Equal(8, member.Features.Count); break;
+            case 3: Assert.Equal(9, member.Features.Count); break;
+            case 4: Assert.Equal(11, member.Features.Count); break;
+            case 5: Assert.Equal(12, member.Features.Count); break;
+            case 6: Assert.Equal(13, member.Features.Count); break;
+            case 7: Assert.Equal(14, member.Features.Count); break;
+            case 8: Assert.Equal(16, member.Features.Count); break;
+            case 9: Assert.Equal(17, member.Features.Count); break;
+            case 10: Assert.Equal(18, member.Features.Count); break;
+            case 11: Assert.Equal(18, member.Features.Count); break;
+            case 12: Assert.Equal(19, member.Features.Count); break;
+            case 13: Assert.Equal(19, member.Features.Count); break;
+            case 14: Assert.Equal(20, member.Features.Count); break;
+            case 15: Assert.Equal(20, member.Features.Count); break;
+            case 16: Assert.Equal(21, member.Features.Count); break;
+            case 17: Assert.Equal(21, member.Features.Count); break;
+            case 18: Assert.Equal(23, member.Features.Count); break;
+            case 19: Assert.Equal(24, member.Features.Count); break;
+            case 20: Assert.Equal(25, member.Features.Count); break;
         }
     }
 
@@ -660,25 +660,25 @@ public class PartyMemberTests
         switch (level)
         {
             case 1: Assert.Equal(2, member.Features.Count); break;
-            case 2: Assert.Equal(5, member.Features.Count); break;
-            case 3: Assert.Equal(11, member.Features.Count); break;
-            case 4: Assert.Equal(12, member.Features.Count); break;
-            case 5: Assert.Equal(13, member.Features.Count); break;
-            case 6: Assert.Equal(14, member.Features.Count); break;
-            case 7: Assert.Equal(15, member.Features.Count); break;
-            case 8: Assert.Equal(16, member.Features.Count); break;
-            case 9: Assert.Equal(16, member.Features.Count); break;
-            case 10: Assert.Equal(17, member.Features.Count); break;
-            case 11: Assert.Equal(18, member.Features.Count); break;
-            case 12: Assert.Equal(19, member.Features.Count); break;
-            case 13: Assert.Equal(19, member.Features.Count); break;
-            case 14: Assert.Equal(20, member.Features.Count); break;
-            case 15: Assert.Equal(21, member.Features.Count); break;
-            case 16: Assert.Equal(22, member.Features.Count); break;
-            case 17: Assert.Equal(22, member.Features.Count); break;
-            case 18: Assert.Equal(23, member.Features.Count); break;
-            case 19: Assert.Equal(23, member.Features.Count); break;
-            case 20: Assert.Equal(23, member.Features.Count); break;
+            case 2: Assert.Equal(6, member.Features.Count); break;
+            case 3: Assert.Equal(12, member.Features.Count); break;
+            case 4: Assert.Equal(13, member.Features.Count); break;
+            case 5: Assert.Equal(14, member.Features.Count); break;
+            case 6: Assert.Equal(15, member.Features.Count); break;
+            case 7: Assert.Equal(16, member.Features.Count); break;
+            case 8: Assert.Equal(17, member.Features.Count); break;
+            case 9: Assert.Equal(17, member.Features.Count); break;
+            case 10: Assert.Equal(18, member.Features.Count); break;
+            case 11: Assert.Equal(19, member.Features.Count); break;
+            case 12: Assert.Equal(20, member.Features.Count); break;
+            case 13: Assert.Equal(20, member.Features.Count); break;
+            case 14: Assert.Equal(21, member.Features.Count); break;
+            case 15: Assert.Equal(22, member.Features.Count); break;
+            case 16: Assert.Equal(23, member.Features.Count); break;
+            case 17: Assert.Equal(23, member.Features.Count); break;
+            case 18: Assert.Equal(24, member.Features.Count); break;
+            case 19: Assert.Equal(25, member.Features.Count); break;
+            case 20: Assert.Equal(26, member.Features.Count); break;
         }
     }
 
@@ -733,20 +733,20 @@ public class PartyMemberTests
             case 4: Assert.Equal(12, member.Features.Count); break;
             case 5: Assert.Equal(14, member.Features.Count); break;
             case 6: Assert.Equal(16, member.Features.Count); break;
-            case 7: Assert.Equal(17, member.Features.Count); break;
-            case 8: Assert.Equal(18, member.Features.Count); break;
-            case 9: Assert.Equal(19, member.Features.Count); break;
-            case 10: Assert.Equal(20, member.Features.Count); break;
-            case 11: Assert.Equal(21, member.Features.Count); break;
-            case 12: Assert.Equal(22, member.Features.Count); break;
-            case 13: Assert.Equal(23, member.Features.Count); break;
-            case 14: Assert.Equal(24, member.Features.Count); break;
-            case 15: Assert.Equal(25, member.Features.Count); break;
-            case 16: Assert.Equal(26, member.Features.Count); break;
-            case 17: Assert.Equal(27, member.Features.Count); break;
-            case 18: Assert.Equal(28, member.Features.Count); break;
-            case 19: Assert.Equal(29, member.Features.Count); break;
-            case 20: Assert.Equal(30, member.Features.Count); break;
+            case 7: Assert.Equal(18, member.Features.Count); break;
+            case 8: Assert.Equal(19, member.Features.Count); break;
+            case 9: Assert.Equal(20, member.Features.Count); break;
+            case 10: Assert.Equal(21, member.Features.Count); break;
+            case 11: Assert.Equal(22, member.Features.Count); break;
+            case 12: Assert.Equal(23, member.Features.Count); break;
+            case 13: Assert.Equal(24, member.Features.Count); break;
+            case 14: Assert.Equal(25, member.Features.Count); break;
+            case 15: Assert.Equal(26, member.Features.Count); break;
+            case 16: Assert.Equal(27, member.Features.Count); break;
+            case 17: Assert.Equal(28, member.Features.Count); break;
+            case 18: Assert.Equal(29, member.Features.Count); break;
+            case 19: Assert.Equal(30, member.Features.Count); break;
+            case 20: Assert.Equal(31, member.Features.Count); break;
         }
     }
 

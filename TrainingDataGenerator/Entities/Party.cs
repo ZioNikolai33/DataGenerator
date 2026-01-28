@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using TrainingDataGenerator.Abstracts;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
@@ -731,7 +732,7 @@ public class PartyMember : Creature, ICombatCalculator
         AbilityScoreImprovement(attributes, abilityImprovements);
 
         if (Class.Equals("barbarian"))
-            if (Features.Select(item => item.Index).Contains("primal-champion"))
+            if (features.Select(item => item.Index).Contains("primal-champion"))
             {
                 attributes[0] += 4;
                 attributes[2] += 4;
@@ -986,6 +987,18 @@ public class PartyMember : Creature, ICombatCalculator
 
             if (i == Level)
             {
+                if (Class.Equals("warlock") && Level > 1)
+                {
+                    var numInvocations = currentLevels.Where(item => item.ClassSpecific != null && item.ClassSpecific.ContainsKey("invocations_known"))
+                        .Select(item => Convert.ToInt32(item.ClassSpecific?["invocations_known"])).First();
+                    var availableInvocations = features.Where(item => item.Index.Equals("eldritch-invocations")).SelectMany(i => i.FeatureSpec?.Invocations).ToList();
+                    var featureInvocations = Lists.features.Where(f => availableInvocations.Select(a => a.Index).Contains(f.Index)).ToList();
+                    var selectedInvocations = featureInvocations.OrderBy(_ => Random.Shared.Next()).Take(numInvocations)
+                        .Select(item => new Feature(item, Proficiencies)).ToList();
+
+                    Features.AddRange(selectedInvocations);
+                }
+
                 SetSpellsFromTraits(); // Set Spells from Traits (like High Elf Cantrip)
                 SetSpellsFromFeatures(); // Set Spells from Features (like Infernal Legacy)
 
