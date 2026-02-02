@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using TrainingDataGenerator.Abstracts;
+﻿using TrainingDataGenerator.Abstracts;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
@@ -84,12 +82,8 @@ public class PartyMember : Creature, ICombatCalculator
 
     private void SetFeatures()
     {
-        if (Features.Select(item => item.Index).ToList().Contains("fast-movement"))
+        if (Features.Select(item => item.Index).Contains("fast-movement"))
             Speed += 10;
-
-        if (Features.Select(item => item.Index).ToList().Contains("fighting-style-defense") || Features.Select(item => item.Index).ToList().Contains("ranger-fighting-style-defense"))
-            if (Armors.Any(item => item.IsEquipped && item.Index != "shield"))
-                ArmorClass += 1;
 
         if (Class == "monk")
             SetMonkFeatures();
@@ -175,9 +169,6 @@ public class PartyMember : Creature, ICombatCalculator
 
     private void SetMonkFeatures()
     {
-        if (Features.Select(item => item.Index).ToList().Contains("unarmored-defense-monk"))
-            ArmorClass = (byte)(10 + Dexterity.Modifier + Wisdom.Modifier);
-
         if (Features.Select(item => item.Index).ToList().Contains("unarmored-movement-1") && Armors.All(item => !item.IsEquipped))
             Speed += 10;
 
@@ -889,6 +880,7 @@ public class PartyMember : Creature, ICombatCalculator
     private void ManageEquipments(ClassMapper randomClass)
     {
         var allEquipmentsBase = randomClass.StartingEquipments;
+
         var randomBaseEquipments = randomClass.StartingEquipmentsOptions.SelectMany(item => item.GetRandomEquipment()).ToList();
         allEquipmentsBase.AddRange(randomBaseEquipments);
 
@@ -954,20 +946,27 @@ public class PartyMember : Creature, ICombatCalculator
             ac = equippedArmor.ArmorClass.Base;
 
             if (equippedArmor.ArmorClass.HasDexBonus)
-            {
-                ac += Dexterity.Modifier;
-
                 if (equippedArmor.ArmorClass.MaxDexBonus != null)
                     if (Dexterity.Modifier > equippedArmor.ArmorClass.MaxDexBonus)
-                        ac = equippedArmor.ArmorClass.Base + equippedArmor.ArmorClass.MaxDexBonus.Value;
-            }
+                        ac += equippedArmor.ArmorClass.MaxDexBonus.Value;
+                    else
+                        ac += Dexterity.Modifier;
+                else
+                    ac += Dexterity.Modifier;
         }
 
-        if (Features.Select(item => item.Index).ToList().Contains("barbarian-unarmored-defense") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
+        if (Features.Select(item => item.Index).Contains("barbarian-unarmored-defense") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
             ac = 10 + Dexterity.Modifier + Constitution.Modifier;
 
-        if (Features.Select(item => item.Index).ToList().Contains("draconic-resilience") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
-            ac = 13 + Dexterity.Modifier;
+        if (Features.Select(item => item.Index).Contains("draconic-resilience") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
+            ac = Math.Max(ac, 13 + Dexterity.Modifier);
+
+        if (Features.Select(item => item.Index).Contains("monk-unarmored-defense") && Armors.Where(item => item.Index != "shield" && item.IsEquipped).Count() == 0)
+            ac = 10 + Dexterity.Modifier + Wisdom.Modifier;
+
+        if (Features.Select(item => item.Index).Contains("fighter-fighting-style-defense") || Features.Select(item => item.Index).Contains("ranger-fighting-style-defense") || Features.Select(item => item.Index).Contains("fighting-style-defense"))
+            if (Armors.Any(item => item.IsEquipped && item.Index != "shield"))
+                ac += 1;
 
         if (Armors.Any(item => item.Index == "shield" && item.IsEquipped))
             ac += 2;

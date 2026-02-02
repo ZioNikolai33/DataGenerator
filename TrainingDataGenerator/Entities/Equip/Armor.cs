@@ -21,7 +21,7 @@ public class Armor : Equipment
         ArmorCategory = equipment.ArmorCategory ?? "unknown";
         ArmorClass = new ArmorData
         {
-            Base = equipment.ArmorClass?.Base ?? 0,
+            Base = equipment.ArmorClass?.Base ?? 10,
             HasDexBonus = equipment.ArmorClass?.HasDexBonus ?? false,
             MaxDexBonus = equipment.ArmorClass?.MaxDexBonus
         };

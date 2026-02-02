@@ -1,4 +1,5 @@
 using MongoDB.Bson.Serialization;
+using System.Diagnostics;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Utilities;
@@ -20,6 +21,23 @@ public class PartyMemberTests
             foreach (var race in DataConstants.Races)
                 foreach (var className in DataConstants.Classes)
                     yield return new object[] { index++, i, race, className };
+    }
+
+    public static IEnumerable<object[]> GetConstructorTestDataLevel1Human()
+    {
+        int index = 1;
+
+        foreach (var className in DataConstants.Classes)
+            yield return new object[] { index++, 1, "human", className };
+    }
+
+    public static IEnumerable<object[]> GetConstructorTestDataHuman()
+    {
+        int index = 1;
+
+        foreach (int i in Enumerable.Range(1, 20))
+            foreach (var className in DataConstants.Classes)
+                yield return new object[] { index++, i, "human", className };
     }
 
     public static IEnumerable<object[]> GetBarbarianTestData() =>
@@ -57,6 +75,78 @@ public class PartyMemberTests
 
     public static IEnumerable<object[]> GetRangerTestData() =>
         GetConstructorTestData().Where(data => data[3]!.ToString() == "ranger");
+
+    public static IEnumerable<object[]> GetBarbarianTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "barbarian" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetBardTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "bard" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetClericTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "cleric" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetDruidTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "druid" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetFighterTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "fighter" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetMonkTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "monk" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetPaladinTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "paladin" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetRogueTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "rogue" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetSorcererTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "sorcerer" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetWarlockTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "warlock" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetWizardTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "wizard" && data[1]!.ToString() == "1");
+    
+    public static IEnumerable<object[]> GetRangerTestDataLevel1() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "ranger" && data[1]!.ToString() == "1");
+
+    public static IEnumerable<object[]> GetBarbarianTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "barbarian" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetBardTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "bard" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetClericTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "cleric" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetDruidTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "druid" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetFighterTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "fighter" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetMonkTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "monk" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetPaladinTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "paladin" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetRogueTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "rogue" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetSorcererTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "sorcerer" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetWarlockTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "warlock" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetWizardTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "wizard" && data[1]!.ToString() == "20");
+
+    public static IEnumerable<object[]> GetRangerTestDataLevel20() =>
+        GetConstructorTestData().Where(data => data[3]!.ToString() == "ranger" && data[1]!.ToString() == "20");
 
     public static IEnumerable<object[]> GetHalfOrcTestData() =>
         GetConstructorTestData().Where(data => data[2]!.ToString() == "half-orc");
@@ -261,12 +351,12 @@ public class PartyMemberTests
         var member = new PartyMember(index, level, race, classMapper);
 
         // Assert
-        Assert.Equal((member.Strength.Value - 10) / 2, member.Strength.Modifier);
-        Assert.Equal((member.Dexterity.Value - 10) / 2, member.Dexterity.Modifier);
-        Assert.Equal((member.Constitution.Value - 10) / 2, member.Constitution.Modifier);
-        Assert.Equal((member.Intelligence.Value - 10) / 2, member.Intelligence.Modifier);
-        Assert.Equal((member.Wisdom.Value - 10) / 2, member.Wisdom.Modifier);
-        Assert.Equal((member.Charisma.Value - 10) / 2, member.Charisma.Modifier);
+        Assert.Equal(member.Strength.Value == 9 ? -1 : (member.Strength.Value - 10) / 2, member.Strength.Modifier);
+        Assert.Equal(member.Dexterity.Value == 9 ? -1 : (member.Dexterity.Value - 10) / 2, member.Dexterity.Modifier);
+        Assert.Equal(member.Constitution.Value == 9 ? -1 : (member.Constitution.Value - 10) / 2, member.Constitution.Modifier);
+        Assert.Equal(member.Intelligence.Value == 9 ? -1 : (member.Intelligence.Value - 10) / 2, member.Intelligence.Modifier);
+        Assert.Equal(member.Wisdom.Value == 9 ? -1 : (member.Wisdom.Value - 10) / 2, member.Wisdom.Modifier);
+        Assert.Equal(member.Charisma.Value == 9 ? -1 : (member.Charisma.Value - 10) / 2, member.Charisma.Modifier);
     }
 
     #endregion
@@ -516,6 +606,162 @@ public class PartyMemberTests
         // Assert
         Assert.Equal(1, level);
         Assert.True(member.HitPoints >= minHP);
+    }
+
+    #endregion
+
+    #region Equipment Tests
+
+    [Theory]
+    [MemberData(nameof(GetConstructorTestDataLevel1Human))]
+    public void Equipment_ShouldHaveAtLeastOneWeaponEquipped(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+
+        // Assert
+        Assert.True(member.MeleeWeapons.Any(w => w.IsEquipped) || member.RangedWeapons.Any(w => w.IsEquipped));
+    }
+
+    #endregion
+
+    #region Armor Class Tests
+
+    [Theory]
+    [MemberData(nameof(GetBarbarianTestDataLevel1))]
+    public void ArmorClassBarbarian_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+
+        // Assert
+        Assert.Equal(member.ArmorClass, 10 + member.Dexterity.Modifier + member.Constitution.Modifier);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetMonkTestDataLevel1))]
+    public void ArmorClassMonk_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+
+        // Assert
+        Assert.Equal(member.ArmorClass, 10 + member.Dexterity.Modifier + member.Wisdom.Modifier);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetBardTestDataLevel1))]
+    [MemberData(nameof(GetDruidTestDataLevel1))]
+    [MemberData(nameof(GetRogueTestDataLevel1))]
+    [MemberData(nameof(GetWarlockTestDataLevel1))]
+    public void ArmorClassLeatherArmor_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+
+        // Assert
+        Assert.Equal(member.ArmorClass, 11 + member.Dexterity.Modifier);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetClericTestDataLevel1))]
+    public void ArmorClassCleric_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+        var shieldValue = member.Armors.Any(a => a.IsEquipped && a.Index.Equals("shield")) ? 2 : 0;
+
+        // Assert
+        Assert.True(member.ArmorClass == 11 + member.Dexterity.Modifier + shieldValue ||
+            member.ArmorClass == 14 + Math.Min(2, (int)member.Dexterity.Modifier) + shieldValue ||
+            (member.Strength.Value >= 13 && member.ArmorClass == 16 + shieldValue) || 
+            member.ArmorClass == 10 + member.Dexterity.Modifier + shieldValue);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetFighterTestDataLevel1))]
+    public void ArmorClassFighter_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+        var shieldValue = member.Armors.Any(a => a.IsEquipped && a.Index.Equals("shield")) ? 2 : 0;
+        var defenseValue = member.Features.Any(a => a.Index.Equals("fighter-fighting-style-defense")) ? 1 : 0;
+
+        // Assert
+        Assert.True(member.ArmorClass == 11 + member.Dexterity.Modifier + shieldValue + defenseValue ||
+            (member.Strength.Value >= 13 && member.ArmorClass == 16 + shieldValue + defenseValue) ||
+            member.ArmorClass == 10 + member.Dexterity.Modifier + shieldValue);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetPaladinTestDataLevel1))]
+    public void ArmorClassPaladin_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+        var shieldValue = member.Armors.Any(a => a.IsEquipped && a.Index.Equals("shield")) ? 2 : 0;
+        var defenseValue = member.Features.Any(a => a.Index.Equals("fighting-style-defense")) ? 1 : 0;
+
+        // Assert
+        Assert.True(member.Strength.Value >= 13 && member.ArmorClass == 16 + shieldValue + defenseValue ||
+            member.ArmorClass == 10 + member.Dexterity.Modifier + shieldValue + defenseValue);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetRangerTestDataLevel1))]
+    public void ArmorClassRanger_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+        var defenseValue = member.Features.Any(a => a.Index.Equals("ranger-fighting-style-defense")) ? 1 : 0;
+        var shieldValue = member.Armors.Any(a => a.IsEquipped && a.Index.Equals("shield")) ? 2 : 0;
+
+        // Assert
+        Assert.True(member.ArmorClass == 11 + member.Dexterity.Modifier + shieldValue + defenseValue ||
+            member.ArmorClass == 14 + Math.Min(2, (int)member.Dexterity.Modifier) + shieldValue + defenseValue);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetSorcererTestDataLevel1))]
+    public void ArmorClassSorcerer_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+
+        // Assert
+        Assert.True(member.ArmorClass == 10 + member.Dexterity.Modifier ||
+            member.ArmorClass == 13 + member.Dexterity.Modifier);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetWizardTestDataLevel1))]
+    public void ArmorClassWizard_ShouldBeCalculatedCorrectly(int index, byte level, string raceName, string className)
+    {
+        // Arrange
+        var race = CreateTestRace(raceName);
+        var classMapper = CreateTestClass(className);
+        var member = new PartyMember((byte)index, level, race, classMapper);
+
+        // Assert
+        Assert.Equal(member.ArmorClass, 10 + member.Dexterity.Modifier);
     }
 
     #endregion
@@ -978,7 +1224,7 @@ public class PartyMemberTests
     #region Barbarian Feature Tests
 
     [Theory]
-    [MemberData(nameof(GetBarbarianTestData))]
+    [MemberData(nameof(GetBarbarianTestDataLevel20))]
     public void Barbarian_PrimalChampion_ShouldIncreaseStrengthAndConstitution(int index, byte level, string raceName, string className)
     {
         // Arrange

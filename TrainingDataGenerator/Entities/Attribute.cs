@@ -10,9 +10,18 @@ public class Attribute
 
     public Attribute(byte value)
     {
-        Value = value;
-        Modifier = (sbyte)((value - 10) / 2);
-        Save = (sbyte)((value - 10) / 2);
+        if (value == 9)
+        {
+            Value = 9;
+            Modifier = -1;
+            Save = -1;
+        }
+        else
+        {
+            Value = value;
+            Modifier = (sbyte)((value - 10) / 2);
+            Save = (sbyte)((value - 10) / 2);
+        }
     }
 
     public Attribute()
