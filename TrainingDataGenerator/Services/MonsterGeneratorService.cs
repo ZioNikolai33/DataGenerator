@@ -1,0 +1,188 @@
+using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Interfaces;
+using TrainingDataGenerator.Utilities;
+
+namespace TrainingDataGenerator.Services;
+
+public class MonsterGeneratorService : IMonsterGenerator
+{
+    private readonly ILogger _logger;
+    private readonly IRandomProvider _random;
+
+    public MonsterGeneratorService(
+        ILogger logger,
+        IRandomProvider random)
+    {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _random = random ?? throw new ArgumentNullException(nameof(random));
+    }
+
+    public List<Monster> GenerateRandomMonsters(CRRatios ratio, List<byte> levels, List<MonsterDifficulty> monsters)
+    {
+        var countSelection = 0;
+        var expThresholds = ExpOperations.CalculateDifficultiesExp(levels);
+        var randomNumMonsters = _random.Next(1, 16);
+        var randomMonsters = new List<MonsterDifficulty>();
+        var numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Multiplier ?? 1;
+        var targetExpBeforeMultiplier = 0;
+        var floorTargetExpBeforeMultiplier = 0;
+        var monstersFiltered = new List<MonsterDifficulty>();
+
+        _logger.Verbose($"EXP Thresholds calculated for party levels {string.Join(", ", levels)}: Cakewalk {expThresholds.Cakewalk}, Easy {expThresholds.Easy}, Medium {expThresholds.Medium}, Hard {expThresholds.Hard}, Deadly {expThresholds.Deadly}, Impossible {expThresholds.Impossible}");
+        _logger.Information($"Selecting monsters: ratio {ratio} - {randomNumMonsters} monsters - multiplier {numMultiplier}");
+
+        switch (ratio)
+        {
+            case CRRatios.Cakewalk:
+                targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                floorTargetExpBeforeMultiplier = 0;
+                break;
+            case CRRatios.Easy:
+                targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                break;
+            case CRRatios.Normal:
+                targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                break;
+            case CRRatios.Hard:
+                targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                break;
+            case CRRatios.Deadly:
+                targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                break;
+            case CRRatios.Impossible:
+                targetExpBeforeMultiplier = -1; // No upper limit
+                floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                break;
+        }
+
+        _logger.Verbose($"Floor Target XP before multiplier: {floorTargetExpBeforeMultiplier}");
+        _logger.Verbose($"Target XP before multiplier: {targetExpBeforeMultiplier}");
+
+        do
+        {
+            monstersFiltered = (targetExpBeforeMultiplier == -1) ? monsters : monsters.Where(m => m.Xp <= targetExpBeforeMultiplier).ToList();
+
+            _logger.Verbose($"Found {monstersFiltered.Count} monsters matching criteria.");
+
+            if (monstersFiltered.Count == 0)
+            {
+                if (randomNumMonsters == 15)
+                {
+                    _logger.Warning("Maximum number of monsters reached but no suitable monsters found. Resetting selection.");
+                    randomNumMonsters = 1;
+                }
+
+                randomNumMonsters++;
+                numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Multiplier ?? 1;
+                _logger.Warning($"No suitable monsters found. Increasing number of monsters to {randomNumMonsters} and multiplier to {numMultiplier}");
+
+                switch (ratio)
+                {
+                    case CRRatios.Cakewalk:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                        floorTargetExpBeforeMultiplier = 0;
+                        break;
+                    case CRRatios.Easy:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                        break;
+                    case CRRatios.Normal:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                        break;
+                    case CRRatios.Hard:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                        break;
+                    case CRRatios.Deadly:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                        break;
+                    case CRRatios.Impossible:
+                        targetExpBeforeMultiplier = -1; // No upper limit
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                        break;
+                }
+
+                _logger.Verbose($"New Floor Target XP before multiplier: {floorTargetExpBeforeMultiplier}");
+                _logger.Verbose($"New Target XP before multiplier: {targetExpBeforeMultiplier}");
+            }
+        }
+        while (monstersFiltered.Count == 0);
+
+        do
+        {
+            randomMonsters = _random.SelectRandom(monstersFiltered, randomNumMonsters);
+
+            countSelection++;
+
+            if (countSelection > 1000)
+            {
+                countSelection = 0;
+
+                if (randomNumMonsters > 1)
+                    randomNumMonsters--;
+                else
+                    randomNumMonsters++;
+
+                numMultiplier = ExpOperations.MultiplierList.FirstOrDefault(entry => entry.Number == randomNumMonsters)?.Number ?? 1;
+
+                switch (ratio)
+                {
+                    case CRRatios.Cakewalk:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                        floorTargetExpBeforeMultiplier = 0;
+                        break;
+                    case CRRatios.Easy:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Easy / numMultiplier);
+                        break;
+                    case CRRatios.Normal:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Medium / numMultiplier);
+                        break;
+                    case CRRatios.Hard:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Hard / numMultiplier);
+                        break;
+                    case CRRatios.Deadly:
+                        targetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Deadly / numMultiplier);
+                        break;
+                    case CRRatios.Impossible:
+                        targetExpBeforeMultiplier = -1; // No upper limit
+                        floorTargetExpBeforeMultiplier = (int)Math.Floor((double)expThresholds.Impossible / numMultiplier);
+                        break;
+                }
+
+                _logger.Warning("Maximum number of monsters reached but no suitable monsters found. Resetting selection.");
+                _logger.Verbose($"New Floor Target XP before multiplier: {floorTargetExpBeforeMultiplier}");
+                _logger.Verbose($"New Target XP before multiplier: {targetExpBeforeMultiplier}");
+
+                monstersFiltered = (targetExpBeforeMultiplier == -1) ? monsters : monsters.Where(m => m.Xp <= targetExpBeforeMultiplier).ToList();
+            }
+        }
+        while (randomMonsters.Sum(m => m.Xp) <= floorTargetExpBeforeMultiplier || (targetExpBeforeMultiplier != -1 && randomMonsters.Sum(m => m.Xp) > targetExpBeforeMultiplier));
+
+        _logger.Verbose($"Selected monsters XP sum: {randomMonsters.Sum(m => m.Xp)}");
+        _logger.Verbose($"Selected Monsters XP after multiplier: {randomMonsters.Sum(m => m.Xp) * numMultiplier}");
+
+        List<Monster> monstersSelected = randomMonsters.Select(item => CreateMonster(EntitiesFinder.GetEntityByIndex(Lists.monsters, new Entities.Mappers.BaseEntity(item.Index, item.Name)))).ToList();
+        _logger.Information($"Selected monsters: {string.Join(", ", monstersSelected.Select(m => m.Name))}");
+
+        return monstersSelected;
+    }
+
+    private Monster CreateMonster(MonsterMapper monster)
+    {
+        return new Monster(
+            monster,
+            _logger,
+            _random);
+    }
+}
