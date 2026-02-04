@@ -1,0 +1,21 @@
+using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.Equip;
+using TrainingDataGenerator.Entities.Mappers;
+
+namespace TrainingDataGenerator.Interfaces;
+
+public interface IEquipmentService
+{
+    void ManageEquipments(PartyMember member, ClassMapper classMapper);
+
+    void EquipRandomWeapons(PartyMember member, List<Armor> allArmors);
+
+    void ManageArmorRequirements(PartyMember member, List<Armor> allArmors);
+
+    bool IsProficient(PartyMember member, Weapon weapon);
+
+    List<BaseEntity> GetEquipmentsByCategory(string equipmentIndex);
+
+    (List<Armor> Armors, List<MeleeWeapon> MeleeWeapons, List<RangedWeapon> RangedWeapons, List<Ammunition> Ammunitions) 
+        ConvertToTypedEquipment(List<EquipmentMapper> equipments);
+}
