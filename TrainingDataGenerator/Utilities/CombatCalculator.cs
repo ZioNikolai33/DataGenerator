@@ -1,5 +1,6 @@
 ﻿using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Utilities;
 
@@ -110,7 +111,7 @@ public static class CombatCalculator
         }
     }
 
-    public static Result CalculateCombatOutcome(List<PartyMember> party, List<Monster> monsters, int totalPartyCombatPower, int totalMonstersCombatPower, int baseStatsParty, int baseStatsMonsters)
+    public static Result CalculateCombatOutcome(List<PartyMember> party, List<Monster> monsters, int totalPartyCombatPower, int totalMonstersCombatPower, int baseStatsParty, int baseStatsMonsters, ILogger logger)
     {
         var result = new Result();
         var totalPartyHp = party.Sum(p => p.HitPoints);
@@ -122,13 +123,13 @@ public static class CombatCalculator
         {
             result.Outcome = Results.Victory;
             result.Details = $"Party wins in {numberOfTurnsToDefeatMonsters} turns.";
-            Logger.Instance.Information($"Party wins in {numberOfTurnsToDefeatMonsters} turns.");
+            logger.Information($"Party wins in {numberOfTurnsToDefeatMonsters} turns.");
         }
         else if (numberOfTurnsToDefeatMonsters > numberOfTurnsToDefeatParty)
         {
             result.Outcome = Results.Defeat;
             result.Details = $"Monsters win in {numberOfTurnsToDefeatParty} turns.";
-            Logger.Instance.Information($"Monsters win in {numberOfTurnsToDefeatParty} turns.");
+            logger.Information($"Monsters win in {numberOfTurnsToDefeatParty} turns.");
         }
         else if (numberOfTurnsToDefeatMonsters == numberOfTurnsToDefeatParty)
         {
@@ -136,13 +137,13 @@ public static class CombatCalculator
             {
                 result.Outcome = Results.Victory;
                 result.Details = $"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.";
-                Logger.Instance.Information($"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.");
+                logger.Information($"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.");
             }
             else
             {
                 result.Outcome = Results.Defeat;
                 result.Details = $"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.";
-                Logger.Instance.Information($"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.");
+                logger.Information($"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.");
             }
         }
 
