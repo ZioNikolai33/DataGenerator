@@ -1,6 +1,4 @@
-﻿using TrainingDataGenerator.Entities.Mappers;
-
-namespace TrainingDataGenerator.Entities;
+﻿namespace TrainingDataGenerator.Entities;
 
 public class Attribute
 {

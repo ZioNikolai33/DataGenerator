@@ -9,6 +9,9 @@ namespace TrainingDataGenerator.Entities;
 
 public class Monster : Creature, ICombatCalculator
 {
+    private readonly ILogger _logger;
+    private readonly IRandomProvider _random;
+
     public string Desc { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Subtype { get; set; } = string.Empty;
@@ -26,8 +29,11 @@ public class Monster : Creature, ICombatCalculator
     public List<LegendaryAction> LegendaryActions { get; set; } = new List<LegendaryAction>();
     public List<Reaction> Reactions { get; set; } = new List<Reaction>();
 
-    public Monster(MonsterMapper monster)
+    public Monster(MonsterMapper monster, ILogger logger, IRandomProvider random)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _random = random ?? throw new ArgumentNullException(nameof(random));
+
         Index = monster.Index;
         Name = monster.Name;
         Desc = monster.Desc;
@@ -133,7 +139,7 @@ public class Monster : Creature, ICombatCalculator
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
 
-        Logger.Instance.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
+        _logger.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
 
         return totalBaseStats;
     }
@@ -188,7 +194,7 @@ public class Monster : Creature, ICombatCalculator
                 if (spell.IsHealingSpell())
                     healingPower += spell.GetHealingPower(spellcast.SpellSlots, this);
 
-        Logger.Instance.Verbose($"Total Healing Power for {Name}: {healingPower}");
+        _logger.Verbose($"Total Healing Power for {Name}: {healingPower}");
         return healingPower;
     }
 
@@ -239,7 +245,7 @@ public class Monster : Creature, ICombatCalculator
         offensivePower += CalculateDcAttacks(party, difficulty);
         offensivePower += CalculateMultiAttacks(party, difficulty);
 
-        Logger.Instance.Verbose($"Offensive Power for {Name}: {(int)offensivePower / Actions.Count}");
+        _logger.Verbose($"Offensive Power for {Name}: {(int)offensivePower / Actions.Count}");
 
         return (int)(offensivePower / Actions.Count);
     }
@@ -257,7 +263,7 @@ public class Monster : Creature, ICombatCalculator
             foreach (var spell in spells)
                 offensivePower += CalculateSpellPower(spellcast, spell, party, difficulty);
         
-        Logger.Instance.Verbose($"Spells Power for {Name}: {(int)offensivePower / spells.Count(item => item.IsDamageSpell())}");
+        _logger.Verbose($"Spells Power for {Name}: {(int)offensivePower / spells.Count(item => item.IsDamageSpell())}");
 
         return (int)(offensivePower / spells.Count(item => item.IsDamageSpell()));
     }
