@@ -3,7 +3,6 @@ using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
-using static MongoDB.Bson.Serialization.Serializers.SerializerHelper;
 
 namespace TrainingDataGenerator.Services;
 
@@ -12,9 +11,7 @@ public class EquipmentService : IEquipmentService
     private readonly ILogger _logger;
     private readonly IRandomProvider _random;
 
-    public EquipmentService(
-        ILogger logger,
-        IRandomProvider random)
+    public EquipmentService(ILogger logger, IRandomProvider random)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _random = random ?? throw new ArgumentNullException(nameof(random));
@@ -46,14 +43,14 @@ public class EquipmentService : IEquipmentService
         // Auto-equip ammunition
         ammunitions.ForEach(item => item.IsEquipped = true);
 
-        EquipRandomWeapons(member, armors);
-        ManageArmorRequirements(member, armors);
+        EquipRandomWeapons(member);
+        ManageArmorRequirements(member);
 
         _logger.Verbose($"Equipped {member.Name} with {meleeWeapons.Count} melee weapons, " +
                        $"{rangedWeapons.Count} ranged weapons, and {armors.Count} armor pieces");
     }
 
-    public void EquipRandomWeapons(PartyMember member, List<Armor> allArmors)
+    public void EquipRandomWeapons(PartyMember member)
     {
         // Equip melee weapon
         if (member.MeleeWeapons.Count > 0)
@@ -73,12 +70,12 @@ public class EquipmentService : IEquipmentService
                 }
                 else
                 {
-                    EquipShield(member, allArmors);
+                    EquipShield(member);
                 }
             }            
             else if (meleeWeapon.Properties.Contains("two-handed")) // Handle two-handed weapons and shields
             {
-                var shield = allArmors.FirstOrDefault(a => a.Index == "shield");
+                var shield = member.Armors.FirstOrDefault(a => a.Index == "shield");
 
                 if (shield != null)
                 {
@@ -88,7 +85,7 @@ public class EquipmentService : IEquipmentService
             }
             else
             {
-                EquipShield(member, allArmors);
+                EquipShield(member);
             }
         }
 
@@ -102,15 +99,12 @@ public class EquipmentService : IEquipmentService
         }
     }
 
-    public void ManageArmorRequirements(PartyMember member, List<Armor> allArmors)
+    public void ManageArmorRequirements(PartyMember member)
     {
-        var nonShieldArmors = allArmors.Where(a => a.Index != "shield").ToList();
+        var nonShieldArmors = member.Armors.Where(a => a.Index != "shield").ToList();
 
         if (nonShieldArmors.Count == 0)
-        {
-            member.Armors = allArmors;
             return;
-        }
 
         // Filter armors that meet strength requirements
         var equippableArmors = nonShieldArmors
@@ -129,8 +123,6 @@ public class EquipmentService : IEquipmentService
         {
             _logger.Warning($"{member.Name} has insufficient strength for available armors");
         }
-
-        member.Armors = allArmors;
     }
 
     public bool IsProficient(PartyMember member, Weapon weapon)
@@ -177,8 +169,7 @@ public class EquipmentService : IEquipmentService
         };
     }
 
-    public (List<Armor>, List<MeleeWeapon>, List<RangedWeapon>, List<Ammunition>) 
-        ConvertToTypedEquipment(List<EquipmentMapper> equipments)
+    public (List<Armor>, List<MeleeWeapon>, List<RangedWeapon>, List<Ammunition>) ConvertToTypedEquipment(List<EquipmentMapper> equipments)
     {
         var armors = equipments
             .Where(e => e.EquipmentCategory.Index == "armor")
@@ -205,9 +196,9 @@ public class EquipmentService : IEquipmentService
 
     #region Private Helpers Methods
 
-    private void EquipShield(PartyMember member, List<Armor> allArmors)
+    private void EquipShield(PartyMember member)
     {
-        var shield = allArmors.FirstOrDefault(a => a.Index == "shield");
+        var shield = member.Armors.FirstOrDefault(a => a.Index.Equals("shield"));
 
         if (shield != null)
         {

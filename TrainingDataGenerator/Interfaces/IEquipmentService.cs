@@ -8,9 +8,9 @@ public interface IEquipmentService
 {
     void ManageEquipments(PartyMember member, ClassMapper classMapper);
 
-    void EquipRandomWeapons(PartyMember member, List<Armor> allArmors);
+    void EquipRandomWeapons(PartyMember member);
 
-    void ManageArmorRequirements(PartyMember member, List<Armor> allArmors);
+    void ManageArmorRequirements(PartyMember member);
 
     bool IsProficient(PartyMember member, Weapon weapon);
 

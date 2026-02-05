@@ -74,7 +74,7 @@ public class TraitService : ITraitService
             _logger.Verbose($"Added {subraceMapper.RacialTraits.Count} subrace traits");
         }
 
-        // Get trait mappers from the game data
+        // Get trait mappers from the data
         var raceTraits = allTraitEntities
             .Select(traitEntity => EntitiesFinder.GetEntityByIndex(
                 Lists.traits,

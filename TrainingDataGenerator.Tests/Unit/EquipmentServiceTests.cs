@@ -77,6 +77,22 @@ public class EquipmentServiceTests
         return BsonSerializer.Deserialize<RaceMapper>(raceJson)!;
     }
 
+    private EquipmentService CreateService()
+    {
+        var mockLogger = new Mock<ILogger>();
+        var mockRandom = new Mock<IRandomProvider>();
+
+        return new EquipmentService(mockLogger.Object, mockRandom.Object);
+    }
+
+    private EquipmentService CreateService(Mock<RandomProvider>? mockRandom = null)
+    {
+        var mockLogger = new Mock<ILogger>();
+        mockRandom ??= new Mock<RandomProvider>();
+
+        return new EquipmentService(mockLogger.Object, mockRandom.Object);
+    }
+
     private EquipmentService CreateService(Mock<IRandomProvider>? mockRandom = null)
     {
         var mockLogger = new Mock<ILogger>();
@@ -165,7 +181,8 @@ public class EquipmentServiceTests
     public void ManageEquipments_ShouldInitializeAllEquipmentLists()
     {
         // Arrange
-        var service = CreateService();
+        var mockRandom = new Mock<RandomProvider>();
+        var service = CreateService(mockRandom);
         var classMapper = CreateTestClass("fighter");
         var member = CreateTestPartyMember(classMapper: classMapper);        
 
@@ -183,7 +200,8 @@ public class EquipmentServiceTests
     public void ManageEquipments_ShouldAutoEquipAllAmmunition()
     {
         // Arrange
-        var service = CreateService();
+        var mockRandom = new Mock<RandomProvider>();
+        var service = CreateService(mockRandom);
         var classMapper = CreateTestClass("ranger");
         var member = CreateTestPartyMember(classMapper: classMapper);        
 
@@ -213,7 +231,7 @@ public class EquipmentServiceTests
                   .Returns(longsword);
 
         // Act
-        service.EquipRandomWeapons(member, new List<Armor>());
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.True(longsword.IsEquipped);
@@ -235,7 +253,7 @@ public class EquipmentServiceTests
                   .Returns(dagger1);
 
         // Act
-        service.EquipRandomWeapons(member, new List<Armor>());
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.True(dagger1.IsEquipped);
@@ -255,13 +273,13 @@ public class EquipmentServiceTests
 
         var shield = CreateArmor("shield", "Shield");
         shield.IsEquipped = true;
-        var armors = new List<Armor> { shield };
+        member.Armors = new List<Armor> { shield };
 
         mockRandom.Setup(r => r.SelectRandom(It.IsAny<List<MeleeWeapon>>()))
                   .Returns(greatsword);
 
         // Act
-        service.EquipRandomWeapons(member, armors);
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.True(greatsword.IsEquipped);
@@ -280,13 +298,13 @@ public class EquipmentServiceTests
         member.MeleeWeapons = new List<MeleeWeapon> { longsword };
 
         var shield = CreateArmor("shield", "Shield");
-        var armors = new List<Armor> { shield };
+        member.Armors = new List<Armor> { shield };
 
         mockRandom.Setup(r => r.SelectRandom(It.IsAny<List<MeleeWeapon>>()))
                   .Returns(longsword);
 
         // Act
-        service.EquipRandomWeapons(member, armors);
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.True(longsword.IsEquipped);
@@ -308,7 +326,7 @@ public class EquipmentServiceTests
                   .Returns(longbow);
 
         // Act
-        service.EquipRandomWeapons(member, new List<Armor>());
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.True(longbow.IsEquipped);
@@ -324,7 +342,7 @@ public class EquipmentServiceTests
         member.RangedWeapons = new List<RangedWeapon>();
 
         // Act & Assert
-        service.EquipRandomWeapons(member, new List<Armor>());
+        service.EquipRandomWeapons(member);
     }
 
     [Fact]
@@ -342,7 +360,7 @@ public class EquipmentServiceTests
                   .Returns(dagger);
 
         // Act
-        service.EquipRandomWeapons(member, new List<Armor>());
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.True(dagger.IsEquipped);
@@ -361,13 +379,13 @@ public class EquipmentServiceTests
         member.MeleeWeapons = new List<MeleeWeapon> { dagger };
 
         var shield = CreateArmor("shield", "Shield");
-        var armors = new List<Armor> { shield };
+        member.Armors = new List<Armor> { shield };
 
         mockRandom.Setup(r => r.SelectRandom(It.IsAny<List<MeleeWeapon>>()))
                   .Returns(dagger);
 
         // Act
-        service.EquipRandomWeapons(member, new List<Armor>());
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.True(dagger.IsEquipped);
@@ -388,13 +406,13 @@ public class EquipmentServiceTests
         var member = CreateTestPartyMember(strength: 15);
         
         var chainmail = CreateArmor("chainmail", "Chainmail", strengthMinimum: 13);
-        var armors = new List<Armor> { chainmail };
+        member.Armors = new List<Armor> { chainmail };
 
         mockRandom.Setup(r => r.SelectRandom(It.IsAny<List<Armor>>()))
                   .Returns(chainmail);
 
         // Act
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
 
         // Assert
         Assert.True(chainmail.IsEquipped);
@@ -408,10 +426,10 @@ public class EquipmentServiceTests
         var member = CreateTestPartyMember(strength: 10);
         
         var plateArmor = CreateArmor("plate", "Plate", strengthMinimum: 15);
-        var armors = new List<Armor> { plateArmor };
+        member.Armors = new List<Armor> { plateArmor };
 
         // Act
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
 
         // Assert
         Assert.False(plateArmor.IsEquipped);
@@ -427,13 +445,13 @@ public class EquipmentServiceTests
         
         var chainmail = CreateArmor("chainmail", "Chainmail", strengthMinimum: 13);
         var splintArmor = CreateArmor("splint", "Splint", strengthMinimum: 15);
-        var armors = new List<Armor> { chainmail, splintArmor };
+        member.Armors = new List<Armor> { chainmail, splintArmor };
 
         mockRandom.Setup(r => r.SelectRandom(It.IsAny<List<Armor>>()))
                   .Returns(chainmail);
 
         // Act
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
 
         // Assert
         Assert.True(chainmail.IsEquipped);
@@ -448,10 +466,10 @@ public class EquipmentServiceTests
         var member = CreateTestPartyMember();
         
         var shield = CreateArmor("shield", "Shield");
-        var armors = new List<Armor> { shield };
+        member.Armors = new List<Armor> { shield };
 
         // Act
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
 
         // Assert
         Assert.Single(member.Armors);
@@ -467,7 +485,7 @@ public class EquipmentServiceTests
         var armors = new List<Armor>();
 
         // Act
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
 
         // Assert
         Assert.Empty(member.Armors);
@@ -482,13 +500,13 @@ public class EquipmentServiceTests
         var member = CreateTestPartyMember(strength: 15);
         
         var plateArmor = CreateArmor("plate", "Plate", strengthMinimum: 15);
-        var armors = new List<Armor> { plateArmor };
+        member.Armors = new List<Armor> { plateArmor };
 
         mockRandom.Setup(r => r.SelectRandom(It.IsAny<List<Armor>>()))
                   .Returns(plateArmor);
 
         // Act
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
 
         // Assert
         Assert.True(plateArmor.IsEquipped);
@@ -504,13 +522,13 @@ public class EquipmentServiceTests
         
         var chainmail = CreateArmor("chainmail", "Chainmail", strengthMinimum: 13);
         var shield = CreateArmor("shield", "Shield");
-        var armors = new List<Armor> { chainmail, shield };
+        member.Armors = new List<Armor> { chainmail, shield };
 
         mockRandom.Setup(r => r.SelectRandom(It.IsAny<List<Armor>>()))
                   .Returns(chainmail);
 
         // Act
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
 
         // Assert
         Assert.True(chainmail.IsEquipped);
@@ -850,7 +868,7 @@ public class EquipmentServiceTests
                   .Returns(dagger1);
 
         // Act
-        service.EquipRandomWeapons(member, new List<Armor>());
+        service.EquipRandomWeapons(member);
 
         // Assert
         Assert.Equal(2, member.MeleeWeapons.Count(w => w.IsEquipped));
@@ -868,7 +886,7 @@ public class EquipmentServiceTests
         var armors = new List<Armor> { armor };
 
         // Act & Assert
-        service.ManageArmorRequirements(member, armors);
+        service.ManageArmorRequirements(member);
     }
 
     [Fact]

@@ -9,11 +9,16 @@ public class Skill : BaseEntity
     public bool IsProficient { get; set; }
     public bool IsExpert { get; set; }
 
-    public Skill(BaseEntity skill, sbyte modifier, bool isProficient = false, bool isExpert = false) : base(skill.Index, skill.Name)
+    public Skill(BaseEntity skill, sbyte modifier, byte proficiencyBonus = 2, bool isProficient = false, bool isExpert = false) : base(skill.Index, skill.Name)
     {
         Modifier = modifier;
         IsProficient = isProficient;
         IsExpert = isExpert;
+
+        if (IsProficient)
+            Modifier += (sbyte)proficiencyBonus;
+        else if (IsExpert)
+            Modifier += (sbyte)(proficiencyBonus * 2);
     }
 
     public void SetProficiency(bool isProficient, sbyte proficiencyBonus)
