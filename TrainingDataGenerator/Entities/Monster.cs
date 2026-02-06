@@ -79,7 +79,7 @@ public class Monster : Creature, ICombatCalculator
         };
         Languages = monster.Languages;
         ChallengeRating = monster.ChallengeRating;
-        ProficiencyBonus = (sbyte)monster.ProficiencyBonus;
+        ProficiencyBonus = (byte)monster.ProficiencyBonus;
         Xp = monster.Xp;
         SpecialAbilities = (monster.SpecialAbilities != null) ? monster.SpecialAbilities.Select(item => new SpecialAbility(item)).ToList() : new List<SpecialAbility>();
         Actions = (monster.Actions != null) ? monster.Actions.Select(item => new NormalAction(item)).ToList() : new List<NormalAction>();
@@ -126,7 +126,7 @@ public class Monster : Creature, ICombatCalculator
                 var skill = Skills.FirstOrDefault(s => s.Index.Equals(skillName));
 
                 if (skill != null)
-                    skill.SetProficiency(true, (sbyte)(proficiency.Value - skill.Modifier));
+                    skill.SetProficiency(true, (byte)(proficiency.Value - skill.Modifier));
             }
         }
     }

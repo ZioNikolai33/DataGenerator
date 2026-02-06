@@ -21,33 +21,33 @@ public class Skill : BaseEntity
             Modifier += (sbyte)(proficiencyBonus * 2);
     }
 
-    public void SetProficiency(bool isProficient, sbyte proficiencyBonus)
+    public void SetProficiency(bool isProficient, byte proficiencyBonus)
     {
         if (IsProficient && !isProficient)
         {
-            Modifier -= proficiencyBonus;
+            Modifier -= (sbyte)proficiencyBonus;
 
             if (IsExpert)
             {
-                Modifier -= proficiencyBonus;
+                Modifier -= (sbyte)proficiencyBonus;
                 IsExpert = false;
             }
         }
         else if (!IsProficient && isProficient)
-            Modifier += proficiencyBonus;
+            Modifier += (sbyte)proficiencyBonus;
 
         IsProficient = isProficient;
     }
 
-    public void SetExpertise(bool isExpert, sbyte proficiencyBonus)
+    public void SetExpertise(bool isExpert, byte proficiencyBonus)
     {
         if (!IsProficient)
             return;
 
         if (IsExpert && !isExpert)
-            Modifier -= proficiencyBonus;
+            Modifier -= (sbyte)proficiencyBonus;
         else if (!IsExpert && isExpert)
-            Modifier += proficiencyBonus;
+            Modifier += (sbyte)proficiencyBonus;
 
         IsExpert = isExpert;
     }

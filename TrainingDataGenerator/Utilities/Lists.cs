@@ -6,29 +6,29 @@ namespace TrainingDataGenerator.Utilities;
 
 public static class Lists
 {
-    public readonly static List<MonsterMapper> monsters = new Database().GetAllMonsters();
-    public readonly static List<RaceMapper> races = new Database().GetAllRaces();
-    public readonly static List<SubraceMapper> subraces = new Database().GetAllSubraces();
-    public readonly static List<TraitMapper> traits = new Database().GetAllTraits();
-    public readonly static List<EquipmentMapper> weapons = new Database().GetAllWeapons();
-    public readonly static List<ClassMapper> classes = new Database().GetAllClasses();
-    public readonly static List<SubclassMapper> subclasses = new Database().GetAllSubclasses();
-    public readonly static List<SpellMapper> spells = new Database().GetAllSpells();
-    public readonly static List<FeatureMapper> features = new Database().GetAllFeatures();
-    public readonly static List<LevelMapper> levels = new Database().GetAllLevels();
-    public readonly static List<BaseEntity> meleeWeapons = new Database().GetAllMeleeWeapons();
-    public readonly static List<BaseEntity> rangedWeapons = new Database().GetAllRangedWeapons();
-    public readonly static List<BaseEntity> simpleWeapons = new Database().GetAllSimpleWeapons();
-    public readonly static List<BaseEntity> simpleMeleeWeapons = new Database().GetAllSimpleMeleeWeapons();
-    public readonly static List<BaseEntity> simpleRangedWeapons = new Database().GetAllSimpleRangedWeapons();
-    public readonly static List<BaseEntity> martialWeapons = new Database().GetAllMartialWeapons();
-    public readonly static List<BaseEntity> martialMeleeWeapons = new Database().GetAllMartialMeleeWeapons();
-    public readonly static List<BaseEntity> martialRangedWeapons = new Database().GetAllMartialRangedWeapons();
-    public readonly static List<BaseEntity> lightArmors = new Database().GetAllLightArmors();
-    public readonly static List<BaseEntity> mediumArmors = new Database().GetAllMediumArmors();
-    public readonly static List<BaseEntity> heavyArmors = new Database().GetAllHeavyArmors();
-    public readonly static List<BaseEntity> shields = new Database().GetAllShields();
-    public readonly static List<EquipmentMapper> equipments = new Database().GetAllEquipments();
+    public static List<MonsterMapper> monsters = new Database().GetAllMonsters();
+    public static List<RaceMapper> races = new Database().GetAllRaces();
+    public static List<SubraceMapper> subraces = new Database().GetAllSubraces();
+    public static List<TraitMapper> traits = new Database().GetAllTraits();
+    public static List<EquipmentMapper> weapons = new Database().GetAllWeapons();
+    public static List<ClassMapper> classes = new Database().GetAllClasses();
+    public static List<SubclassMapper> subclasses = new Database().GetAllSubclasses();
+    public static List<SpellMapper> spells = new Database().GetAllSpells();
+    public static List<FeatureMapper> features = new Database().GetAllFeatures();
+    public static List<LevelMapper> levels = new Database().GetAllLevels();
+    public static List<BaseEntity> meleeWeapons = new Database().GetAllMeleeWeapons();
+    public static List<BaseEntity> rangedWeapons = new Database().GetAllRangedWeapons();
+    public static List<BaseEntity> simpleWeapons = new Database().GetAllSimpleWeapons();
+    public static List<BaseEntity> simpleMeleeWeapons = new Database().GetAllSimpleMeleeWeapons();
+    public static List<BaseEntity> simpleRangedWeapons = new Database().GetAllSimpleRangedWeapons();
+    public static List<BaseEntity> martialWeapons = new Database().GetAllMartialWeapons();
+    public static List<BaseEntity> martialMeleeWeapons = new Database().GetAllMartialMeleeWeapons();
+    public static List<BaseEntity> martialRangedWeapons = new Database().GetAllMartialRangedWeapons();
+    public static List<BaseEntity> lightArmors = new Database().GetAllLightArmors();
+    public static List<BaseEntity> mediumArmors = new Database().GetAllMediumArmors();
+    public static List<BaseEntity> heavyArmors = new Database().GetAllHeavyArmors();
+    public static List<BaseEntity> shields = new Database().GetAllShields();
+    public static List<EquipmentMapper> equipments = new Database().GetAllEquipments();
 
     public static List<BaseEntity> GetEquipmentsList(string index)
     {

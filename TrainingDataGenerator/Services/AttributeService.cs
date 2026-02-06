@@ -138,27 +138,27 @@ public class AttributeService : IAttributeService
             switch (savingThrow.Index.ToLower())
             {
                 case "str":
-                    member.Strength?.SetProficiency(true, member.ProficiencyBonus);
+                    member.Strength?.SetProficiency(true, (sbyte)member.ProficiencyBonus);
                     _logger.Verbose($"Added STR saving throw proficiency (+{member.ProficiencyBonus})");
                     break;
                 case "dex":
-                    member.Dexterity?.SetProficiency(true, member.ProficiencyBonus);
+                    member.Dexterity?.SetProficiency(true, (sbyte)member.ProficiencyBonus);
                     _logger.Verbose($"Added DEX saving throw proficiency (+{member.ProficiencyBonus})");
                     break;
                 case "con":
-                    member.Constitution?.SetProficiency(true, member.ProficiencyBonus);
+                    member.Constitution?.SetProficiency(true, (sbyte)member.ProficiencyBonus);
                     _logger.Verbose($"Added CON saving throw proficiency (+{member.ProficiencyBonus})");
                     break;
                 case "int":
-                    member.Intelligence?.SetProficiency(true, member.ProficiencyBonus);
+                    member.Intelligence?.SetProficiency(true, (sbyte)member.ProficiencyBonus);
                     _logger.Verbose($"Added INT saving throw proficiency (+{member.ProficiencyBonus})");
                     break;
                 case "wis":
-                    member.Wisdom?.SetProficiency(true, member.ProficiencyBonus);
+                    member.Wisdom?.SetProficiency(true, (sbyte)member.ProficiencyBonus);
                     _logger.Verbose($"Added WIS saving throw proficiency (+{member.ProficiencyBonus})");
                     break;
                 case "cha":
-                    member.Charisma?.SetProficiency(true, member.ProficiencyBonus);
+                    member.Charisma?.SetProficiency(true, (sbyte)member.ProficiencyBonus);
                     _logger.Verbose($"Added CHA saving throw proficiency (+{member.ProficiencyBonus})");
                     break;
             }

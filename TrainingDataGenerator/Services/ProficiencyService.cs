@@ -1,6 +1,5 @@
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Mappers;
-using TrainingDataGenerator.Extensions;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 
@@ -19,15 +18,9 @@ public class ProficiencyService : IProficiencyService
         _random = random ?? throw new ArgumentNullException(nameof(random));
     }
 
-    public void SetInitialProficiencies(
-        PartyMember member, 
-        ClassMapper classMapper, 
-        RaceMapper raceMapper, 
-        SubraceMapper? subraceMapper)
+    public void SetInitialProficiencies(PartyMember member, ClassMapper classMapper, RaceMapper raceMapper, SubraceMapper? subraceMapper)
     {
         _logger.Verbose($"Setting initial proficiencies for {member.Name}");
-
-        member.Proficiencies = new List<string>();
 
         // Get racial traits
         var raceTraits = GetRaceTraits(raceMapper, subraceMapper);
@@ -85,14 +78,7 @@ public class ProficiencyService : IProficiencyService
             }
         }
 
-        // Remove duplicates
-        var originalCount = member.Proficiencies.Count;
-        member.Proficiencies = member.Proficiencies.Distinct().ToList();
-        
-        if (originalCount != member.Proficiencies.Count)
-            _logger.Verbose($"Removed {originalCount - member.Proficiencies.Count} duplicate proficiencies");
-
-        _logger.Verbose($"Total proficiencies: {member.Proficiencies.Count}");
+        RemoveDuplicateProficiencies(member);
     }
 
     public void AddBackgroundProficiencies(PartyMember member)
@@ -116,6 +102,8 @@ public class ProficiencyService : IProficiencyService
         member.Proficiencies.AddRange(selectedSkills);
         
         _logger.Verbose($"Added 2 background skill proficiencies: {string.Join(", ", selectedSkills)}");
+
+        RemoveDuplicateProficiencies(member);
     }
 
     public void AddAdditionalProficiencies(PartyMember member)
@@ -173,6 +161,8 @@ public class ProficiencyService : IProficiencyService
         }
 
         _logger.Verbose($"Added {addedCount} additional proficiencies");
+
+        RemoveDuplicateProficiencies(member);
     }
 
     public void ApplySkillProficiencies(PartyMember member)
@@ -216,9 +206,7 @@ public class ProficiencyService : IProficiencyService
             var affectedSkills = member.Skills.Where(s => !s.IsProficient).ToList();
             
             foreach (var skill in affectedSkills)
-            {
                 skill.Modifier += halfProfBonus;
-            }
             
             _logger.Verbose($"Applied Jack of All Trades (+{halfProfBonus}) to {affectedSkills.Count} non-proficient skills");
         }
@@ -240,23 +228,17 @@ public class ProficiencyService : IProficiencyService
                 .ToList();
             
             foreach (var skill in affectedSkills)
-            {
                 skill.Modifier += halfProfBonus;
-            }
             
             _logger.Verbose($"Applied Remarkable Athlete (+{halfProfBonus}) to {affectedSkills.Count} athletic skills");
         }
     }
 
-    public List<string> GetAllSkillIndices(PartyMember member)
-    {
-        return member.Skills.Select(s => s.Index).ToList();
-    }
+    public List<string> GetAllSkillIndices(PartyMember member) =>
+        member.Skills.Select(s => s.Index).ToList();
 
-    public bool HasProficiency(PartyMember member, string proficiencyIndex)
-    {
-        return member.Proficiencies.Contains(proficiencyIndex);
-    }
+    public bool HasProficiency(PartyMember member, string proficiencyIndex) =>
+        member.Proficiencies.Contains(proficiencyIndex);
 
     #region Private Helper Methods
 
@@ -282,6 +264,15 @@ public class ProficiencyService : IProficiencyService
             .ToList();
 
         return raceTraits;
+    }
+
+    private void RemoveDuplicateProficiencies(PartyMember member)
+    {
+        var originalCount = member.Proficiencies.Count;
+        member.Proficiencies = member.Proficiencies.Distinct().ToList();
+        
+        if (originalCount != member.Proficiencies.Count)
+            _logger.Verbose($"Removed {originalCount - member.Proficiencies.Count} duplicate proficiencies");
     }
 
     #endregion

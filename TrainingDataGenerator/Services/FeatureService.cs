@@ -2,6 +2,7 @@ using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
+using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Services;
 
@@ -97,7 +98,7 @@ public class FeatureService : IFeatureService
                 }
                 else if (prereq.Type == "spell")
                 {
-                    var requiredSpell = prereq.Feature?.Split('/').Last();
+                    var requiredSpell = prereq.Spell?.Split('/').Last();
                     if (member.Spells.Any(s => s.Index == requiredSpell) || 
                         member.Cantrips.Any(c => c.Index == requiredSpell))
                         meetsPrereq = true;
@@ -129,10 +130,10 @@ public class FeatureService : IFeatureService
         // Diamond Soul
         if (featureIndices.Contains("diamond-soul"))
         {
-            member.Constitution.Save += member.ProficiencyBonus;
-            member.Intelligence.Save += member.ProficiencyBonus;
-            member.Wisdom.Save += member.ProficiencyBonus;
-            member.Charisma.Save += member.ProficiencyBonus;
+            member.Constitution.Save += (sbyte)member.ProficiencyBonus;
+            member.Intelligence.Save += (sbyte)member.ProficiencyBonus;
+            member.Wisdom.Save += (sbyte)member.ProficiencyBonus;
+            member.Charisma.Save += (sbyte)member.ProficiencyBonus;
             
             _logger.Verbose($"Applied Diamond Soul: All mental saves +{member.ProficiencyBonus}");
         }
@@ -143,6 +144,7 @@ public class FeatureService : IFeatureService
         foreach (var choice in feature.FeatureSpec ?? new List<string>())
         {
             var skill = member.Skills.FirstOrDefault(s => s.Index == choice);
+
             if (skill != null)
             {
                 skill.SetExpertise(true, member.ProficiencyBonus);
@@ -155,8 +157,10 @@ public class FeatureService : IFeatureService
     {
         foreach (var choice in feature.FeatureSpec ?? new List<string>())
         {
-            // Note: This requires access to game data - will be addressed in refactored version
-            _logger.Verbose($"Adding subfeature: {choice}");
+            var subfeature = Lists.features.Where(item => item.Index == choice).FirstOrDefault();
+
+            if (subfeature != null)
+                newFeatures.Add(new Feature(subfeature, member.Proficiencies));
         }
     }
 

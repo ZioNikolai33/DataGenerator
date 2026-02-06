@@ -131,19 +131,18 @@ public class SpellService : ISpellService
 
         // Circle Spells Level 1 (3rd level)
         if (featureIndices.Contains("circle-spells-1"))
-            AddCircleSpellsByTier(member, member.Subclass, 1);
+            AddCircleSpellsByTier(member, 1);
 
         // Circle Spells Level 2 (5th level)
         if (featureIndices.Contains("circle-spells-2"))
-            AddCircleSpellsByTier(member, member.Subclass, 2);
+            AddCircleSpellsByTier(member, 2);
 
         // Circle Spells Level 3 (7th level)
         if (featureIndices.Contains("circle-spells-3"))
-            AddCircleSpellsByTier(member, member.Subclass, 3);
-
+            AddCircleSpellsByTier(member, 3);
         // Circle Spells Level 4 (9th level)
         if (featureIndices.Contains("circle-spells-4"))
-            AddCircleSpellsByTier(member, member.Subclass, 4);
+            AddCircleSpellsByTier(member, 4);
     }
 
     public void ApplyOathSpells(PartyMember member)
@@ -154,6 +153,7 @@ public class SpellService : ISpellService
         _logger.Verbose($"Applying Oath spells for {member.Name} - Subclass: {member.Subclass}");
 
         var hasOathSpells = member.Features.Any(f => f.Index == "oath-spells");
+
         if (!hasOathSpells)
             return;
 
@@ -276,23 +276,31 @@ public class SpellService : ISpellService
         }
     }
 
-    private void AddCircleSpellsByTier(PartyMember member, string subclass, int tier)
+    private void AddCircleSpellsByTier(PartyMember member, int tier)
     {
-        var spellPairs = GetCircleSpellsForTier(subclass, tier);
+        var featureSpecific = member.Features.Where(f => f.Index.StartsWith($"circle-of-the-land-")).FirstOrDefault();
+
+        if (featureSpecific == null)
+        {
+            _logger.Warning($"No Circle of the Land feature found for {member.Name} when trying to add Circle spells for Tier {tier}");
+            return;
+        }
+
+        var subclassSpecific = featureSpecific.Index.Replace("circle-of-the-land-", "");
+        var spellPairs = GetCircleSpellsForTier(subclassSpecific, tier);
 
         foreach (var spellIndex in spellPairs)
         {
             var spell = Lists.spells.FirstOrDefault(s => s.Index == spellIndex);
+
             if (spell != null)
-            {
                 member.Spells.Add(new Spell(spell));
-            }
         }
 
         _logger.Verbose($"Added {spellPairs.Count} Circle spells (Tier {tier}) to {member.Name}");
     }
 
-    private List<string> GetCircleSpellsForTier(string subclass, int tier)
+    private List<string> GetCircleSpellsForTier(string subclassSpecific, int tier)
     {
         var circleSpells = new Dictionary<string, Dictionary<int, List<string>>>
         {
@@ -354,7 +362,7 @@ public class SpellService : ISpellService
             }
         };
 
-        return circleSpells.GetValueOrDefault(subclass)?.GetValueOrDefault(tier) ?? new List<string>();
+        return circleSpells.GetValueOrDefault(subclassSpecific)?.GetValueOrDefault(tier) ?? new List<string>();
     }
 
     private void AddOathSpellsByLevel(PartyMember member, string subclass, int level)
@@ -384,22 +392,6 @@ public class SpellService : ISpellService
                 [9] = new() { "beacon-of-hope", "dispel-magic" },
                 [13] = new() { "freedom-of-movement", "guardian-of-faith" },
                 [17] = new() { "commune", "flame-strike" }
-            },
-            ["ancients"] = new()
-            {
-                [3] = new() { "ensnaring-strike", "speak-with-animals" },
-                [5] = new() { "moonbeam", "misty-step" },
-                [9] = new() { "plant-growth", "protection-from-energy" },
-                [13] = new() { "ice-storm", "stoneskin" },
-                [17] = new() { "commune-with-nature", "tree-stride" }
-            },
-            ["vengeance"] = new()
-            {
-                [3] = new() { "bane", "hunters-mark" },
-                [5] = new() { "hold-person", "misty-step" },
-                [9] = new() { "haste", "protection-from-energy" },
-                [13] = new() { "banishment", "dimension-door" },
-                [17] = new() { "hold-monster", "scrying" }
             }
         };
 
@@ -426,14 +418,6 @@ public class SpellService : ISpellService
     {
         var domainSpells = new Dictionary<string, Dictionary<int, List<string>>>
         {
-            ["knowledge"] = new()
-            {
-                [1] = new() { "command", "identify" },
-                [2] = new() { "augury", "suggestion" },
-                [3] = new() { "nondetection", "speak-with-dead" },
-                [4] = new() { "arcane-eye", "confusion" },
-                [5] = new() { "legend-lore", "scrying" }
-            },
             ["life"] = new()
             {
                 [1] = new() { "bless", "cure-wounds" },
@@ -441,46 +425,6 @@ public class SpellService : ISpellService
                 [3] = new() { "beacon-of-hope", "revivify" },
                 [4] = new() { "death-ward", "guardian-of-faith" },
                 [5] = new() { "mass-cure-wounds", "raise-dead" }
-            },
-            ["light"] = new()
-            {
-                [1] = new() { "burning-hands", "faerie-fire" },
-                [2] = new() { "flaming-sphere", "scorching-ray" },
-                [3] = new() { "daylight", "fireball" },
-                [4] = new() { "guardian-of-faith", "wall-of-fire" },
-                [5] = new() { "flame-strike", "scrying" }
-            },
-            ["nature"] = new()
-            {
-                [1] = new() { "animal-friendship", "entangle" },
-                [2] = new() { "barkskin", "spike-growth" },
-                [3] = new() { "plant-growth", "wind-wall" },
-                [4] = new() { "dominate-beast", "grasping-vine" },
-                [5] = new() { "insect-plague", "tree-stride" }
-            },
-            ["tempest"] = new()
-            {
-                [1] = new() { "fog-cloud", "thunderwave" },
-                [2] = new() { "gust-of-wind", "shatter" },
-                [3] = new() { "call-lightning", "sleet-storm" },
-                [4] = new() { "control-water", "ice-storm" },
-                [5] = new() { "destructive-wave", "insect-plague" }
-            },
-            ["trickery"] = new()
-            {
-                [1] = new() { "charm-person", "disguise-self" },
-                [2] = new() { "mirror-image", "pass-without-trace" },
-                [3] = new() { "blink", "dispel-magic" },
-                [4] = new() { "dimension-door", "polymorph" },
-                [5] = new() { "dominate-person", "modify-memory" }
-            },
-            ["war"] = new()
-            {
-                [1] = new() { "divine-favor", "shield-of-faith" },
-                [2] = new() { "magic-weapon", "spiritual-weapon" },
-                [3] = new() { "crusaders-mantle", "spirit-guardians" },
-                [4] = new() { "freedom-of-movement", "stoneskin" },
-                [5] = new() { "flame-strike", "hold-monster" }
             }
         };
 

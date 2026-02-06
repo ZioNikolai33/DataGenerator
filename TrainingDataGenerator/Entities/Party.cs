@@ -109,7 +109,7 @@ public class PartyMember : Creature, ICombatCalculator
         Name = $"Member {id}";
         Level = level;
         HitDie = (byte)randomClass.Hp;
-        ProficiencyBonus = (sbyte)(2 + ((Level - 1) / 4));
+        ProficiencyBonus = (byte)(2 + ((Level - 1) / 4));
         Race = randomRace.Index;
         Speed = randomRace.Speed;
         Size = randomRace.Size.ToString();
