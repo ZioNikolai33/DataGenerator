@@ -97,13 +97,7 @@ public class PartyMember : Creature, ICombatCalculator
 
     #region Initialization Helper Methods
 
-    private void InitializeBaseInfo(
-        int id,
-        byte level,
-        RaceMapper randomRace,
-        ClassMapper randomClass,
-        SubraceMapper? randomSubrace,
-        SubclassMapper randomSubclass)
+    private void InitializeBaseInfo(int id, byte level, RaceMapper randomRace, ClassMapper randomClass, SubraceMapper? randomSubrace, SubclassMapper randomSubclass)
     {
         Index = id.ToString();
         Name = $"Member {id}";
@@ -391,7 +385,7 @@ public class PartyMember : Creature, ICombatCalculator
 
     #region Calculations
 
-    private byte CalculateArmorClass()
+    public byte CalculateArmorClass()
     {
         var ac = 10 + Dexterity.Modifier;
         var equippedArmor = Armors.FirstOrDefault(a => a.IsEquipped && a.Index != "shield");
