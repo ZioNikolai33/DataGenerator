@@ -1,6 +1,5 @@
 using MongoDB.Bson.Serialization;
 using Moq;
-using System.Diagnostics;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;

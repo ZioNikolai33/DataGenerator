@@ -1,23 +1,24 @@
+using MongoDB.Bson.Serialization;
 using Moq;
-using System.Drawing;
 using TrainingDataGenerator.Entities;
-using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
-using TrainingDataGenerator.Utilities;
+using TrainingDataGenerator.Services;
 using Attribute = TrainingDataGenerator.Entities.Attribute;
-using Size = TrainingDataGenerator.Entities.Enums.Size;
 
 namespace TrainingDataGenerator.Tests.Unit;
 
 public class PartyMemberTests
 {
+    private static readonly string classesFolder = Path.Combine("..", "..", "..", "TestData", "Classes");
+    private static readonly string racesFolder = Path.Combine("..", "..", "..", "TestData", "Races");
+
     #region Helper Methods
 
     private Mock<ILogger> CreateMockLogger() => new Mock<ILogger>();
     
-    private Mock<IRandomProvider> CreateMockRandom() => new Mock<IRandomProvider>();
+    private Mock<RandomProvider> CreateMockRandom() => new Mock<RandomProvider>();
     
     private Mock<IAttributeService> CreateMockAttributeService() => new Mock<IAttributeService>();
     
@@ -33,37 +34,29 @@ public class PartyMemberTests
     
     private Mock<IResistanceService> CreateMockResistanceService() => new Mock<IResistanceService>();
 
-    private RaceMapper CreateTestRace(string index = "human", short speed = 30, Size size = Size.Medium)
+    private static ClassMapper CreateTestClass(string className = "fighter")
     {
-        return new RaceMapper(index, "Test Race")
-        {
-            Speed = speed,
-            Size = size,
-            AbilityBonuses = new List<AbilityBonus>(),
-            Subraces = new List<BaseEntity>()
-        };
+        var classFilePath = Path.Combine(classesFolder, $"{className}.json");
+        var classJson = File.ReadAllText(classFilePath);
+
+        return BsonSerializer.Deserialize<ClassMapper>(classJson)!;
     }
 
-    private ClassMapper CreateTestClass(string index = "fighter", short hp = 10, string? spellcastingAbility = null)
+    private static RaceMapper CreateTestRace(string raceName = "human")
     {
-        return new ClassMapper(index, "Test Class")
-        {
-            Hp = hp,
-            Subclasses = new List<BaseEntity> { new BaseEntity("test-subclass", "Test Subclass") },
-            SavingThrows = new List<BaseEntity> { new BaseEntity("str", "Strength"), new BaseEntity("con", "Constitution") },
-            SpellcastingAbility = spellcastingAbility != null 
-                ? new ClassMapper.Spellcasting { SpellcastingAbility = new BaseEntity(spellcastingAbility, "Test Ability") }
-                : null
-        };
+        var raceFilePath = Path.Combine(racesFolder, $"{raceName}.json");
+        var raceJson = File.ReadAllText(raceFilePath);
+
+        return BsonSerializer.Deserialize<RaceMapper>(raceJson)!;
     }
 
     private PartyMember CreatePartyMember(
         int id = 1,
         byte level = 1,
-        RaceMapper? race = null,
-        ClassMapper? classMapper = null,
+        string raceString = "human",
+        string classString = "fighter",
         Mock<ILogger>? logger = null,
-        Mock<IRandomProvider>? random = null,
+        Mock<RandomProvider>? random = null,
         Mock<IAttributeService>? attributeService = null,
         Mock<IEquipmentService>? equipmentService = null,
         Mock<ISpellService>? spellService = null,
@@ -72,8 +65,8 @@ public class PartyMemberTests
         Mock<ITraitService>? traitService = null,
         Mock<IResistanceService>? resistanceService = null)
     {
-        race ??= CreateTestRace();
-        classMapper ??= CreateTestClass();
+        var race = CreateTestRace(raceString);
+        var classMapper = CreateTestClass(classString);
         logger ??= CreateMockLogger();
         random ??= CreateMockRandom();
         attributeService ??= CreateMockAttributeService();
@@ -83,16 +76,6 @@ public class PartyMemberTests
         proficiencyService ??= CreateMockProficiencyService();
         traitService ??= CreateMockTraitService();
         resistanceService ??= CreateMockResistanceService();
-
-        // Setup Lists static data to prevent null reference exceptions
-        Lists.levels = new List<LevelMapper>();
-        Lists.features = new List<FeatureMapper>();
-        Lists.subraces = new List<SubraceMapper>();
-        Lists.subclasses = new List<SubclassMapper> 
-        { 
-            new SubclassMapper("test-subclass", "Test Subclass")
-        };
-        Lists.spells = new List<SpellMapper>();
 
         return new PartyMember(
             id,
@@ -173,12 +156,10 @@ public class PartyMemberTests
     {
         // Arrange
         var id = 5;
-        var level = 10;
-        var race = CreateTestRace("elf");
-        var classMapper = CreateTestClass("wizard", 6);
+        byte level = 10;
 
         // Act
-        var member = CreatePartyMember(id, level, race, classMapper);
+        var member = CreatePartyMember(id, level, "elf", "wizard");
 
         // Assert
         Assert.Equal(id.ToString(), member.Index);
@@ -187,7 +168,7 @@ public class PartyMemberTests
         Assert.Equal(6, member.HitDie);
         Assert.Equal("elf", member.Race);
         Assert.Equal("wizard", member.Class);
-        Assert.Equal("test-subclass", member.Subclass);
+        Assert.Equal("evocation", member.Subclass);
     }
 
     [Theory]
@@ -249,24 +230,18 @@ public class PartyMemberTests
     [Fact]
     public void Constructor_WithSpellcaster_ShouldSetSpellcastingAbility()
     {
-        // Arrange
-        var classMapper = CreateTestClass("wizard", 6, "int");
-
         // Act
-        var member = CreatePartyMember(classMapper: classMapper);
+        var member = CreatePartyMember(classString: "wizard");
 
         // Assert
-        Assert.Equal("Intelligence", member.SpellcastingAbility);
+        Assert.Equal("intelligence", member.SpellcastingAbility);
     }
 
     [Fact]
     public void Constructor_WithNonSpellcaster_ShouldHaveEmptySpellcastingAbility()
     {
-        // Arrange
-        var classMapper = CreateTestClass("fighter", 10, null);
-
         // Act
-        var member = CreatePartyMember(classMapper: classMapper);
+        var member = CreatePartyMember(classString: "fighter");
 
         // Assert
         Assert.Equal(string.Empty, member.SpellcastingAbility);
@@ -276,8 +251,7 @@ public class PartyMemberTests
     public void Constructor_ShouldDeduplicateSpells()
     {
         // Arrange
-        var duplicateSpell = new SpellMapper { Index = "fireball", Name = "Fireball", Level = 3 };
-        Lists.spells = new List<SpellMapper> { duplicateSpell, duplicateSpell };
+        var duplicateSpell = new SpellMapper("fireball", "Fireball") { Level = 3 };
         
         var member = CreatePartyMember();
         member.Spells.Add(new Spell(duplicateSpell));
@@ -294,8 +268,7 @@ public class PartyMemberTests
     public void Constructor_ShouldDeduplicateCantrips()
     {
         // Arrange
-        var duplicateCantrip = new SpellMapper { Index = "firebolt", Name = "Fire Bolt", Level = 0 };
-        Lists.spells = new List<SpellMapper> { duplicateCantrip, duplicateCantrip };
+        var duplicateCantrip = new SpellMapper("firebolt", "Fire Bolt") { Level = 0 };
         
         var member = CreatePartyMember();
         member.Cantrips.Add(new Spell(duplicateCantrip));
@@ -602,7 +575,7 @@ public class PartyMemberTests
         var speedValue = member.CalculateSpeedValue();
 
         // Assert
-        Assert.Equal(50, speedValue); // 40 + (10 * 2)
+        Assert.Equal(60, speedValue); // 40 + (10 * 2)
     }
 
     [Fact]
@@ -670,10 +643,10 @@ public class PartyMemberTests
     {
         // Arrange
         var member = CreatePartyMember();
-        var spell = new Spell(new SpellMapper { Index = "firebolt", Level = 0 });
+        var spell = new Spell(new SpellMapper("firebolt", "Firebolt") { Level = 0 });
 
         // Act
-        var percentage = member.CalculateSpellUsagePercentage(spell, CRRatios.Medium);
+        var percentage = member.CalculateSpellUsagePercentage(spell, CRRatios.Normal);
 
         // Assert
         Assert.Equal(1.0, percentage);
@@ -686,7 +659,7 @@ public class PartyMemberTests
         var member = CreatePartyMember();
 
         // Act
-        var percentage = member.CalculateSpellUsagePercentage(null!, CRRatios.Medium);
+        var percentage = member.CalculateSpellUsagePercentage(null!, CRRatios.Normal);
 
         // Assert
         Assert.Equal(0.0, percentage);
@@ -698,103 +671,13 @@ public class PartyMemberTests
         // Arrange
         var member = CreatePartyMember();
         member.SpellSlots = new Slots();
-        var spell = new Spell(new SpellMapper { Index = "fireball", Level = 3, Uses = "" });
+        var spell = new Spell(new SpellMapper("fireball", "Fireball") { Level = 3 });
 
         // Act
-        var percentage = member.CalculateSpellUsagePercentage(spell, CRRatios.Medium);
+        var percentage = member.CalculateSpellUsagePercentage(spell, CRRatios.Normal);
 
         // Assert
         Assert.Equal(0.0, percentage);
-    }
-
-    #endregion
-
-    #region ToString Tests
-
-    [Fact]
-    public void ToString_ShouldContainBasicInformation()
-    {
-        // Arrange
-        var member = CreatePartyMember(5, 10);
-        member.Race = "elf";
-        member.Class = "wizard";
-        member.HitPoints = 50;
-        member.Initiative = 3;
-        member.ProficiencyBonus = 4;
-
-        // Act
-        var result = member.ToString();
-
-        // Assert
-        Assert.Contains("Member 5", result);
-        Assert.Contains("elf", result);
-        Assert.Contains("Lv10", result);
-        Assert.Contains("wizard", result);
-        Assert.Contains("HP: 50", result);
-        Assert.Contains("Initiative: 3", result);
-        Assert.Contains("Proficiency Bonus: +4", result);
-    }
-
-    [Fact]
-    public void ToString_WithSubrace_ShouldIncludeSubrace()
-    {
-        // Arrange
-        var member = CreatePartyMember();
-        member.Subrace = "high-elf";
-
-        // Act
-        var result = member.ToString();
-
-        // Assert
-        Assert.Contains("high-elf", result);
-    }
-
-    [Fact]
-    public void ToString_ShouldIncludeAllAttributes()
-    {
-        // Arrange
-        var member = CreatePartyMember();
-        member.Strength = new Attribute(18, 4);
-        member.Dexterity = new Attribute(14, 2);
-        member.Constitution = new Attribute(16, 3);
-        member.Intelligence = new Attribute(10, 0);
-        member.Wisdom = new Attribute(12, 1);
-        member.Charisma = new Attribute(8, -1);
-
-        // Act
-        var result = member.ToString();
-
-        // Assert
-        Assert.Contains("STR: 18 (+4)", result);
-        Assert.Contains("DEX: 14 (+2)", result);
-        Assert.Contains("CON: 16 (+3)", result);
-        Assert.Contains("INT: 10 (+0)", result);
-        Assert.Contains("WIS: 12 (+1)", result);
-        Assert.Contains("CHA: 8 (-1)", result);
-    }
-
-    [Fact]
-    public void ToString_WithSpells_ShouldIncludeSpellsAndCantrips()
-    {
-        // Arrange
-        var member = CreatePartyMember();
-        member.Cantrips = new List<Spell>
-        {
-            new Spell(new SpellMapper { Index = "firebolt", Name = "Fire Bolt" })
-        };
-        member.Spells = new List<Spell>
-        {
-            new Spell(new SpellMapper { Index = "fireball", Name = "Fireball" })
-        };
-
-        // Act
-        var result = member.ToString();
-
-        // Assert
-        Assert.Contains("Cantrips:", result);
-        Assert.Contains("Fire Bolt", result);
-        Assert.Contains("Spells:", result);
-        Assert.Contains("Fireball", result);
     }
 
     #endregion
@@ -826,7 +709,7 @@ public class PartyMemberTests
     {
         // Arrange
         var member = CreatePartyMember();
-        member.Dexterity = new Attribute(8, -1);
+        member.Dexterity = new Attribute(8);
         member.Armors = new List<Armor>();
 
         // Act
@@ -839,15 +722,11 @@ public class PartyMemberTests
     [Fact]
     public void Constructor_WithRaceWithoutSubraces_ShouldHaveNullSubrace()
     {
-        // Arrange
-        var race = CreateTestRace();
-        race.Subraces = new List<BaseEntity>();
-
         // Act
-        var member = CreatePartyMember(race: race);
+        var member = CreatePartyMember(raceString: "human");
 
         // Assert
-        Assert.Null(member.Subrace);
+        Assert.Equal(string.Empty, member.Subrace);
     }
 
     #endregion

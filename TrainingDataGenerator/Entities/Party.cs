@@ -120,7 +120,7 @@ public class PartyMember : Creature, ICombatCalculator
     private SubraceMapper? SelectRandomSubrace(RaceMapper race)
     {
         if (race.Subraces.Count == 0)
-            return null;
+            return new SubraceMapper(string.Empty, string.Empty);
 
         var randomSubraceEntity = _random.SelectRandom(race.Subraces);
         var subrace = EntitiesFinder.GetEntityByIndex(

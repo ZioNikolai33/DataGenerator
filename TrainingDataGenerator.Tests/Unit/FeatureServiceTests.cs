@@ -331,17 +331,14 @@ public class FeatureServiceTests
         var service = CreateService(mockLogger);
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
-        Lists.features = new List<FeatureMapper>
-        {
-            new FeatureMapper("eldritch-invocation-1", "Eldritch Invocation 1")
-        };
+
         var initialFeatureCount = member.Features.Count;
         
-        var subfeatureMapper = new FeatureMapper("eldritch-invocation-1", "Eldritch Invocation");        
-        var featureMapper = new FeatureMapper("eldritch-invocations", "Eldritch Invocations");        
+        var subfeatureMapper = new FeatureMapper("dragon-ancestor-black---acid-damage", "dragon-ancestor-black---acid-damage");        
+        var featureMapper = new FeatureMapper("dragon-ancestor", "");
         var feature = new Feature(featureMapper, new List<string>());
         feature.FeatureType = FeatureSpecificTypes.Subfeature;
-        feature.FeatureSpec = new List<string> { "eldritch-invocation-1" };
+        feature.FeatureSpec = new List<string> { "dragon-ancestor-black---acid-damage" };
 
         member.Features = new List<Feature>() { feature };
 
@@ -350,7 +347,7 @@ public class FeatureServiceTests
 
         // Assert
         Assert.True(member.Features.Count > initialFeatureCount);
-        Assert.Contains(member.Features, f => f.Index == "eldritch-invocation-1");
+        Assert.Contains(member.Features, f => f.Index == "dragon-ancestor-black---acid-damage");
     }
 
     [Fact]
@@ -501,10 +498,6 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
-        Lists.features = new List<FeatureMapper>
-        {
-            new FeatureMapper("dependent-feature", "Dependent Feature")
-        };
 
         member.Spells.Add(new Spell(new SpellMapper("fireball", "Fireball")));
         member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
@@ -538,10 +531,6 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
-        Lists.features = new List<FeatureMapper>
-        {
-            new FeatureMapper("dependent-feature", "Dependent Feature")
-        };
 
         member.Cantrips.Add(new Spell(new SpellMapper("eldritch-blast", "Eldritch Blast")));
         member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
@@ -630,10 +619,6 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
-        Lists.features = new List<FeatureMapper>
-        {
-            new FeatureMapper("dependent-feature", "Dependent Feature")
-        };
 
         member.Features.Add(new Feature(new FeatureMapper("prereq-1", "Prerequisite 1"), new List<string>()));
         member.Spells.Add(new Spell(new SpellMapper("prereq-spell", "Prerequisite Spell")));
