@@ -200,8 +200,8 @@ public class Monster : Creature, ICombatCalculator
 
     public double CalculateSpellUsagePercentage(Spell spell, CRRatios difficulty)
     {
-        var spellSlots = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0)?.Spellcast?.SpellSlots ?? null;
-        var spells = SpecialAbilities.Where(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
+        var spellSlots = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc > 0 && sa.Spellcast?.Level > 0)?.Spellcast?.SpellSlots ?? null;
+        var spells = SpecialAbilities.Where(sa => sa.Spellcast?.Dc > 0 && sa.Spellcast?.Level > 0).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
 
         if (spell == null || spellSlots == null)
             return 0.0;
