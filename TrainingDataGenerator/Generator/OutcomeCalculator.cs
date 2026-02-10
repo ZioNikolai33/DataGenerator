@@ -22,14 +22,14 @@ public static class OutcomeCalculator
         logger.Information($"Total Base Stats for Monsters: {baseStatsMonsters}");
 
         var offensivePowerParty = encounter.PartyMembers.Sum(m => m.CalculateOffensivePower(encounter.Monsters, encounter.Difficulty));
-        logger.Verbose($"Total Offensive Power for Party: {offensivePowerParty}");
+        logger.Information($"Total Offensive Power for Party: {offensivePowerParty}");
         var offensivePowerMonsters = encounter.Monsters.Sum(m => m.CalculateOffensivePower(encounter.PartyMembers, encounter.Difficulty));
-        logger.Verbose($"Total Offensive Power for Monsters: {offensivePowerMonsters}");
+        logger.Information($"Total Offensive Power for Monsters: {offensivePowerMonsters}");
 
         var healingPowerParty = encounter.PartyMembers.Sum(m => m.CalculateHealingPower());
-        logger.Verbose($"Total Healing Power for Party: {healingPowerParty}");
+        logger.Information($"Total Healing Power for Party: {healingPowerParty}");
         var healingPowerMonsters = encounter.Monsters.Sum(m => m.CalculateHealingPower());
-        logger.Verbose($"Total Healing Power for Monsters: {healingPowerMonsters}");
+        logger.Information($"Total Healing Power for Monsters: {healingPowerMonsters}");
 
         var totalPartyCombatPower = offensivePowerParty + healingPowerParty;
         var totalMonstersCombatPower = offensivePowerMonsters + healingPowerMonsters;

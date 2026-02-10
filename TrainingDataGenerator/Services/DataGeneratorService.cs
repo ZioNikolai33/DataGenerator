@@ -13,22 +13,28 @@ public class DataGeneratorService : IDataGenerator
     private readonly IRandomProvider _random;
     private readonly IPartyGenerator _partyGenerator;
     private readonly IMonsterGenerator _monsterGenerator;
+    private readonly IExporterService _exporterService;
+    private readonly IEncounterValidator _encounterValidator;
     private readonly Config _config;
 
     public DataGeneratorService(
         ILogger logger,
         IRandomProvider random,
         IPartyGenerator partyGenerator,
-        IMonsterGenerator monsterGenerator)
+        IMonsterGenerator monsterGenerator,
+        IExporterService exporterService,
+        IEncounterValidator encounterValidator)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _random = random ?? throw new ArgumentNullException(nameof(random));
         _partyGenerator = partyGenerator ?? throw new ArgumentNullException(nameof(partyGenerator));
         _monsterGenerator = monsterGenerator ?? throw new ArgumentNullException(nameof(monsterGenerator));
+        _exporterService = exporterService ?? throw new ArgumentNullException(nameof(exporterService));
+        _encounterValidator = encounterValidator ?? throw new ArgumentNullException(nameof(encounterValidator));
         _config = LoadConfig();
     }
 
-    public async Task GenerateAsync(Database database, DateTime startDate)
+    public async Task GenerateAsync(Database database, List<Encounter> encountersDataset, DateTime startDate)
     {
         var cancellationToken = new CancellationTokenSource().Token;
 
@@ -45,18 +51,17 @@ public class DataGeneratorService : IDataGenerator
                 var difficulty = GetRandomDifficulty();
                 var party = _partyGenerator.GenerateRandomParty(database);
                 var monstersList = DataManipulation.GetMonstersDifficultiesList(database);
-                var monsters = _monsterGenerator.GenerateRandomMonsters(
-                    difficulty,
-                    party.Select(p => p.Level).ToList(), 
-                    monstersList);
-
+                var monsters = _monsterGenerator.GenerateRandomMonsters(difficulty, party.Select(p => p.Level).ToList(), monstersList);
                 var encounter = new Encounter(i, difficulty, party, monsters);
                 var encounterWithOutcome = OutcomeCalculator.CalculateOutcome(encounter, _logger);
+
+                encountersDataset.Add(encounterWithOutcome);
 
                 await SaveEncounterAsync(encounterWithOutcome, startDate);
             }
 
             _logger.Information("Data generation completed successfully.");
+
         }
         catch (OperationCanceledException)
         {
@@ -81,21 +86,9 @@ public class DataGeneratorService : IDataGenerator
 
     private async Task SaveEncounterAsync(Encounter encounter, DateTime startDate)
     {
-        var encounterJson = JsonSerializer.Serialize(
-            encounter, 
-            new JsonSerializerOptions 
-            { 
-                WriteIndented = true, 
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping 
-            });
-
         var baseFolder = Directory.GetCurrentDirectory();
-        var batchFolderName = Path.Combine(
-            baseFolder, 
-            "..", "..", "..", 
-            "Generator", 
-            "output", 
-            $"Batch_{startDate:yyyyMMdd_HHmmss}");
+        var fileName = $"{encounter.Id}.json";
+        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate:yyyyMMdd_HHmmss}", "encounters");
 
         if (!Directory.Exists(batchFolderName))
         {
@@ -103,10 +96,9 @@ public class DataGeneratorService : IDataGenerator
             _logger.Verbose("Created batch folder");
         }
 
-        var fileName = $"{encounter.Id}.json";
         var filePath = Path.Combine(batchFolderName, fileName);
 
-        await File.WriteAllTextAsync(filePath, encounterJson);
+        await _exporterService.ExportToJsonAsync(encounter, filePath);
         _logger.Information($"Encounter {encounter.Id} saved to {fileName}\n");
     }
 

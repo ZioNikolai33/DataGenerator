@@ -137,12 +137,14 @@ public static class CombatCalculator
             {
                 result.Outcome = Results.Victory;
                 result.Details = $"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.";
+                result.TotalRounds = (short)numberOfTurnsToDefeatMonsters;
                 logger.Information($"Party wins in a tie-breaker after {numberOfTurnsToDefeatMonsters} turns.");
             }
             else
             {
                 result.Outcome = Results.Defeat;
                 result.Details = $"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.";
+                result.TotalRounds = (short)numberOfTurnsToDefeatParty;
                 logger.Information($"Monsters win in a tie-breaker after {numberOfTurnsToDefeatParty} turns.");
             }
         }
