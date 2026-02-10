@@ -1,14 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TrainingDataGenerator.Analysis;
 using TrainingDataGenerator.DataBase;
+using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Services;
 using TrainingDataGenerator.Utilities;
+using TrainingDataGenerator.Validators;
 
 namespace TrainingDataGenerator;
 
 internal static class Program
 {
+    private static readonly DateTime StartTime = DateTime.Now;
+
     private static async Task Main()
     {
         // Build the DI container
@@ -16,10 +21,10 @@ internal static class Program
 
         try
         {
-            var startTime = DateTime.Now;
+            var encounterDataset = new List<Encounter>();
             var logger = host.Services.GetRequiredService<ILogger>();
 
-            logger.Verbose($"Starting data generation at {startTime}");
+            logger.Verbose($"Starting data generation at {StartTime}");
             logger.Verbose("Initializing services...");
 
             // Initialize database
@@ -33,10 +38,18 @@ internal static class Program
 
             // Generate encounters
             var dataGenerator = host.Services.GetRequiredService<IDataGenerator>();
-            await dataGenerator.GenerateAsync(database, startTime);
+            await dataGenerator.GenerateAsync(database, encounterDataset, StartTime);
 
             logger.Verbose($"Data generation completed at {DateTime.Now}");
-            logger.Information($"Total execution time: {DateTime.Now - startTime}");
+            logger.Verbose($"Total encounters generated: {encounterDataset.Count}");
+            logger.Verbose("Analyzing dataset...");
+
+            // Validate encounters
+            var validator = host.Services.GetRequiredService<IEncounterValidator>();
+            await validator.ValidateDatasetAsync(encounterDataset, StartTime);
+
+            logger.Verbose("Dataset validation completed");
+            logger.Information($"Total execution time: {DateTime.Now - StartTime}");
         }
         catch (InvalidOperationException ex)
         {
@@ -82,5 +95,14 @@ internal static class Program
                 services.AddScoped<IDataGenerator, DataGeneratorService>();
                 services.AddScoped<IPartyGenerator, PartyGeneratorService>();
                 services.AddScoped<IMonsterGenerator, MonsterGeneratorService>();
+
+                // Validators
+                services.AddScoped<IEncounterValidator, EncounterValidator>();
+
+                // Analyzers
+                services.AddScoped<IDatasetAnalyzer, DatasetAnalyzer>();
+
+                // Exporters
+                services.AddScoped<IExporterService, ExporterService>();
             });
 }
