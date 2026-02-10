@@ -5,9 +5,7 @@
 
 # Project Logs & Output Folder
 TrainingDataGenerator/Generator/logs/
-AlgorithmDataGenerator/Generator/logs/
 TrainingDataGenerator/Generator/output/
-AlgorithmDataGenerator/Generator/output/
 
 # User-specific files
 *.rsuser
