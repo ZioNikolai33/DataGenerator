@@ -21,6 +21,7 @@ internal static class Program
 
         try
         {
+            var startTimeString = StartTime.ToString("yyyyMMdd_HHmmss");
             var encounterDataset = new List<Encounter>();
             var logger = host.Services.GetRequiredService<ILogger>();
 
@@ -38,7 +39,7 @@ internal static class Program
 
             // Generate encounters
             var dataGenerator = host.Services.GetRequiredService<IDataGenerator>();
-            await dataGenerator.GenerateAsync(database, encounterDataset, StartTime);
+            await dataGenerator.GenerateAsync(database, encounterDataset, startTimeString);
 
             logger.Verbose($"Data generation completed at {DateTime.Now}");
             logger.Verbose($"Total encounters generated: {encounterDataset.Count}");
@@ -46,7 +47,7 @@ internal static class Program
 
             // Validate encounters
             var validator = host.Services.GetRequiredService<IEncounterValidator>();
-            await validator.ValidateDatasetAsync(encounterDataset, StartTime);
+            await validator.ValidateDatasetAsync(encounterDataset, startTimeString);
 
             logger.Verbose("Dataset validation completed");
             logger.Information($"Total execution time: {DateTime.Now - StartTime}");

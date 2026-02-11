@@ -110,7 +110,7 @@ public class EncounterValidator : IEncounterValidator
             errors.Add("Outcome cannot be unknown");
     }
 
-    public async Task ValidateDatasetAsync(IEnumerable<Encounter> encounters, DateTime startDate)
+    public async Task ValidateDatasetAsync(IEnumerable<Encounter> encounters, string startDate)
     {
         var errors = new List<string>();
         var stats = new DatasetStatistics();
@@ -134,12 +134,11 @@ public class EncounterValidator : IEncounterValidator
         await SaveValidationErrorsAsync(validationResult.Errors, startDate);
     }
 
-    private void SaveValidationStatsAsync(DatasetStatistics validationResult, DateTime startDate)
+    private void SaveValidationStatsAsync(DatasetStatistics validationResult, string startDate)
     {
         var baseFolder = Directory.GetCurrentDirectory();
         var fileName = "validation.xlsx";
-        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{DateTime.Now:yyyyMMdd_HHmmss}");
-
+        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}");
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);
@@ -151,12 +150,11 @@ public class EncounterValidator : IEncounterValidator
         _exporterService.ExportToExcelAsync(validationResult, filePath);
     }
 
-    private async Task SaveValidationErrorsAsync(List<string> errors, DateTime startDate)
+    private async Task SaveValidationErrorsAsync(List<string> errors, string startDate)
     {
         var baseFolder = Directory.GetCurrentDirectory();
         var fileName = "validation_errors.json";
-        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{DateTime.Now:yyyyMMdd_HHmmss}");
-
+        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}");
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);

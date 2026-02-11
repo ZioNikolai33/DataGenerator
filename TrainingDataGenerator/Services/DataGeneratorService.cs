@@ -34,7 +34,7 @@ public class DataGeneratorService : IDataGenerator
         _config = LoadConfig();
     }
 
-    public async Task GenerateAsync(Database database, List<Encounter> encountersDataset, DateTime startDate)
+    public async Task GenerateAsync(Database database, List<Encounter> encountersDataset, string startDate)
     {
         var cancellationToken = new CancellationTokenSource().Token;
 
@@ -84,12 +84,11 @@ public class DataGeneratorService : IDataGenerator
         return selected;
     }
 
-    private async Task SaveEncounterAsync(Encounter encounter, DateTime startDate)
+    private async Task SaveEncounterAsync(Encounter encounter, string startDate)
     {
         var baseFolder = Directory.GetCurrentDirectory();
         var fileName = $"{encounter.Id}.json";
-        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate:yyyyMMdd_HHmmss}", "encounters");
-
+        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}", "encounters");
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);
