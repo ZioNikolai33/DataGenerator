@@ -1,4 +1,4 @@
-﻿namespace TrainingDataGenerator.Validators;
+﻿namespace TrainingDataGenerator.Validators.Entities;
 
 public class ValidationResult
 {

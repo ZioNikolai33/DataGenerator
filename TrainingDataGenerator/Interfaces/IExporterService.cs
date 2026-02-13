@@ -1,5 +1,5 @@
 ﻿using TrainingDataGenerator.Entities;
-using TrainingDataGenerator.Validators;
+using TrainingDataGenerator.Validators.Entities;
 
 namespace TrainingDataGenerator.Interfaces;
 

@@ -1,6 +1,7 @@
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Interfaces;
+using TrainingDataGenerator.Validators.Entities;
 
 namespace TrainingDataGenerator.Validators;
 
@@ -19,6 +20,7 @@ public class EncounterValidator : IEncounterValidator
     {
         var errors = new List<string>();
 
+        ValidateGeneralInfo(encounter, errors);
         ValidateParty(encounter.PartyMembers, errors);
         ValidateMonsters(encounter.Monsters, errors);
         ValidateOutcome(encounter.Outcome, errors);
@@ -26,7 +28,22 @@ public class EncounterValidator : IEncounterValidator
         return new ValidationResult(errors);
     }
 
-    public void ValidateParty(IEnumerable<PartyMember> partyMembers, List<string> errors)
+    private void ValidateGeneralInfo(Encounter encounter, List<string> errors)
+    {
+        if (encounter == null)
+        {
+            errors.Add("Encounter cannot be null");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(encounter.Id))
+            errors.Add("Encounter ID cannot be empty");
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(encounter.Id, @"^E\d{8}-[A-Z]$"))
+            errors.Add("Encounter ID must follow the pattern: 'E' followed by 8 digits, a '-', and a single character difficulty");
+    }
+
+    private void ValidateParty(IEnumerable<PartyMember> partyMembers, List<string> errors)
     {
         if (!partyMembers.Any())
             errors.Add("Party cannot be empty");
@@ -86,7 +103,7 @@ public class EncounterValidator : IEncounterValidator
             errors.Add("Party member initiative must be at least -1");
     }
 
-    public void ValidateMonsters(IEnumerable<Monster> monsters, List<string> errors)
+    private void ValidateMonsters(IEnumerable<Monster> monsters, List<string> errors)
     {
         if (!monsters.Any())
             errors.Add("Monsters cannot be empty");
@@ -98,7 +115,7 @@ public class EncounterValidator : IEncounterValidator
             errors.Add("Monster name cannot be empty");
     }
 
-    public void ValidateOutcome(Result outcome, List<string> errors)
+    private void ValidateOutcome(Result outcome, List<string> errors)
     {
         if (outcome == null)
         {
@@ -122,7 +139,7 @@ public class EncounterValidator : IEncounterValidator
             if (!result.IsValid)
                 errors.AddRange(result.Errors);
 
-            stats.Update(encounter);
+            stats.Update(encounter, result.IsValid);
         }
 
         // Check for balance
@@ -139,6 +156,7 @@ public class EncounterValidator : IEncounterValidator
         var baseFolder = Directory.GetCurrentDirectory();
         var fileName = "validation.xlsx";
         var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}");
+
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);
@@ -155,6 +173,7 @@ public class EncounterValidator : IEncounterValidator
         var baseFolder = Directory.GetCurrentDirectory();
         var fileName = "validation_errors.json";
         var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}");
+
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);
