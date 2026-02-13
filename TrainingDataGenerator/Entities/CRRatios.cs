@@ -1,5 +1,8 @@
-﻿namespace TrainingDataGenerator.Entities;
+﻿using System.Text.Json.Serialization;
 
+namespace TrainingDataGenerator.Entities;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum CRRatios
 {
     Cakewalk = 1,
