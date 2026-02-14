@@ -7,6 +7,12 @@ public class RandomProvider : IRandomProvider
     private readonly Random _random;
     private readonly int _seed;
 
+    public RandomProvider()
+    {
+        _seed = Environment.TickCount;
+        _random = new Random(_seed);
+    }
+
     public RandomProvider(int seed = 0)
     {
         if (seed == 0)
