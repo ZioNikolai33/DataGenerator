@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using System;
+using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 using static TrainingDataGenerator.Entities.Mappers.FeatureMapper;
 
@@ -67,13 +68,12 @@ public class StartingEquipmentOptionMapper
         public BaseEntity Proficiency { get; set; } = new BaseEntity();
     }
 
-    public List<ClassMapper.Equipment> GetRandomEquipment()
+    public List<ClassMapper.Equipment> GetRandomEquipment(IRandomProvider random)
     {
-        var random = Random.Shared;
         var selectedEquipments = new List<ClassMapper.Equipment>();
 
         if (From.OptionSetType == "equipment_category")
-            selectedEquipments.AddRange(GetEquipFromList());
+            selectedEquipments.AddRange(GetEquipFromList(random));
 
         if (From.Options == null)
             return selectedEquipments;
@@ -124,9 +124,8 @@ public class StartingEquipmentOptionMapper
         return selectedEquipments;
     }
 
-    private List<ClassMapper.Equipment> GetEquipFromList()
+    private List<ClassMapper.Equipment> GetEquipFromList(IRandomProvider random)
     {
-        var random = Random.Shared;
         var equipments = Lists.GetEquipmentsList(From.EquipmentCategory.Index);
         var selectedEquipments = new List<ClassMapper.Equipment>();
 

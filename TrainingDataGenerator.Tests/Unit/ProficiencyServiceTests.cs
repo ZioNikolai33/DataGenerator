@@ -457,9 +457,10 @@ public class ProficiencyServiceTests
     {
         // Arrange
         var service = CreateService();
+        var mockRandom = new Mock<IRandomProvider>();
         var features = new List<Feature>
         { 
-            new Feature(new FeatureMapper("bonus-proficiency", "Bonus Proficiency"), new List<string>())
+            new Feature(new FeatureMapper("bonus-proficiency", "Bonus Proficiency"), new List<string>(), mockRandom.Object)
         };
 
         var member = CreateTestPartyMember(classString: "cleric", features: features);
@@ -477,9 +478,10 @@ public class ProficiencyServiceTests
     {
         // Arrange
         var service = CreateService();
+        var mockRandom = new Mock<IRandomProvider>();
         var features = new List<Feature>
         {
-            new Feature(new FeatureMapper("bonus-proficiency", "Bonus Proficiency"), new List<string>())
+            new Feature(new FeatureMapper("bonus-proficiency", "Bonus Proficiency"), new List<string>(), mockRandom.Object)
         };
         var member = CreateTestPartyMember(classString: "cleric", features: features);
         member.Subclass = "war";
@@ -594,7 +596,7 @@ public class ProficiencyServiceTests
         var service = CreateService(mockRandom);
         var features = new List<Feature>
         {
-            new Feature(new FeatureMapper("bonus-proficiencies", "Bonus Proficiencies"), new List<string>())
+            new Feature(new FeatureMapper("bonus-proficiencies", "Bonus Proficiencies"), new List<string>(), mockRandom.Object)
         };
         var member = CreateTestPartyMember(classString: "bard", features: features);
         member.Skills = new List<Skill>
@@ -617,9 +619,10 @@ public class ProficiencyServiceTests
     {
         // Arrange
         var service = CreateService();
+        var mockRandom = new Mock<IRandomProvider>();
         var features = new List<Feature>
         {
-            new Feature(new FeatureMapper("jack-of-all-trades", "Jack of All Trades"), new List<string>())
+            new Feature(new FeatureMapper("jack-of-all-trades", "Jack of All Trades"), new List<string>(), mockRandom.Object)
         };
         var member = CreateTestPartyMember(level: 2, classString: "bard", features: features);
         var nonProficientSkill = CreateSkill("skill-athletics", "Athletics", 2, member.ProficiencyBonus);
@@ -639,9 +642,10 @@ public class ProficiencyServiceTests
     {
         // Arrange
         var service = CreateService();
+        var mockRandom = new Mock<IRandomProvider>();
         var features = new List<Feature>
         {
-            new Feature(new FeatureMapper("remarkable-athlete", "Remarkable Athlete"), new List<string>())
+            new Feature(new FeatureMapper("remarkable-athlete", "Remarkable Athlete"), new List<string>(), mockRandom.Object)
         };
         var member = CreateTestPartyMember(level: 7, features: features);
         var acrobaticsSkill = CreateSkill("skill-acrobatics", "Acrobatics", 2, member.ProficiencyBonus);
@@ -664,9 +668,10 @@ public class ProficiencyServiceTests
     {
         // Arrange
         var service = CreateService();
+        var mockRandom = new Mock<IRandomProvider>();
         var features = new List<Feature>
         {
-            new Feature(new FeatureMapper("remarkable-athlete", "Remarkable Athlete"), new List<string>())
+            new Feature(new FeatureMapper("remarkable-athlete", "Remarkable Athlete"), new List<string>(), mockRandom.Object)
         };
         var member = CreateTestPartyMember(
             level: 7, 
@@ -944,9 +949,10 @@ public class ProficiencyServiceTests
     {
         // Arrange
         var service = CreateService();
+        var mockRandom = new Mock<IRandomProvider>();
         var features = new List<Feature>
         {
-            new Feature(new FeatureMapper("bonus-proficiency", "Bonus Proficiency"), new List<string>())
+            new Feature(new FeatureMapper("bonus-proficiency", "Bonus Proficiency"), new List<string>(), mockRandom.Object)
         };
         var member = CreateTestPartyMember(
             classString: "cleric",
@@ -976,9 +982,10 @@ public class ProficiencyServiceTests
     {
         // Arrange
         var service = CreateService();
+        var mockRandom = new Mock<IRandomProvider>();
         var features = new List<Feature>
         {
-            new Feature(new FeatureMapper("jack-of-all-trades", "Jack of All Trades"), new List<string>())
+            new Feature(new FeatureMapper("jack-of-all-trades", "Jack of All Trades"), new List<string>(), mockRandom.Object)
         };
         var member = CreateTestPartyMember(
             level: 2,

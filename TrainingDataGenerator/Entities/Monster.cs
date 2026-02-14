@@ -82,7 +82,7 @@ public class Monster : Creature, ICombatCalculator
         ProficiencyBonus = (byte)monster.ProficiencyBonus;
         Xp = monster.Xp;
         SpecialAbilities = (monster.SpecialAbilities != null) ? monster.SpecialAbilities.Select(item => new SpecialAbility(item)).ToList() : new List<SpecialAbility>();
-        Actions = (monster.Actions != null) ? monster.Actions.Select(item => new NormalAction(item)).ToList() : new List<NormalAction>();
+        Actions = (monster.Actions != null) ? monster.Actions.Select(item => new NormalAction(item, _random)).ToList() : new List<NormalAction>();
         LegendaryActions = (monster.LegendaryActions != null) ? monster.LegendaryActions.Select(item => new LegendaryAction(item)).ToList() : new List<LegendaryAction>();
         Reactions = (monster.Reactions != null) ? monster.Reactions.Select(item => new Reaction(item)).ToList() : new List<Reaction>();
     }
@@ -298,7 +298,7 @@ public class Monster : Creature, ICombatCalculator
 
         if (action.Damage.Any(item => item.From != null && item.From.Options.Count > 0))
             foreach (var damage in action.Damage.Where(item => item.From != null))
-                chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => Random.Shared.Next()).Take(damage.Choose ?? 0).ToList());
+                chooseableDamages.AddRange(_random.Shuffle(damage.From.Options).Take(damage.Choose ?? 0).ToList());
 
         var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
         averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => UtilityMethods.GetDiceValue(item.Damage_Dice, this)) : 0;
@@ -324,7 +324,7 @@ public class Monster : Creature, ICombatCalculator
 
         if (action.Damage.Any(item => item.From != null && item.From.Options.Count > 0))
             foreach (var damage in action.Damage.Where(item => item.From != null))
-                chooseableDamages.AddRange(damage.From.Options.OrderBy(_ => Random.Shared.Next()).Take(damage.Choose ?? 0).ToList());
+                chooseableDamages.AddRange(_random.Shuffle(damage.From.Options).Take(damage.Choose ?? 0).ToList());
 
         var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc?.DcType ?? string.Empty, action.Dc?.DcValue ?? 0));
         var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
@@ -397,7 +397,7 @@ public class Monster : Creature, ICombatCalculator
             {
                 if (SpecialAbilities.Select(sa => sa.Name).Contains(multiattackAction.ActionName))
                 {
-                    var spellsChosen = SpecialAbilities.First(sa => sa.Name.Equals(multiattackAction.ActionName, StringComparison.OrdinalIgnoreCase)).Spellcast?.Spells.OrderBy(_ => Random.Shared.Next()).Take(multiattackAction.Count).ToList() ?? new List<Spell>();
+                    var spellsChosen = SpecialAbilities.First(sa => sa.Name.Equals(multiattackAction.ActionName, StringComparison.OrdinalIgnoreCase)).Spellcast?.Spells.OrderBy(_ => _random.Next()).Take(multiattackAction.Count).ToList() ?? new List<Spell>();
                     var spellcast = SpecialAbilities.First(sa => sa.Name.Equals(multiattackAction.ActionName, StringComparison.OrdinalIgnoreCase)).Spellcast;
 
                     if (spellcast != null)

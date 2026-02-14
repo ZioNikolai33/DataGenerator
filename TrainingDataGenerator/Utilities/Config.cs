@@ -10,6 +10,8 @@ public class Config
     public int NumberOfCycles { get; set; } = 10;
     [JsonPropertyName("Logging")]
     public LogLevel Logging { get; set; } = new LogLevel();
+    [JsonPropertyName("RandomSeed")]
+    public int RandomSeed { get; set; } = 0;
 
     public class Database
     {

@@ -6,11 +6,10 @@ namespace TrainingDataGenerator.Generator;
 
 public static class OutcomeCalculator
 {
-    public static Encounter CalculateOutcome(Encounter encounter, ILogger logger)
+    public static Encounter CalculateOutcome(Encounter encounter, ILogger logger, IRandomProvider random)
     {
         logger.Verbose($"Calculating outcome for encounter {encounter.Id}");
 
-        var random = Random.Shared;
         var randomFactorParty = random.Next(-10, 11); // -10% to +10%
         var randomFactorMonsters = random.Next(-10, 11); // -10% to +10%
 

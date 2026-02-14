@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Entities.Mappers;
 
@@ -76,9 +77,8 @@ public class TraitMapper : BaseEntity
         [BsonElement("type")]
         public string Type { get; set; } = string.Empty;
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<BaseEntity> GetRandomChoice(IRandomProvider random)
         {
-            var random = Random.Shared;
             var selectedSubtrait = new List<BaseEntity>();
 
             if (this.From.Options.All(item => item.Item != null))
@@ -129,9 +129,8 @@ public class TraitMapper : BaseEntity
         [BsonElement("type")]
         public string Type { get; set; } = string.Empty;
 
-        public List<BaseEntity> GetRandomChoice()
+        public List<BaseEntity> GetRandomChoice(IRandomProvider random)
         {
-            var random = Random.Shared;
             var selectedSpell = new List<BaseEntity>();
 
             if (this.From.Options.All(item => item.Item != null))

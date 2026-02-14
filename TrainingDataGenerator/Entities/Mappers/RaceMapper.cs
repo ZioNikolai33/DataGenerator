@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Entities.Mappers;
 
@@ -56,12 +57,11 @@ public class RaceMapper : BaseEntity
 
     public RaceMapper(string index, string name) : base(index, name) { }
 
-    public List<string> GetRandomProficiency(List<string>? proficiencies) => 
-        (StartingProficiencesOptions != null) ? StartingProficiencesOptions.GetRandomChoice(proficiencies) : new List<string>();
+    public List<string> GetRandomProficiency(List<string>? proficiencies, IRandomProvider random) => 
+        (StartingProficiencesOptions != null) ? StartingProficiencesOptions.GetRandomChoice(proficiencies, random) : new List<string>();
 
-    public List<AbilityBonus> GetRandomAbility()
+    public List<AbilityBonus> GetRandomAbility(IRandomProvider random)
     {
-        var random = Random.Shared;
         var selectedAbility = new List<AbilityBonus>();
 
         if (AbilityOptions == null)

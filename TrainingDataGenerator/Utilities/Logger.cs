@@ -39,7 +39,8 @@ public sealed class Logger : ILogger
         try
         {
             var configText = File.ReadAllText("appsettings.json");
-            var config = System.Text.Json.JsonSerializer.Deserialize<Config>(configText);
+            var config = System.Text.Json.JsonSerializer.Deserialize<Config>(configText);                
+
             return config ?? new Config();
         }
         catch (FileNotFoundException)

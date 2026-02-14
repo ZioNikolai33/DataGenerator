@@ -21,7 +21,9 @@ public class FeatureServiceTests
     private FeatureService CreateService(Mock<ILogger>? mockLogger = null)
     {
         mockLogger ??= new Mock<ILogger>();
-        return new FeatureService(mockLogger.Object);
+        var mockRandom = new Mock<IRandomProvider>();
+
+        return new FeatureService(mockLogger.Object, mockRandom.Object);
     }
 
     private PartyMember CreateTestPartyMember(string className = "fighter", byte level = 1)
@@ -102,7 +104,7 @@ public class FeatureServiceTests
     public void Constructor_WithNullLogger_ShouldThrowArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new FeatureService(null!));
+        Assert.Throws<ArgumentNullException>(() => new FeatureService(null!, new Mock<IRandomProvider>().Object));
     }
 
     [Fact]
@@ -112,7 +114,7 @@ public class FeatureServiceTests
         var mockLogger = new Mock<ILogger>();
 
         // Act
-        var service = new FeatureService(mockLogger.Object);
+        var service = new FeatureService(mockLogger.Object, new Mock<IRandomProvider>().Object);
 
         // Assert
         Assert.NotNull(service);
@@ -128,8 +130,9 @@ public class FeatureServiceTests
         // Arrange
         var service = CreateService();
         var member = CreateTestPartyMember();
+        var mockRandom = new Mock<IRandomProvider>();
         var initialSpeed = member.Speed;
-        member.Features = new List<Feature>() { new Feature(new FeatureMapper("fast-movement", "Fast Movement"), new List<string>()) };
+        member.Features = new List<Feature>() { new Feature(new FeatureMapper("fast-movement", "Fast Movement"), new List<string>(), mockRandom.Object) };
 
         // Act
         service.ApplyFeatureEffects(member);
@@ -160,7 +163,8 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember(className: "monk");
         var initialSpeed = member.Speed;
-        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>(), mockRandom.Object));
 
         // Act
         service.ApplyFeatureEffects(member);
@@ -176,7 +180,8 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember(className: "monk");
         var initialSpeed = member.Speed;
-        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>(), mockRandom.Object));
         
         var armor = new Armor(new EquipmentMapper("leather-armor", "Leather Armor"));
         armor.IsEquipped = true;
@@ -202,7 +207,8 @@ public class FeatureServiceTests
         var initialWisSave = member.Wisdom.Save;
         var initialChaSave = member.Charisma.Save;
         
-        member.Features.Add(new Feature(new FeatureMapper("diamond-soul", "Diamond Soul"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("diamond-soul", "Diamond Soul"), new List<string>(), mockRandom.Object));
 
         // Act
         service.ApplyFeatureEffects(member);
@@ -221,7 +227,8 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember(className: "fighter");
         var initialSpeed = member.Speed;
-        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>(), mockRandom.Object));
 
         // Act
         service.ApplyFeatureEffects(member);
@@ -237,8 +244,9 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember(className: "monk");
         var initialSpeed = member.Speed;
-        member.Features.Add(new Feature(new FeatureMapper("fast-movement", "Fast Movement"), new List<string>()));
-        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("fast-movement", "Fast Movement"), new List<string>(), mockRandom.Object));
+        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>(), mockRandom.Object));
 
         // Act
         service.ApplyFeatureEffects(member);
@@ -266,7 +274,8 @@ public class FeatureServiceTests
         var featureMapper = new FeatureMapper("expertise-1", "Expertise");
         featureMapper.FeatureSpec = CreateExpertiseOptions(new List<string> { "athletics" });
 
-        var feature = new Feature(featureMapper, new List<string>());
+        var mockRandom = new Mock<IRandomProvider>();
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
         feature.FeatureType = FeatureSpecificTypes.Expertise;
         feature.FeatureSpec = new List<string> { "athletics" };
         member.Features = new List<Feature>() { feature };
@@ -287,7 +296,8 @@ public class FeatureServiceTests
         var member = CreateTestPartyMember();
         
         var featureMapper = new FeatureMapper("favored-enemy", "Favored Enemy");        
-        var feature = new Feature(featureMapper, new List<string>());
+        var mockRandom = new Mock<IRandomProvider>();
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
         feature.FeatureType = FeatureSpecificTypes.Enemy;
 
         feature.FeatureSpec = new List<string> { "dragons", "undead" };
@@ -309,7 +319,8 @@ public class FeatureServiceTests
         var member = CreateTestPartyMember();
         
         var featureMapper = new FeatureMapper("favored-terrain", "Favored Terrain");        
-        var feature = new Feature(featureMapper, new List<string>());
+        var mockRandom = new Mock<IRandomProvider>();
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
 
         feature.FeatureSpec = new List<string> { "forest", "mountain" };
         feature.FeatureType = FeatureSpecificTypes.Terrain;
@@ -336,7 +347,8 @@ public class FeatureServiceTests
         
         var subfeatureMapper = new FeatureMapper("dragon-ancestor-black---acid-damage", "dragon-ancestor-black---acid-damage");        
         var featureMapper = new FeatureMapper("dragon-ancestor", "");
-        var feature = new Feature(featureMapper, new List<string>());
+        var mockRandom = new Mock<IRandomProvider>();
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
         feature.FeatureType = FeatureSpecificTypes.Subfeature;
         feature.FeatureSpec = new List<string> { "dragon-ancestor-black---acid-damage" };
 
@@ -359,7 +371,8 @@ public class FeatureServiceTests
         member.Features = new List<Feature>();
         var initialFeatureCount = member.Features.Count;        
         var featureMapper = new FeatureMapper("some-feature", "Some Feature");
-        var feature = new Feature(featureMapper, new List<string>());
+        var mockRandom = new Mock<IRandomProvider>();
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
 
         member.Features.Add(feature);
 
@@ -378,7 +391,8 @@ public class FeatureServiceTests
         var member = CreateTestPartyMember();
         
         var featureMapper = new FeatureMapper("expertise-1", "Expertise");        
-        var feature = new Feature(featureMapper, new List<string>());
+        var mockRandom = new Mock<IRandomProvider>();
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
         feature.FeatureType = FeatureSpecificTypes.Expertise;
 
         feature.FeatureSpec = null;
@@ -408,8 +422,8 @@ public class FeatureServiceTests
         member.Skills.Add(skill2);
 
         var featureMapper = new FeatureMapper("expertise-1", "Expertise");
-        
-        var feature = new Feature(featureMapper, new List<string>());
+        var mockRandom = new Mock<IRandomProvider>();
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
         feature.FeatureSpec = new List<string> { "athletics", "acrobatics" };
         feature.FeatureType = FeatureSpecificTypes.Expertise;
         member.Features.Add(feature);
@@ -432,9 +446,9 @@ public class FeatureServiceTests
         // Arrange
         var service = CreateService();
         var member = CreateTestPartyMember();
-        
-        member.Features.Add(new Feature(new FeatureMapper("prerequisite-feature", "Prerequisite Feature"), new List<string>()));
-        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("prerequisite-feature", "Prerequisite Feature"), new List<string>(), mockRandom.Object));
+        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>(), mockRandom.Object));
 
         var allFeatures = new List<FeatureMapper>
         {
@@ -465,8 +479,8 @@ public class FeatureServiceTests
         var mockLogger = new Mock<ILogger>();
         var service = CreateService(mockLogger);
         var member = CreateTestPartyMember();
-        
-        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>(), mockRandom.Object));
 
         var allFeatures = new List<FeatureMapper>
         {
@@ -499,8 +513,9 @@ public class FeatureServiceTests
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
 
+        var mockRandom = new Mock<IRandomProvider>();
         member.Spells.Add(new Spell(new SpellMapper("fireball", "Fireball")));
-        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
+        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>(), mockRandom.Object));
 
         var allFeatures = new List<FeatureMapper>
         {
@@ -532,8 +547,9 @@ public class FeatureServiceTests
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
 
+        var mockRandom = new Mock<IRandomProvider>();
         member.Cantrips.Add(new Spell(new SpellMapper("eldritch-blast", "Eldritch Blast")));
-        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
+        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>(), mockRandom.Object));
 
         var allFeatures = new List<FeatureMapper>
         {
@@ -563,8 +579,8 @@ public class FeatureServiceTests
         // Arrange
         var service = CreateService();
         var member = CreateTestPartyMember();
-        
-        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
+        var mockRandom = new Mock<IRandomProvider>();
+        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>(), mockRandom.Object));
 
         var allFeatures = new List<FeatureMapper>
         {
@@ -595,9 +611,10 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
+        var mockRandom = new Mock<IRandomProvider>();
 
-        member.Features.Add(new Feature(new FeatureMapper("feature-1", "Feature 1"), new List<string>()));
-        member.Features.Add(new Feature(new FeatureMapper("feature-2", "Feature 2"), new List<string>()));
+        member.Features.Add(new Feature(new FeatureMapper("feature-1", "Feature 1"), new List<string>(), mockRandom.Object));
+        member.Features.Add(new Feature(new FeatureMapper("feature-2", "Feature 2"), new List<string>(), mockRandom.Object));
 
         var allFeatures = new List<FeatureMapper>
         {
@@ -619,11 +636,11 @@ public class FeatureServiceTests
         var service = CreateService();
         var member = CreateTestPartyMember();
         member.Features = new List<Feature>();
+        var mockRandom = new Mock<IRandomProvider>();
 
-        member.Features.Add(new Feature(new FeatureMapper("prereq-1", "Prerequisite 1"), new List<string>()));
+        member.Features.Add(new Feature(new FeatureMapper("prereq-1", "Prerequisite 1"), new List<string>(), mockRandom.Object));
         member.Spells.Add(new Spell(new SpellMapper("prereq-spell", "Prerequisite Spell")));
-        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>()));
-
+        member.Features.Add(new Feature(new FeatureMapper("dependent-feature", "Dependent Feature"), new List<string>(), mockRandom.Object));
         var allFeatures = new List<FeatureMapper>
         {
             new FeatureMapper("dependent-feature", "Dependent Feature")
@@ -677,11 +694,11 @@ public class FeatureServiceTests
         var initialSpeed = member.Speed;
         var profBonus = member.ProficiencyBonus;
         var initialConSave = member.Constitution.Save;
+        var mockRandom = new Mock<IRandomProvider>();
         
-        member.Features.Add(new Feature(new FeatureMapper("fast-movement", "Fast Movement"), new List<string>()));
-        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>()));
-        member.Features.Add(new Feature(new FeatureMapper("diamond-soul", "Diamond Soul"), new List<string>()));
-
+        member.Features.Add(new Feature(new FeatureMapper("fast-movement", "Fast Movement"), new List<string>(), mockRandom.Object));
+        member.Features.Add(new Feature(new FeatureMapper("unarmored-movement-1", "Unarmored Movement"), new List<string>(), mockRandom.Object));
+        member.Features.Add(new Feature(new FeatureMapper("diamond-soul", "Diamond Soul"), new List<string>(), mockRandom.Object));
         // Act
         service.ApplyFeatureEffects(member);
 
@@ -703,14 +720,16 @@ public class FeatureServiceTests
         skill.SetExpertise(true, profBonus);
         member.Skills.Add(skill);
 
+        var mockRandom = new Mock<IRandomProvider>();
+
         var expertiseMapper = new FeatureMapper("expertise-1", "Expertise");
-        var expertiseFeature = new Feature(expertiseMapper, new List<string>());
+        var expertiseFeature = new Feature(expertiseMapper, new List<string>(), mockRandom.Object);
         expertiseFeature.FeatureType = FeatureSpecificTypes.Expertise;
         expertiseFeature.FeatureSpec = new List<string> { "stealth" };
         member.Features.Add(expertiseFeature);
 
         var enemyMapper = new FeatureMapper("favored-enemy", "Favored Enemy");
-        var enemyFeature = new Feature(enemyMapper, new List<string>());
+        var enemyFeature = new Feature(enemyMapper, new List<string>(), mockRandom.Object);
         enemyFeature.FeatureType = FeatureSpecificTypes.Enemy;
         enemyFeature.FeatureSpec = new List<string> { "aberrations" };
         member.Features.Add(enemyFeature);
@@ -746,9 +765,10 @@ public class FeatureServiceTests
         // Arrange
         var service = CreateService();
         var member = CreateTestPartyMember();
-        
+        var mockRandom = new Mock<IRandomProvider>();
+
         var featureMapper = new FeatureMapper("expertise-1", "Expertise");
-        var feature = new Feature(featureMapper, new List<string>());
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
         feature.FeatureType = FeatureSpecificTypes.Expertise;
         feature.FeatureSpec = new List<string> { "non-existent-skill" };
         member.Features.Add(feature);
@@ -763,10 +783,11 @@ public class FeatureServiceTests
     {
         // Arrange
         var service = CreateService();
-        var member = CreateTestPartyMember();
-        
+        var member = CreateTestPartyMember();        
+        var mockRandom = new Mock<IRandomProvider>();
+
         var featureMapper = new FeatureMapper("subfeature-parent", "Subfeature Parent");
-        var feature = new Feature(featureMapper, new List<string>());
+        var feature = new Feature(featureMapper, new List<string>(), mockRandom.Object);
         feature.FeatureType = FeatureSpecificTypes.Subfeature;
         feature.FeatureSpec = new List<string> { "non-existent-subfeature" };
         member.Features.Add(feature);

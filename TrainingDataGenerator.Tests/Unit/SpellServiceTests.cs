@@ -71,7 +71,7 @@ public class SpellServiceTests
             member.Subclass = subclass;
 
         if (features != null)
-            member.Features.AddRange(features.Select(f => new Feature(f, member.Proficiencies)));
+            member.Features.AddRange(features.Select(f => new Feature(f, member.Proficiencies, mockRandom.Object)));
 
         if (traits != null)
             member.Traits.AddRange(traits);

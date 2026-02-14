@@ -46,7 +46,7 @@ public class ProficiencyService : IProficiencyService
         }
 
         // Add random proficiencies from race
-        var raceProficiencies = raceMapper.GetRandomProficiency(member.Proficiencies);
+        var raceProficiencies = raceMapper.GetRandomProficiency(member.Proficiencies, _random);
         member.Proficiencies.AddRange(raceProficiencies);
         if (raceProficiencies.Count > 0)
             _logger.Verbose($"Added {raceProficiencies.Count} random racial proficiencies");
@@ -56,7 +56,7 @@ public class ProficiencyService : IProficiencyService
         {
             foreach (var choice in classMapper.ProficiencyChoices)
             {
-                var chosen = choice.GetRandomChoice(member.Proficiencies);
+                var chosen = choice.GetRandomChoice(member.Proficiencies, _random);
                 member.Proficiencies.AddRange(chosen);
                 if (chosen.Count > 0)
                     _logger.Verbose($"Added {chosen.Count} proficiencies from class choices");
@@ -70,7 +70,7 @@ public class ProficiencyService : IProficiencyService
             {
                 if (trait.ProficiencyChoice != null)
                 {
-                    var chosen = trait.ProficiencyChoice.GetRandomChoice(member.Proficiencies);
+                    var chosen = trait.ProficiencyChoice.GetRandomChoice(member.Proficiencies, _random);
                     member.Proficiencies.AddRange(chosen);
                     if (chosen.Count > 0)
                         _logger.Verbose($"Added {chosen.Count} proficiencies from trait choices");

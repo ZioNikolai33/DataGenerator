@@ -8,10 +8,12 @@ namespace TrainingDataGenerator.Services;
 public class TraitService : ITraitService
 {
     private readonly ILogger _logger;
+    private readonly IRandomProvider _random;
 
-    public TraitService(ILogger logger)
+    public TraitService(ILogger logger, IRandomProvider random)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _random = random ?? throw new ArgumentNullException(nameof(random));
     }
 
     public void ManageTraitSpecifics(PartyMember member, RaceMapper raceMapper, SubraceMapper? subraceMapper)
@@ -97,7 +99,7 @@ public class TraitService : ITraitService
             if (trait.TraitSpec?.SubtraitOptions == null)
                 continue;
 
-            var selectedSubtraits = trait.TraitSpec.SubtraitOptions.GetRandomChoice();
+            var selectedSubtraits = trait.TraitSpec.SubtraitOptions.GetRandomChoice(_random);
             
             if (selectedSubtraits.Count > 0)
             {

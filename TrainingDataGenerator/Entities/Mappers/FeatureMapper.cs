@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Entities.Mappers;
 
@@ -34,16 +35,16 @@ public class FeatureMapper: BaseEntity
         [BsonElement("invocations")]
         public List<BaseEntity>? Invocations { get; set; }
 
-        public List<string> GetRandomChoice(List<string> proficiencies)
+        public List<string> GetRandomChoice(List<string> proficiencies, IRandomProvider random)
         {
             if (ExpertiseOptions != null)
-                return ExpertiseOptions.GetRandomChoice(proficiencies);
+                return ExpertiseOptions.GetRandomChoice(proficiencies, random);
             else if (EnemyTypeOptions != null)
-                return EnemyTypeOptions.GetRandomChoice();
+                return EnemyTypeOptions.GetRandomChoice(random);
             else if (TerrainTypeOptions != null)
-                return TerrainTypeOptions.GetRandomChoice();
+                return TerrainTypeOptions.GetRandomChoice(random);
             else if (SubfeatureOptions != null)
-                return SubfeatureOptions.GetRandomChoice();
+                return SubfeatureOptions.GetRandomChoice(random);
 
             return new List<string>();
         }
@@ -59,9 +60,8 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSet From { get; set; } = new OptionSet();
 
-        public List<string> GetRandomChoice(List<string> proficiencies)
+        public List<string> GetRandomChoice(List<string> proficiencies, IRandomProvider random)
         {
-            var random = Random.Shared;
             var selectedOptions = new List<string>();
             var selectableOptions = From.Options
                 .Where(o => proficiencies.Any(p => o.Item != null && o.Item.Item != null && p == o.Item.Item.Index))
@@ -74,11 +74,11 @@ public class FeatureMapper: BaseEntity
 
             foreach (var item in selected)
                 if (item.Choice != null)
-                    selectedOptions.AddRange(item.Choice.GetRandomChoice());
+                    selectedOptions.AddRange(item.Choice.GetRandomChoice(random));
                 else if (item.Items != null)
                     foreach (var subItem in item.Items)
                         if (subItem.Choice != null)
-                            selectedOptions.AddRange(subItem.Choice.GetRandomChoice());
+                            selectedOptions.AddRange(subItem.Choice.GetRandomChoice(random));
                         else if (subItem.Item != null)
                             selectedOptions.Add(subItem.Item.Item.Index);
 
@@ -98,10 +98,8 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSetString From { get; set; } = new OptionSetString();
 
-        public List<string> GetRandomChoice()
+        public List<string> GetRandomChoice(IRandomProvider random)
         {
-            var random = Random.Shared;
-
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
@@ -123,10 +121,8 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSetString From { get; set; } = new OptionSetString();
 
-        public List<string> GetRandomChoice()
+        public List<string> GetRandomChoice(IRandomProvider random)
         {
-            var random = Random.Shared;
-
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
@@ -146,10 +142,8 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSetReference From { get; set; } = new OptionSetReference();
 
-        public List<string> GetRandomChoice()
+        public List<string> GetRandomChoice(IRandomProvider random)
         {
-            var random = Random.Shared;
-
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)
@@ -209,10 +203,8 @@ public class FeatureMapper: BaseEntity
         [BsonElement("from")]
         public OptionSet From { get; set; } = new OptionSet();
 
-        public List<string> GetRandomChoice()
+        public List<string> GetRandomChoice(IRandomProvider random)
         {
-            var random = Random.Shared;
-
             var selectedOptions = From.Options
                 .OrderBy(x => random.Next())
                 .Take(Choose)

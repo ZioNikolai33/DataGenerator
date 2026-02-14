@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Entities.Mappers;
 
@@ -32,9 +33,8 @@ public class ProficiencyChoiceMapper
         public BaseEntity? Item { get; set; }
     }
 
-    public List<string> GetRandomChoice(List<string>? proficiencies)
+    public List<string> GetRandomChoice(List<string>? proficiencies, IRandomProvider random)
     {
-        var random = Random.Shared;
         var selectedProficiencies = new List<string>();
 
         if (this.From.Options.All(item => item.Item != null))            

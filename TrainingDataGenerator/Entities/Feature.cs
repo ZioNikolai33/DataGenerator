@@ -1,6 +1,7 @@
 ﻿using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Mappers;
 using System.Text.Json.Serialization;
+using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Entities;
 
@@ -12,10 +13,10 @@ public class Feature : BaseEntity
     [JsonIgnore]
     public List<string>? FeatureSpec { get; set; }
 
-    public Feature(FeatureMapper feature, List<string> proficiencies) : base(feature.Index, feature.Name)
+    public Feature(FeatureMapper feature, List<string> proficiencies, IRandomProvider random) : base(feature.Index, feature.Name)
     {
         Desc = feature.Desc;
-        FeatureSpec = feature.FeatureSpec?.GetRandomChoice(proficiencies);
+        FeatureSpec = feature.FeatureSpec?.GetRandomChoice(proficiencies, random);
 
         if (feature.FeatureSpec?.ExpertiseOptions != null)
             FeatureType = FeatureSpecificTypes.Expertise;

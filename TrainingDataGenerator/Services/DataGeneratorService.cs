@@ -51,9 +51,9 @@ public class DataGeneratorService : IDataGenerator
                 var difficulty = GetRandomDifficulty();
                 var party = _partyGenerator.GenerateRandomParty(database);
                 var monstersList = DataManipulation.GetMonstersDifficultiesList(database);
-                var monsters = _monsterGenerator.GenerateRandomMonsters(difficulty, party.Select(p => p.Level).ToList(), monstersList);
+                var monsters = _monsterGenerator.GenerateRandomMonsters(difficulty, party.Select(p => p.Level).ToList(), monstersList.Where(m => m.ChallengeRating > 0).ToList());
                 var encounter = new Encounter(i, difficulty, party, monsters);
-                var encounterWithOutcome = OutcomeCalculator.CalculateOutcome(encounter, _logger);
+                var encounterWithOutcome = OutcomeCalculator.CalculateOutcome(encounter, _logger, _random);
 
                 encountersDataset.Add(encounterWithOutcome);
 

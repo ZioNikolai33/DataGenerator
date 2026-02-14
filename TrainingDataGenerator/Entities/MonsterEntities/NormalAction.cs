@@ -1,4 +1,5 @@
 ﻿using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Entities.MonsterEntities;
 
@@ -19,7 +20,7 @@ public class NormalAction
         public string Type { get; set; } = string.Empty;
     }
 
-    public NormalAction(MonsterMapper.NormalAction action)
+    public NormalAction(MonsterMapper.NormalAction action, IRandomProvider random)
     {
         Name = action.Name;
         Desc = action.Desc;
@@ -36,10 +37,9 @@ public class NormalAction
 
         if (action.ActionOptions != null && action.ActionOptions.From.Options.Count > 0)
         {
-            var random = Random.Shared;
             var choose = action.ActionOptions.Choose;
 
-            var selectedOptions = action.ActionOptions.From.Options.OrderBy(_ => random.Next()).Take(choose).ToList();
+            var selectedOptions = random.Shuffle(action.ActionOptions.From.Options).Take(choose).ToList();
 
             foreach (var option in selectedOptions)
             {

@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TrainingDataGenerator.Analysis;
 using TrainingDataGenerator.DataBase;
 using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Exporters;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Services;
 using TrainingDataGenerator.Utilities;
@@ -24,6 +26,10 @@ internal static class Program
             var startTimeString = StartTime.ToString("yyyyMMdd_HHmmss");
             var encounterDataset = new List<Encounter>();
             var logger = host.Services.GetRequiredService<ILogger>();
+
+            var randomProvider = host.Services.GetRequiredService<IRandomProvider>();
+            if (randomProvider is RandomProvider rp)
+                logger.Information($"Using RandomSeed: {rp.GetSeed()}");
 
             logger.Verbose($"Starting data generation at {StartTime}");
             logger.Verbose("Initializing services...");
@@ -80,7 +86,12 @@ internal static class Program
             {
                 // Core Infrastructure
                 services.AddSingleton<ILogger>(Logger.Instance);
-                services.AddSingleton<IRandomProvider, RandomProvider>();
+                services.AddSingleton<IRandomProvider>(sp =>
+                {
+                    var config = sp.GetRequiredService<IConfiguration>();
+                    var seed = config.GetValue("RandomSeed", 0);
+                    return new RandomProvider(seed);
+                });
                 services.AddSingleton<Database>();
 
                 // Domain Services (Scoped for potential parallel processing)

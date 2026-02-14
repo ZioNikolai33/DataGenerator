@@ -123,12 +123,14 @@ public static class CombatCalculator
         {
             result.Outcome = Results.Victory;
             result.Details = $"Party wins in {numberOfTurnsToDefeatMonsters} turns.";
+            result.TotalRounds = (short)numberOfTurnsToDefeatMonsters;
             logger.Information($"Party wins in {numberOfTurnsToDefeatMonsters} turns.");
         }
         else if (numberOfTurnsToDefeatMonsters > numberOfTurnsToDefeatParty)
         {
             result.Outcome = Results.Defeat;
             result.Details = $"Monsters win in {numberOfTurnsToDefeatParty} turns.";
+            result.TotalRounds = (short)numberOfTurnsToDefeatParty;
             logger.Information($"Monsters win in {numberOfTurnsToDefeatParty} turns.");
         }
         else if (numberOfTurnsToDefeatMonsters == numberOfTurnsToDefeatParty)

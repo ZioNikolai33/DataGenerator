@@ -79,8 +79,9 @@ public class TraitServiceTests
     private TraitService CreateService()
     {
         var mockLogger = new Mock<ILogger>();
+        var mockRandom = new Mock<IRandomProvider>();
 
-        return new TraitService(mockLogger.Object);
+        return new TraitService(mockLogger.Object, mockRandom.Object);
     }
 
     private TraitMapper CreateTraitMapper(string index, string name, TraitMapper? parent = null, TraitSpecific? traitSpec = null)
@@ -111,7 +112,7 @@ public class TraitServiceTests
     public void Constructor_WithNullLogger_ShouldThrowArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new TraitService(null!));
+        Assert.Throws<ArgumentNullException>(() => new TraitService(null!, new Mock<IRandomProvider>().Object));
     }
 
     [Fact]
@@ -119,9 +120,10 @@ public class TraitServiceTests
     {
         // Arrange
         var mockLogger = new Mock<ILogger>();
+        var mockRandom = new Mock<IRandomProvider>();
 
         // Act
-        var service = new TraitService(mockLogger.Object);
+        var service = new TraitService(mockLogger.Object, mockRandom.Object);
 
         // Assert
         Assert.NotNull(service);

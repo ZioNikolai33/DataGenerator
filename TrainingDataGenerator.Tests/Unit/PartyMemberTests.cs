@@ -397,11 +397,12 @@ public class PartyMemberTests
     {
         // Arrange
         var member = CreatePartyMember();
+        var mockRandom = CreateMockRandom();
         member.Dexterity = new Attribute(14);
         member.Constitution = new Attribute(16);
         member.Features = new List<Feature>
         {
-            new Feature(new FeatureMapper("barbarian-unarmored-defense", "Unarmored Defense"), new List<string>())
+            new Feature(new FeatureMapper("barbarian-unarmored-defense", "Unarmored Defense"), new List<string>(), mockRandom.Object)
         };
         member.Armors = new List<Armor>();
 
@@ -419,9 +420,10 @@ public class PartyMemberTests
         var member = CreatePartyMember();
         member.Dexterity = new Attribute(16);
         member.Wisdom = new Attribute(14);
+        var mockRandom = CreateMockRandom();
         member.Features = new List<Feature>
         {
-            new Feature(new FeatureMapper("monk-unarmored-defense", "Unarmored Defense"), new List<string>())
+            new Feature(new FeatureMapper("monk-unarmored-defense", "Unarmored Defense"), new List<string>(), mockRandom.Object)
         };
         member.Armors = new List<Armor>();
 
@@ -438,9 +440,10 @@ public class PartyMemberTests
         // Arrange
         var member = CreatePartyMember();
         member.Dexterity = new Attribute(16);
+        var mockRandom = CreateMockRandom();
         member.Features = new List<Feature>
         {
-            new Feature(new FeatureMapper("draconic-resilience", "Draconic Resilience"), new List<string>())
+            new Feature(new FeatureMapper("draconic-resilience", "Draconic Resilience"), new List<string>(), mockRandom.Object)
         };
         member.Armors = new List<Armor>();
 
@@ -457,9 +460,10 @@ public class PartyMemberTests
         // Arrange
         var member = CreatePartyMember();
         member.Dexterity = new Attribute(14);
+        var mockRandom = CreateMockRandom();
         member.Features = new List<Feature>
         {
-            new Feature(new FeatureMapper("fighter-fighting-style-defense", "Defense"), new List<string>())
+            new Feature(new FeatureMapper("fighter-fighting-style-defense", "Defense"), new List<string>(), mockRandom.Object)
         };
         member.Armors = new List<Armor>
         {

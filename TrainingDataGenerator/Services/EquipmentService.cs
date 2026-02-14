@@ -23,7 +23,7 @@ public class EquipmentService : IEquipmentService
 
         var allEquipmentsBase = classMapper.StartingEquipments;
         var randomBaseEquipments = classMapper.StartingEquipmentsOptions
-            .SelectMany(item => item.GetRandomEquipment())
+            .SelectMany(item => item.GetRandomEquipment(_random))
             .ToList();
         
         allEquipmentsBase.AddRange(randomBaseEquipments);

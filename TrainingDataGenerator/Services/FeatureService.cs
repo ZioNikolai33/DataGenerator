@@ -9,10 +9,12 @@ namespace TrainingDataGenerator.Services;
 public class FeatureService : IFeatureService
 {
     private readonly ILogger _logger;
+    private readonly IRandomProvider _random;
 
-    public FeatureService(ILogger logger)
+    public FeatureService(ILogger logger, IRandomProvider random)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _random = random ?? throw new ArgumentNullException(nameof(random));
     }
 
     public void ApplyFeatureEffects(PartyMember member)
@@ -160,7 +162,7 @@ public class FeatureService : IFeatureService
             var subfeature = Lists.features.Where(item => item.Index == choice).FirstOrDefault();
 
             if (subfeature != null)
-                newFeatures.Add(new Feature(subfeature, member.Proficiencies));
+                newFeatures.Add(new Feature(subfeature, member.Proficiencies, _random));
         }
     }
 

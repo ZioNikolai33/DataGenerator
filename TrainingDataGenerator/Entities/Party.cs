@@ -54,7 +54,7 @@ public class PartyMember : Creature, ICombatCalculator
         _logger.Verbose($"Generating Member {id} at Level {level}. Class {randomClass.Index} and Race {randomRace.Index}");
 
         // Select random subrace and subclass
-        var randomRaceAbilityBonus = randomRace.GetRandomAbility();
+        var randomRaceAbilityBonus = randomRace.GetRandomAbility(_random);
         var randomSubrace = SelectRandomSubrace(randomRace);
         var randomSubclass = SelectRandomSubclass(randomClass);
 
@@ -195,7 +195,7 @@ public class PartyMember : Creature, ICombatCalculator
             // Add features for this level
             if (levelFeatures.Count > 0)
             {
-                Features.AddRange(levelFeatures.Select(f => new Feature(f, Proficiencies)));
+                Features.AddRange(levelFeatures.Select(f => new Feature(f, Proficiencies, _random)));
                 _logger.Verbose($"Added {levelFeatures.Count} features at level {i}");
             }
 
@@ -262,7 +262,7 @@ public class PartyMember : Creature, ICombatCalculator
             .ToList();
 
         var selectedInvocations = _random.SelectRandom(featureInvocations, numInvocations)
-            .Select(f => new Feature(f, Proficiencies))
+            .Select(f => new Feature(f, Proficiencies, _random))
             .ToList();
 
         Features.AddRange(selectedInvocations);
