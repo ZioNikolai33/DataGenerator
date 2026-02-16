@@ -7,15 +7,15 @@ public class DatasetStatistics
     public int TotalEncounters { get; private set; }
     public int ValidEncounters { get; private set; }
     public int InvalidEncounters => TotalEncounters - ValidEncounters;
-    public Dictionary<string, int> OutcomeDistribution { get; } = new();
-    public Dictionary<CRRatios, int> DifficultyDistribution { get; } = new();
-    public Dictionary<string, int> PartyClassDistribution { get; } = new();
-    public Dictionary<string, int> PartyRaceDistribution { get; } = new();
-    public Dictionary<int, int> PartyLevelDistribution { get; } = new();
-    public Dictionary<int, int> PartySizeDistribution { get; } = new();
-    public Dictionary<double, int> MonsterCRDistribution { get; } = new();
-    public Dictionary<int, int> MonsterCountDistribution { get; } = new();
-    public Dictionary<int, int> CombatDurationDistribution { get; } = new();
+    public List<Distribution<string>> OutcomeDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> DifficultyDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> PartyClassDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> PartyRaceDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> PartyLevelDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> PartySizeDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> MonsterCRDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> MonsterCountDistribution { get; } = new List<Distribution<string>>();
+    public List<Distribution<string>> CombatDurationDistribution { get; } = new List<Distribution<string>>();
 
     public void Update(Encounter encounter, bool isValid)
     {
@@ -26,26 +26,48 @@ public class DatasetStatistics
 
         // Update outcome distribution
         var outcome = encounter.Outcome?.Outcome.ToString() ?? "Unknown";
-        OutcomeDistribution[outcome] = OutcomeDistribution.GetValueOrDefault(outcome) + 1;
+        UpdateOrAddDistribution(OutcomeDistribution, outcome);
 
         // Update outcome by duration
-        CombatDurationDistribution[encounter.Outcome?.TotalRounds ?? 0] = CombatDurationDistribution.GetValueOrDefault(encounter.Outcome?.TotalRounds ?? 0) + 1;
+        var duration = encounter.Outcome?.TotalRounds ?? 0;
+        UpdateOrAddDistribution(CombatDurationDistribution, duration.ToString());
 
         // Update difficulty distribution
-        DifficultyDistribution[encounter.Difficulty] = DifficultyDistribution.GetValueOrDefault(encounter.Difficulty) + 1;
+        UpdateOrAddDistribution(DifficultyDistribution, encounter.Difficulty.ToString());
 
-        // Update Sizes distribution
-        PartySizeDistribution[encounter.PartyMembers.Count] = PartySizeDistribution.GetValueOrDefault(encounter.PartyMembers.Count) + 1;
-        MonsterCountDistribution[encounter.Monsters.Count] = MonsterCountDistribution.GetValueOrDefault(encounter.Monsters.Count) + 1;
+        // Update sizes distribution
+        UpdateOrAddDistribution(PartySizeDistribution, encounter.PartyMembers.Count.ToString());
+        UpdateOrAddDistribution(MonsterCountDistribution, encounter.Monsters.Count.ToString());
 
+        // Update party member distributions
         foreach (var member in encounter.PartyMembers)
         {
-            PartyLevelDistribution[member.Level] = PartyLevelDistribution.GetValueOrDefault(member.Level) + 1;
-            PartyClassDistribution[member.Class] = PartyClassDistribution.GetValueOrDefault(member.Class) + 1;
-            PartyRaceDistribution[member.Race] = PartyRaceDistribution.GetValueOrDefault(member.Race) + 1;
+            UpdateOrAddDistribution(PartyLevelDistribution, member.Level.ToString());
+            UpdateOrAddDistribution(PartyClassDistribution, member.Class);
+            UpdateOrAddDistribution(PartyRaceDistribution, member.Race);
         }
 
+        // Update monster CR distribution
         foreach (var monster in encounter.Monsters)
-            MonsterCRDistribution[monster.ChallengeRating] = MonsterCRDistribution.GetValueOrDefault(monster.ChallengeRating) + 1;
+        {
+            UpdateOrAddDistribution(MonsterCRDistribution, monster.ChallengeRating.ToString());
+        }
+    }
+
+    public void CalculatePercentage()
+    {
+        foreach (var distribution in new[] { OutcomeDistribution, DifficultyDistribution, PartyClassDistribution, PartyRaceDistribution, PartyLevelDistribution, PartySizeDistribution, MonsterCRDistribution, MonsterCountDistribution, CombatDurationDistribution })
+            foreach (var item in distribution)
+                item.Percentage = TotalEncounters > 0 ? (double)item.Count / TotalEncounters : 0;
+    }
+
+    private void UpdateOrAddDistribution(List<Distribution<string>> distribution, string value)
+    {
+        var item = distribution.FirstOrDefault(d => d.Value == value);
+
+        if (item != null)
+            item.Count++;
+        else
+            distribution.Add(new Distribution<string>(value) { Count = 1 });
     }
 }
