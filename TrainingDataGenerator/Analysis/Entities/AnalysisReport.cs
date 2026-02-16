@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using TrainingDataGenerator.Entities;
 
-namespace TrainingDataGenerator.Analysis;
+namespace TrainingDataGenerator.Analysis.Entities;
 
 public class AnalysisReport
 {

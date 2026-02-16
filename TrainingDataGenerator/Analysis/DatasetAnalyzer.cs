@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TrainingDataGenerator.Analysis.Entities;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Interfaces;

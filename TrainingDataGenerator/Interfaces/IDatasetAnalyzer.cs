@@ -1,4 +1,4 @@
-﻿using TrainingDataGenerator.Analysis;
+﻿using TrainingDataGenerator.Analysis.Entities;
 
 namespace TrainingDataGenerator.Interfaces;
 
