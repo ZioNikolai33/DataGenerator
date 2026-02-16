@@ -4,6 +4,7 @@ using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Services;
 using TrainingDataGenerator.Utilities;

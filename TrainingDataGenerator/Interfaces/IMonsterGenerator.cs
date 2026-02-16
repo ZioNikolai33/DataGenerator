@@ -1,4 +1,5 @@
 using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Interfaces;

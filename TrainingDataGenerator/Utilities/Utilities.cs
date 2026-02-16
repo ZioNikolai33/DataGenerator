@@ -1,5 +1,6 @@
 ﻿using TrainingDataGenerator.Abstracts;
 using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.PartyEntities;
 
 namespace TrainingDataGenerator.Utilities;
 

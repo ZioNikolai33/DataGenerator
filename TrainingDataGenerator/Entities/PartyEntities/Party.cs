@@ -1,10 +1,11 @@
 ﻿using TrainingDataGenerator.Abstracts;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 
-namespace TrainingDataGenerator.Entities;
+namespace TrainingDataGenerator.Entities.PartyEntities;
 
 public class PartyMember : Creature, ICombatCalculator
 {
@@ -103,7 +104,7 @@ public class PartyMember : Creature, ICombatCalculator
         Name = $"Member {id}";
         Level = level;
         HitDie = (byte)randomClass.Hp;
-        ProficiencyBonus = (byte)(2 + ((Level - 1) / 4));
+        ProficiencyBonus = (byte)(2 + (Level - 1) / 4);
         Race = randomRace.Index;
         Speed = randomRace.Speed;
         Size = randomRace.Size.ToString();
@@ -300,8 +301,8 @@ public class PartyMember : Creature, ICombatCalculator
         var availableSpells = Lists.spells
             .Where(s => SpellSlots.GetSlotsLevelAvailable() >= s.Level && 
                        (s.Classes.Any(c => c.Index == Class) || 
-                        (s.Subclasses != null && s.Classes.Any(c => c.Index == Class) && 
-                         s.Subclasses.Any(sc => sc.Index == Subclass))) &&
+                        s.Subclasses != null && s.Classes.Any(c => c.Index == Class) && 
+                         s.Subclasses.Any(sc => sc.Index == Subclass)) &&
                        !Spells.Any(existing => existing.Index == s.Index))
             .ToList();
 
@@ -322,8 +323,8 @@ public class PartyMember : Creature, ICombatCalculator
         var availableCantrips = Lists.spells
             .Where(s => s.Level == 0 && 
                        (s.Classes.Any(c => c.Index == Class) || 
-                        (s.Subclasses != null && s.Classes.Any(c => c.Index == Class) && 
-                         s.Subclasses.Any(sc => sc.Index == Subclass))) &&
+                        s.Subclasses != null && s.Classes.Any(c => c.Index == Class) && 
+                         s.Subclasses.Any(sc => sc.Index == Subclass)) &&
                        !Cantrips.Any(existing => existing.Index == s.Index))
             .ToList();
 
@@ -558,7 +559,7 @@ public class PartyMember : Creature, ICombatCalculator
         if (spell.Level == 0)
             return 1.0;
 
-        if (SpellSlots.GetSlotsLevelAvailable() == 0 || (SpellSlots.GetSlotsLevelAvailable() < spell.Level && spell.Uses == ""))
+        if (SpellSlots.GetSlotsLevelAvailable() == 0 || SpellSlots.GetSlotsLevelAvailable() < spell.Level && spell.Uses == "")
             return 0.0;
 
         if (spell.Uses != "")
@@ -646,11 +647,11 @@ public class PartyMember : Creature, ICombatCalculator
                 var spellPower = spell.GetSpellPower(this);
                 var hitPercentage = spell.GetSpellPercentage(this, monsters);
                 var usagePercentage = CalculateSpellUsagePercentage(spell, difficulty);
-                var totalPower = (hitPercentage * spellPower) * usagePercentage;
+                var totalPower = hitPercentage * spellPower * usagePercentage;
 
                 if (spell.Dc != null && spell.Dc.DcType != null)
                     if (spell.Dc.DcSuccess.Equals("half", StringComparison.OrdinalIgnoreCase))
-                        totalPower += (hitPercentage * (spellPower / 2)) * usagePercentage;
+                        totalPower += hitPercentage * (spellPower / 2) * usagePercentage;
 
                 CombatCalculator.ApplyDefenses(monsters,
                     r => r.Resistances,
@@ -665,8 +666,8 @@ public class PartyMember : Creature, ICombatCalculator
 
         offensivePower /= Spells.Count(item => item.IsDamageSpell());
 
-        _logger.Verbose($"Spells Power for {Name}: {(int)offensivePower}");
-        return (int)offensivePower;
+        _logger.Verbose($"Spells Power for {Name}: {offensivePower}");
+        return offensivePower;
     }
 
     private bool IsProficient(Weapon weapon)

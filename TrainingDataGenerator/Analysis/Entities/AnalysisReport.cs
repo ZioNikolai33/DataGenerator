@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.Enums;
 
 namespace TrainingDataGenerator.Analysis.Entities;
 

@@ -1,5 +1,5 @@
-using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Extensions;
 using TrainingDataGenerator.Interfaces;
 using Attribute = TrainingDataGenerator.Entities.Attribute;

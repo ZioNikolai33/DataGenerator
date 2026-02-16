@@ -1,6 +1,7 @@
 using MongoDB.Bson.Serialization;
 using Moq;
 using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Entities.MonsterEntities;
 using TrainingDataGenerator.Interfaces;

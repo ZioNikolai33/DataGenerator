@@ -1,6 +1,6 @@
 ﻿using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainingDataGenerator.Entities;
+namespace TrainingDataGenerator.Entities.MonsterEntities;
 
 public class DifficultyClass
 {

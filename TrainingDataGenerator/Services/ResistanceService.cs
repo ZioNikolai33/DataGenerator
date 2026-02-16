@@ -1,4 +1,4 @@
-using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Services;

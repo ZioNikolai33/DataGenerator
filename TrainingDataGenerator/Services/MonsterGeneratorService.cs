@@ -1,4 +1,5 @@
 using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;

@@ -1,5 +1,6 @@
 ﻿using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 
 namespace TrainingDataGenerator.Utilities;

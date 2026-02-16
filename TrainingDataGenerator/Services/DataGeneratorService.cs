@@ -1,7 +1,7 @@
 using System.Text.Json;
 using TrainingDataGenerator.DataBase;
 using TrainingDataGenerator.Entities;
-using TrainingDataGenerator.Generator;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 
@@ -15,6 +15,7 @@ public class DataGeneratorService : IDataGenerator
     private readonly IMonsterGenerator _monsterGenerator;
     private readonly IExporterService _exporterService;
     private readonly IEncounterValidator _encounterValidator;
+    private readonly IOutcomeCalculator _outcomeCalculator;
     private readonly Config _config;
 
     public DataGeneratorService(
@@ -23,12 +24,14 @@ public class DataGeneratorService : IDataGenerator
         IPartyGenerator partyGenerator,
         IMonsterGenerator monsterGenerator,
         IExporterService exporterService,
-        IEncounterValidator encounterValidator)
+        IEncounterValidator encounterValidator,
+        IOutcomeCalculator outcomeCalculator)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _random = random ?? throw new ArgumentNullException(nameof(random));
         _partyGenerator = partyGenerator ?? throw new ArgumentNullException(nameof(partyGenerator));
         _monsterGenerator = monsterGenerator ?? throw new ArgumentNullException(nameof(monsterGenerator));
+        _outcomeCalculator = outcomeCalculator ?? throw new ArgumentNullException(nameof(outcomeCalculator));
         _exporterService = exporterService ?? throw new ArgumentNullException(nameof(exporterService));
         _encounterValidator = encounterValidator ?? throw new ArgumentNullException(nameof(encounterValidator));
         _config = LoadConfig();
@@ -53,7 +56,7 @@ public class DataGeneratorService : IDataGenerator
                 var monstersList = DataManipulation.GetMonstersDifficultiesList(database);
                 var monsters = _monsterGenerator.GenerateRandomMonsters(difficulty, party.Select(p => p.Level).ToList(), monstersList.Where(m => m.ChallengeRating > 0).ToList());
                 var encounter = new Encounter(i, difficulty, party, monsters);
-                var encounterWithOutcome = OutcomeCalculator.CalculateOutcome(encounter, _logger, _random);
+                var encounterWithOutcome = _outcomeCalculator.CalculateOutcome(encounter);
 
                 encountersDataset.Add(encounterWithOutcome);
 
@@ -89,6 +92,7 @@ public class DataGeneratorService : IDataGenerator
         var baseFolder = Directory.GetCurrentDirectory();
         var fileName = $"{encounter.Id}.json";
         var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}", "encounters");
+
         if (!Directory.Exists(batchFolderName))
         {
             Directory.CreateDirectory(batchFolderName);

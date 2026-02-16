@@ -107,6 +107,7 @@ internal static class Program
                 services.AddScoped<IDataGenerator, DataGeneratorService>();
                 services.AddScoped<IPartyGenerator, PartyGeneratorService>();
                 services.AddScoped<IMonsterGenerator, MonsterGeneratorService>();
+                services.AddScoped<IOutcomeCalculator, OutcomeCalculator>();
 
                 // Validators
                 services.AddScoped<IEncounterValidator, EncounterValidator>();

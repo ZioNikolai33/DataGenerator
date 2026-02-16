@@ -3,7 +3,7 @@ using TrainingDataGenerator.Entities.Mappers;
 using System.Text.Json.Serialization;
 using TrainingDataGenerator.Interfaces;
 
-namespace TrainingDataGenerator.Entities;
+namespace TrainingDataGenerator.Entities.PartyEntities;
 
 public class Feature : BaseEntity
 {

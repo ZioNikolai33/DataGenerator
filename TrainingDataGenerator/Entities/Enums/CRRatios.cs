@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TrainingDataGenerator.Entities;
+namespace TrainingDataGenerator.Entities.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum CRRatios

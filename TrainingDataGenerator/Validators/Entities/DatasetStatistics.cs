@@ -58,7 +58,7 @@ public class DatasetStatistics
     {
         foreach (var distribution in new[] { OutcomeDistribution, DifficultyDistribution, PartyClassDistribution, PartyRaceDistribution, PartyLevelDistribution, PartySizeDistribution, MonsterCRDistribution, MonsterCountDistribution, CombatDurationDistribution })
             foreach (var item in distribution)
-                item.Percentage = TotalEncounters > 0 ? (double)item.Count / TotalEncounters : 0;
+                item.Percentage = TotalEncounters > 0 ? $"{(double)item.Count / TotalEncounters * 100:0.0}%" : "0%";
     }
 
     private void UpdateOrAddDistribution(List<Distribution<string>> distribution, string value)

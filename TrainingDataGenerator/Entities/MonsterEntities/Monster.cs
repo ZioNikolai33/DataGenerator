@@ -1,6 +1,8 @@
 ﻿using TrainingDataGenerator.Abstracts;
+using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Entities.MonsterEntities;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 using static TrainingDataGenerator.Entities.MonsterEntities.Damage;

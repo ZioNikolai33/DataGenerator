@@ -1,6 +1,10 @@
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Bibliography;
+using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Validators.Entities;
 
@@ -195,7 +199,7 @@ public class EncounterValidator : IEncounterValidator
 
     private void CreateExcel(XLWorkbook workbook, DatasetStatistics datasetStatistics)
     {
-        var statsSheet = workbook.Worksheets.Add("Statistics");
+        var statsSheet = workbook.Worksheets.Add("BaseStatistics");
 
         CreateSummaryLine(statsSheet, 1, "Total Encounters", datasetStatistics.TotalEncounters); // Summary Statistics: Total Encounters
         CreateSummaryLine(statsSheet, 2, "Valid Encounters", datasetStatistics.ValidEncounters); // Summary Statistics: Valid Encounters
@@ -203,40 +207,24 @@ public class EncounterValidator : IEncounterValidator
         CreateSummaryLine(statsSheet, 4, "Encounters Won (Party)", datasetStatistics.OutcomeDistribution.Where(o => o.Value.Equals(Results.Victory.ToString())).Select(o => o.Count).FirstOrDefault()); // Summary Statistics: Encounter Won (Party)
         CreateSummaryLine(statsSheet, 5, "Encounters Lost (Party)", datasetStatistics.OutcomeDistribution.Where(o => o.Value.Equals(Results.Defeat.ToString())).Select(o => o.Count).FirstOrDefault());// Summary Statistics: Encounter Lost (Party)
 
-        // Difficulty Distribution Table
-        var startDifficultyCol = 4;
-        CreateCountTable(statsSheet, 1, startDifficultyCol, datasetStatistics.DifficultyDistribution, "Difficulty", "Count");
+        CreateSheet(workbook, nameof(datasetStatistics.OutcomeDistribution), datasetStatistics.OutcomeDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.DifficultyDistribution), datasetStatistics.DifficultyDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.PartyClassDistribution), datasetStatistics.PartyClassDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.PartyRaceDistribution), datasetStatistics.PartyRaceDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.PartyLevelDistribution), datasetStatistics.PartyLevelDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.PartySizeDistribution), datasetStatistics.PartySizeDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.MonsterCRDistribution), datasetStatistics.MonsterCRDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.MonsterCountDistribution), datasetStatistics.MonsterCountDistribution);
+        CreateSheet(workbook, nameof(datasetStatistics.CombatDurationDistribution), datasetStatistics.CombatDurationDistribution);
+            
+    }
 
-        // Party Level Distribution Table
-        var startLevelCol = startDifficultyCol + 4;
-        CreateCountTable(statsSheet, 1, startLevelCol, datasetStatistics.PartyLevelDistribution, "Party Level", "Count");
+    private void CreateSheet(XLWorkbook workbook, string header, IEnumerable<Distribution<string>> data)
+    {
+        var sheet = workbook.Worksheets.Add(header);
 
-        // Party Class Distribution Table
-        var startClassCol = startLevelCol + 4;
-        CreateCountTable(statsSheet, 1, startClassCol, datasetStatistics.PartyClassDistribution, "Party Class", "Count");
-
-        // Party Race Distribution Table
-        var startRaceCol = startClassCol + 4;
-        CreateCountTable(statsSheet, 1, startRaceCol, datasetStatistics.PartyRaceDistribution, "Party Race", "Count");
-
-        // Party Size Distribution Table
-        var startSizeCol = startRaceCol + 4;
-        CreateCountTable(statsSheet, 1, startSizeCol, datasetStatistics.PartySizeDistribution, "Party Size", "Count");
-
-        // Monster CR Distribution Table
-        var startCRCol = startSizeCol + 4;
-        CreateCountTable(statsSheet, 1, startCRCol, datasetStatistics.MonsterCRDistribution, "Monster CR", "Count");
-
-        // Monster Count Distribution Table
-        var startMonsterCountCol = startCRCol + 4;
-        CreateCountTable(statsSheet, 1, startMonsterCountCol, datasetStatistics.MonsterCountDistribution, "Monster Count", "Count");
-
-        // Combat Duration Distribution Table
-        var startDurationCol = startMonsterCountCol + 4;
-        CreateCountTable(statsSheet, 1, startDurationCol, datasetStatistics.CombatDurationDistribution, "Combat Duration", "Count");
-
-        // Auto-fit columns
-        statsSheet.Columns().AdjustToContents();
+        sheet.Cell(1, 1).InsertTable(data);
+        sheet.Columns().AdjustToContents();
     }
 
     private void CreateSummaryLine(IXLWorksheet sheet, int row, string label, int value)
@@ -244,26 +232,6 @@ public class EncounterValidator : IEncounterValidator
         sheet.Cell(row, 1).Value = label;
         sheet.Cell(row, 2).Value = value;
         sheet.Range(row, 1, row, 2).Style.Font.Bold = true;
-    }
-
-    private void CreateCountTable(IXLWorksheet sheet, int startRow, int startCol, IEnumerable<Distribution<string>> data, string header1, string header2)
-    {
-        sheet.Cell(startRow, startCol).Value = header1;
-        sheet.Cell(startRow, startCol + 1).Value = header2;
-        sheet.Cell(startRow, startCol + 2).Value = "Percentage";
-        sheet.Range(startRow, startCol, startRow, startCol + 2).Style.Font.Bold = true;
-
-        var row = startRow + 1;
-
-        foreach (var kvp in data.OrderBy(x => x.Value))
-        {
-            sheet.Cell(row, startCol).Value = kvp.Value;
-            sheet.Cell(row, startCol + 1).Value = kvp.Count;
-            sheet.Cell(row, startCol + 2).Value = kvp.Percentage;
-            sheet.Cell(row, startCol + 2).Style.NumberFormat.Format = "0.0%";
-
-            row++;
-        }
     }
 
     #endregion

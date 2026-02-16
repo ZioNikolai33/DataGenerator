@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using TrainingDataGenerator.Entities.Mappers;
 
-namespace TrainingDataGenerator.Entities;
+namespace TrainingDataGenerator.Entities.PartyEntities;
 
 [BsonIgnoreExtraElements]
 public class AbilityBonus

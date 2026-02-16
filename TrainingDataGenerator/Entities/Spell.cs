@@ -1,5 +1,6 @@
 ﻿using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Entities.MonsterEntities;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Entities;

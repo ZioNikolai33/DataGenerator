@@ -1,11 +1,11 @@
 using MongoDB.Bson.Serialization;
-using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Services;
 using Moq;
 using Attribute = TrainingDataGenerator.Entities.Attribute;
+using TrainingDataGenerator.Entities.PartyEntities;
 
 namespace TrainingDataGenerator.Tests.Unit;
 

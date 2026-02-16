@@ -1,6 +1,6 @@
-using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 

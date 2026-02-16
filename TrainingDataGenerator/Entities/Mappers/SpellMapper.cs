@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using TrainingDataGenerator.Entities.PartyEntities;
 
 namespace TrainingDataGenerator.Entities.Mappers;
 

@@ -1,4 +1,5 @@
 using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 

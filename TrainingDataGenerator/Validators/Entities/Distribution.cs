@@ -4,7 +4,7 @@ public class Distribution<T> where T : class
 {
     public T Value { get; set; } = default!;
     public int Count { get; set; }
-    public double Percentage { get; set; } = 0;
+    public string Percentage { get; set; } = "0%";
 
     public Distribution(T value)
     {

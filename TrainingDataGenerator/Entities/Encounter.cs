@@ -1,4 +1,7 @@
-﻿namespace TrainingDataGenerator.Entities;
+﻿using TrainingDataGenerator.Entities.Enums;
+using TrainingDataGenerator.Entities.PartyEntities;
+
+namespace TrainingDataGenerator.Entities;
 
 public sealed class Encounter
 {
