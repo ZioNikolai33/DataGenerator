@@ -1,7 +1,4 @@
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Bibliography;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.PartyEntities;
@@ -136,26 +133,37 @@ public class EncounterValidator : IEncounterValidator
     {
         var errors = new List<string>();
         var stats = new DatasetStatistics();
-
-        foreach (var encounter in encounters)
+        try
         {
-            var result = ValidateEncounter(encounter);
+            _logger.Information("Starting dataset validation...");
 
-            if (!result.IsValid)
-                errors.AddRange(result.Errors);
+            foreach (var encounter in encounters)
+            {
+                var result = ValidateEncounter(encounter);
 
-            stats.Update(encounter, result.IsValid);
+                if (!result.IsValid)
+                    errors.AddRange(result.Errors);
+
+                stats.Update(encounter, result.IsValid);
+            }
+
+            // Check for balance
+            stats.CalculatePercentage();
+
+            if (stats.OutcomeDistribution.Any(kvp => kvp.Count < stats.TotalEncounters * 0.1))
+                errors.Add($"Imbalanced outcome distribution: {string.Join(", ", stats.OutcomeDistribution)}");
+
+            var validationResult = new ValidationResult(errors, stats);
+            SaveValidationStatsAsync(validationResult.Statistics ?? new DatasetStatistics(), startDate);
+            await SaveValidationErrorsAsync(validationResult.Errors, startDate);
+
+            _logger.Information("Dataset validation completed successfully");
         }
-
-        // Check for balance
-        stats.CalculatePercentage();
-
-        if (stats.OutcomeDistribution.Any(kvp => kvp.Count < stats.TotalEncounters * 0.1))
-            errors.Add($"Imbalanced outcome distribution: {string.Join(", ", stats.OutcomeDistribution)}");
-
-        var validationResult = new ValidationResult(errors, stats);
-        SaveValidationStatsAsync(validationResult.Statistics ?? new DatasetStatistics(), startDate);
-        await SaveValidationErrorsAsync(validationResult.Errors, startDate);
+        catch (Exception ex)
+        {
+            _logger.Error($"Error during dataset validation: {ex}");
+            throw;
+        }
     }
 
     private async Task SaveValidationErrorsAsync(List<string> errors, string startDate)

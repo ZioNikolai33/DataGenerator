@@ -49,13 +49,20 @@ internal static class Program
 
             logger.Verbose($"Data generation completed at {DateTime.Now}");
             logger.Verbose($"Total encounters generated: {encounterDataset.Count}");
-            logger.Verbose("Analyzing dataset...");
+            logger.Verbose("Validating dataset...");
 
             // Validate encounters
             var validator = host.Services.GetRequiredService<IEncounterValidator>();
             await validator.ValidateDatasetAsync(encounterDataset, startTimeString);
 
             logger.Verbose("Dataset validation completed");
+            logger.Verbose("Analyzing dataset...");
+
+            // Analyze dataset
+            var analyzer = host.Services.GetRequiredService<IDatasetAnalyzer>();
+            analyzer.AnalyzeDatasetAsync(encounterDataset, startTimeString);
+
+            logger.Verbose("Dataset analysis completed");
             logger.Information($"Total execution time: {DateTime.Now - StartTime}");
         }
         catch (InvalidOperationException ex)

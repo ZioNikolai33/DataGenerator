@@ -1,8 +1,8 @@
-﻿using TrainingDataGenerator.Analysis.Entities;
+﻿using TrainingDataGenerator.Entities;
 
 namespace TrainingDataGenerator.Interfaces;
 
 public interface IDatasetAnalyzer
 {
-    Task<AnalysisReport> AnalyzeDatasetAsync(string datasetPath);
+    void AnalyzeDatasetAsync(IEnumerable<Encounter> encounters, string startDate);
 }
