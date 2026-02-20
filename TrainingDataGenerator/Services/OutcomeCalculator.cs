@@ -1,4 +1,5 @@
 ﻿using TrainingDataGenerator.Entities;
+using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 
@@ -19,23 +20,26 @@ public class OutcomeCalculator : IOutcomeCalculator
     {
         _logger.Verbose($"Calculating outcome for encounter {encounter.Id}");
 
-        var randomFactorParty = _random.Next(-10, 11); // -10% to +10%
-        var randomFactorMonsters = _random.Next(-10, 11); // -10% to +10%
-        _logger.Information($"Random factor for Party: {randomFactorParty}% - Random factor for Monsters: {randomFactorMonsters}%");
+        encounter.RandomFactorParty = _random.Next(-10, 11); // -10% to +10%
+        encounter.RandomFactorMonsters = _random.Next(-10, 11); // -10% to +10%
+        _logger.Information($"Random factor for Party: {encounter.RandomFactorParty}% - Random factor for Monsters: {encounter.RandomFactorMonsters}%");
 
-        var baseStatsParty = (int)encounter.PartyMembers.Average(m => m.CalculateBaseStats());
+        encounter.PartyMembers.ForEach(m => m.CalculatePowers(encounter.Monsters, encounter.Difficulty));
+        encounter.Monsters.ForEach(m => m.CalculatePowers(encounter.PartyMembers, encounter.Difficulty));
+
+        var baseStatsParty = (int)encounter.PartyMembers.Average(m => m.BaseStats);
         _logger.Information($"Total Base Stats for Party: {baseStatsParty}");
-        var baseStatsMonsters = (int)encounter.Monsters.Average(m => m.CalculateBaseStats());
+        var baseStatsMonsters = (int)encounter.Monsters.Average(m => m.BaseStats);
         _logger.Information($"Total Base Stats for Monsters: {baseStatsMonsters}");
 
-        var offensivePowerParty = encounter.PartyMembers.Sum(m => m.CalculateOffensivePower(encounter.Monsters, encounter.Difficulty));
+        var offensivePowerParty = encounter.PartyMembers.Sum(m => m.OffensivePower);
         _logger.Information($"Total Offensive Power for Party: {offensivePowerParty}");
-        var offensivePowerMonsters = encounter.Monsters.Sum(m => m.CalculateOffensivePower(encounter.PartyMembers, encounter.Difficulty));
+        var offensivePowerMonsters = encounter.Monsters.Sum(m => m.OffensivePower);
         _logger.Information($"Total Offensive Power for Monsters: {offensivePowerMonsters}");
 
-        var healingPowerParty = encounter.PartyMembers.Sum(m => m.CalculateHealingPower());
+        var healingPowerParty = encounter.PartyMembers.Sum(m => m.HealingPower);
         _logger.Information($"Total Healing Power for Party: {healingPowerParty}");
-        var healingPowerMonsters = encounter.Monsters.Sum(m => m.CalculateHealingPower());
+        var healingPowerMonsters = encounter.Monsters.Sum(m => m.HealingPower);
         _logger.Information($"Total Healing Power for Monsters: {healingPowerMonsters}");
 
         var totalPartyCombatPower = offensivePowerParty + healingPowerParty;
@@ -43,9 +47,9 @@ public class OutcomeCalculator : IOutcomeCalculator
 
         CombatCalculator.ApplyBaseStatsIncrement(baseStatsParty, baseStatsMonsters, ref totalPartyCombatPower, ref totalMonstersCombatPower);
 
-        totalPartyCombatPower = (int)(totalPartyCombatPower * (1 + randomFactorParty / 100.0));
+        totalPartyCombatPower = (int)(totalPartyCombatPower * (1 + encounter.RandomFactorParty / 100.0));
         _logger.Information($"Total Power for Party after random factor: {totalPartyCombatPower}");
-        totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1 + randomFactorMonsters / 100.0));
+        totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1 + encounter.RandomFactorMonsters / 100.0));
         _logger.Information($"Total Power for Monsters after random factor: {totalMonstersCombatPower}");
 
         if (totalPartyCombatPower <= 0)

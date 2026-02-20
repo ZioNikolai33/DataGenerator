@@ -499,7 +499,14 @@ public class PartyMember : Creature, ICombatCalculator
 
     #region Outcome Calculations
 
-    public int CalculateBaseStats()
+    public void CalculatePowers<T>(List<T> monsters, CRRatios difficulty) where T : ICombatCalculator
+    {
+        SetBaseStats();
+        SetOffensivePower(monsters, difficulty);
+        SetHealingPower();
+    }
+
+    public void SetBaseStats()
     {
         var totalBaseStats = 0;
 
@@ -509,7 +516,7 @@ public class PartyMember : Creature, ICombatCalculator
 
         _logger.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
 
-        return totalBaseStats;
+        BaseStats = totalBaseStats;
     }
 
     public int CalculateSpeedValue()
@@ -529,17 +536,17 @@ public class PartyMember : Creature, ICombatCalculator
 
     public int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
 
-    public int CalculateOffensivePower<T>(List<T> monsters, CRRatios difficulty) where T : ICombatCalculator
+    public void SetOffensivePower<T>(List<T> monsters, CRRatios difficulty) where T : ICombatCalculator
     {
         var offensivePower = 0;
 
         offensivePower += CalculateWeaponsPower(monsters.Cast<Monster>().ToList());
         offensivePower += CalculateSpellsPower(monsters.Cast<Monster>().ToList(), difficulty);
 
-        return offensivePower;
+        OffensivePower = offensivePower;
     }
 
-    public int CalculateHealingPower()
+    public void SetHealingPower()
     {
         var healingPower = 0;
 
@@ -548,7 +555,7 @@ public class PartyMember : Creature, ICombatCalculator
                 healingPower += spell.GetHealingPower(SpellSlots, this);
 
         _logger.Verbose($"Total Healing Power for {Name}: {healingPower}");
-        return healingPower;
+        HealingPower = healingPower;
     }
 
     public double CalculateSpellUsagePercentage(Spell spell, CRRatios difficulty)

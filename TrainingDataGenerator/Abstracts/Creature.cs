@@ -1,4 +1,5 @@
-﻿using TrainingDataGenerator.Entities;
+﻿using System.Text.Json.Serialization;
+using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Mappers;
 
 namespace TrainingDataGenerator.Abstracts;
@@ -22,6 +23,13 @@ public abstract class Creature
     public List<string> Vulnerabilities { get; set; } = new List<string>();
     public List<string> Resistances { get; set; } = new List<string>();
     public List<string> Immunities { get; set; } = new List<string>();
+
+    [JsonIgnore]
+    public int BaseStats { get; set; }
+    [JsonIgnore]
+    public int OffensivePower { get; set; }
+    [JsonIgnore]
+    public int HealingPower { get; set; }
 
     protected void CreateSkills()
     {

@@ -5,11 +5,12 @@ namespace TrainingDataGenerator.Interfaces;
 
 public interface ICombatCalculator
 {
-    int CalculateBaseStats();
+    void CalculatePowers<T>(List<T> targets, CRRatios difficulty) where T : ICombatCalculator;
+    void SetBaseStats();
+    void SetOffensivePower<T>(List<T> targets, CRRatios difficulty) where T : ICombatCalculator;
+    void SetHealingPower();
     int CalculateSpeedValue();
     int CalculateStatsValue();
     int CalculateSkillsValue();
-    int CalculateOffensivePower<T>(List<T> targets, CRRatios difficulty) where T : ICombatCalculator;
-    int CalculateHealingPower();
     double CalculateSpellUsagePercentage(Spell spell, CRRatios difficulty);
 }

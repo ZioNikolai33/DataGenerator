@@ -133,7 +133,14 @@ public class Monster : Creature, ICombatCalculator
         }
     }
 
-    public int CalculateBaseStats()
+    public void CalculatePowers<T>(List<T> partyMembers, CRRatios difficulty) where T : ICombatCalculator
+    {
+        SetBaseStats();
+        SetOffensivePower(partyMembers, difficulty);
+        SetHealingPower();
+    }
+
+    public void SetBaseStats()
     {
         var totalBaseStats = 0;
 
@@ -143,7 +150,7 @@ public class Monster : Creature, ICombatCalculator
 
         _logger.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
 
-        return totalBaseStats;
+        BaseStats = totalBaseStats;
     }
 
     public int CalculateSpeedValue()
@@ -175,17 +182,17 @@ public class Monster : Creature, ICombatCalculator
 
     public int CalculateSkillsValue() => Skills.Sum(item => item.Modifier);
 
-    public int CalculateOffensivePower<T>(List<T> party, CRRatios difficulty) where T : ICombatCalculator
+    public void SetOffensivePower<T>(List<T> party, CRRatios difficulty) where T : ICombatCalculator
     {
         var offensivePower = 0;
 
         offensivePower += CalculateAttackPower(party.Cast<PartyMember>().ToList(), difficulty);
         offensivePower += CalculateSpellsPower(party.Cast<PartyMember>().ToList(), difficulty);
 
-        return offensivePower;
+        OffensivePower = offensivePower;
     }
 
-    public int CalculateHealingPower()
+    public void SetHealingPower()
     {
         var healingPower = 0;
         var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0)?.Spellcast ?? null;
@@ -197,7 +204,7 @@ public class Monster : Creature, ICombatCalculator
                     healingPower += spell.GetHealingPower(spellcast.SpellSlots, this);
 
         _logger.Verbose($"Total Healing Power for {Name}: {healingPower}");
-        return healingPower;
+        HealingPower = healingPower;
     }
 
     public double CalculateSpellUsagePercentage(Spell spell, CRRatios difficulty)
