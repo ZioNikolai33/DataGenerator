@@ -155,7 +155,8 @@ public class MonsterTests
         var monster = CreateTestMonster();
 
         // Act
-        var baseStats = monster.CalculateBaseStats();
+        monster.SetBaseStats();
+        var baseStats = monster.BaseStats;
 
         // Assert
         Assert.True(baseStats > 0);
@@ -168,7 +169,8 @@ public class MonsterTests
         var monster = CreateTestMonster();
 
         // Act
-        var baseStats = monster.CalculateBaseStats();
+        monster.SetBaseStats();
+        var baseStats = monster.BaseStats;
         var expectedStats = monster.CalculateSpeedValue() + 
                           monster.CalculateStatsValue() + 
                           monster.CalculateSkillsValue();
@@ -412,10 +414,10 @@ public class MonsterTests
         monster.SpecialAbilities.Clear();
 
         // Act
-        var healingPower = monster.CalculateHealingPower();
+        monster.SetHealingPower();
 
         // Assert
-        Assert.Equal(0, healingPower);
+        Assert.Equal(0, monster.HealingPower);
     }
 
     [Fact]
@@ -425,10 +427,10 @@ public class MonsterTests
         var monster = CreateTestMonster();
 
         // Act
-        var healingPower = monster.CalculateHealingPower();
+        monster.SetHealingPower();
 
         // Assert
-        Assert.Equal(0, healingPower);
+        Assert.Equal(0, monster.HealingPower);
     }
 
     #endregion

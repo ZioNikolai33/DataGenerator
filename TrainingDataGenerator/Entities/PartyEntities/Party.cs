@@ -514,8 +514,10 @@ public class PartyMember : Creature, ICombatCalculator
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
 
-        _logger.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
+        if (totalBaseStats <= 0)
+            totalBaseStats = 1;
 
+        _logger.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
         BaseStats = totalBaseStats;
     }
 
@@ -543,6 +545,10 @@ public class PartyMember : Creature, ICombatCalculator
         offensivePower += CalculateWeaponsPower(monsters.Cast<Monster>().ToList());
         offensivePower += CalculateSpellsPower(monsters.Cast<Monster>().ToList(), difficulty);
 
+        if (offensivePower <= 0)
+            offensivePower = 1;
+
+        _logger.Verbose($"Total Offensive Power for {Name}: {offensivePower}");
         OffensivePower = offensivePower;
     }
 
@@ -553,6 +559,9 @@ public class PartyMember : Creature, ICombatCalculator
         foreach (var spell in Spells)
             if (spell.IsHealingSpell())
                 healingPower += spell.GetHealingPower(SpellSlots, this);
+
+        if (healingPower < 0)
+            healingPower = 1;
 
         _logger.Verbose($"Total Healing Power for {Name}: {healingPower}");
         HealingPower = healingPower;

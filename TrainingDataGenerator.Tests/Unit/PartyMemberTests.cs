@@ -549,7 +549,8 @@ public class PartyMemberTests
         };
 
         // Act
-        var totalStats = member.CalculateBaseStats();
+        member.SetBaseStats();
+        var totalStats = member.BaseStats;
 
         // Assert
         var expectedTotal = 30 + (15 + 14 + 13 + 12 + 10 + 8) + (2 + 2);
@@ -634,10 +635,10 @@ public class PartyMemberTests
         member.Spells = new List<Spell>();
 
         // Act
-        var healingPower = member.CalculateHealingPower();
+        member.SetHealingPower();
 
         // Assert
-        Assert.Equal(0, healingPower);
+        Assert.Equal(0, member.HealingPower);
     }
 
     #endregion

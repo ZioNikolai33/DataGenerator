@@ -1,7 +1,6 @@
 using ClosedXML.Excel;
 using System.Data;
 using TrainingDataGenerator.Analysis.Entities;
-using TrainingDataGenerator.Analysis.Enums;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Interfaces;
@@ -188,6 +187,36 @@ public class DatasetAnalyzer : IDatasetAnalyzer
             .OrderBy(x => x.Difficulty);
         foreach (var group in resultsDiffGroups)
             analysisData.Data.Rows.Add(new object[] { group.Difficulty, group.Wins, group.Losses });
+        report.Analyses.Add(analysisData);
+
+        analysisData = CreateDataTables("Monsters - CR - BaseStats", "Monster", "CR", "BaseStats", encounters);
+        var monsterBaseGroups = encounters
+            .SelectMany(e => e.Monsters)
+            .GroupBy(m => m.Name)
+            .Select(g => new { Monster = g.Key, CR = g.First().ChallengeRating, BaseStats = g.Average(m => m.BaseStats) })
+            .OrderBy(x => x.Monster);
+        foreach (var group in monsterBaseGroups)
+            analysisData.Data.Rows.Add(new object[] { group.Monster, group.CR, group.BaseStats });
+        report.Analyses.Add(analysisData);
+
+        analysisData = CreateDataTables("Monsters - CR - OffensivePower", "Monster", "CR", "OffensivePower", encounters);
+        var monsterOffensiveGroups = encounters
+            .SelectMany(e => e.Monsters)
+            .GroupBy(m => m.Name)
+            .Select(g => new { Monster = g.Key, CR = g.First().ChallengeRating, OffensivePower = (int)g.Average(m => m.OffensivePower) })
+            .OrderBy(x => x.Monster);
+        foreach (var group in monsterOffensiveGroups)
+            analysisData.Data.Rows.Add(new object[] { group.Monster, group.CR, group.OffensivePower });
+        report.Analyses.Add(analysisData);
+
+        analysisData = CreateDataTables("Monsters - CR - HealingPower", "Monster", "CR", "HealingPower", encounters);
+        var monsterHealingGroups = encounters
+            .SelectMany(e => e.Monsters)
+            .GroupBy(m => m.Name)
+            .Select(g => new { Monster = g.Key, CR = g.First().ChallengeRating, HealingPower = (int)g.Average(m => m.HealingPower) })
+            .OrderBy(x => x.Monster);
+        foreach (var group in monsterHealingGroups)
+            analysisData.Data.Rows.Add(new object[] { group.Monster, group.CR, group.HealingPower });
         report.Analyses.Add(analysisData);
     }
 
