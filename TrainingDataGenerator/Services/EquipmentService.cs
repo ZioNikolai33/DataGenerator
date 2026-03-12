@@ -21,12 +21,12 @@ public class EquipmentService : IEquipmentService
     {
         _logger.Verbose($"Managing equipment for {member.Name}");
 
-        var allEquipmentsBase = classMapper.StartingEquipments;
+        var allEquipmentsBase = classMapper.StartingEquipments.ToList();
         var randomBaseEquipments = classMapper.StartingEquipmentsOptions
             .SelectMany(item => item.GetRandomEquipment(_random))
             .ToList();
         
-        allEquipmentsBase.AddRange(randomBaseEquipments);
+        allEquipmentsBase.AddRange(randomBaseEquipments.ToList());
 
         var allEquipmentsMapper = allEquipmentsBase
             .Select(item => EntitiesFinder.GetEntityByIndex(Lists.equipments, item.Equip))
@@ -35,10 +35,10 @@ public class EquipmentService : IEquipmentService
 
         var (armors, meleeWeapons, rangedWeapons, ammunitions) = ConvertToTypedEquipment(allEquipmentsMapper);
 
-        member.MeleeWeapons = meleeWeapons;
-        member.RangedWeapons = rangedWeapons;
-        member.Ammunitions = ammunitions;
-        member.Armors = armors;
+        member.MeleeWeapons = meleeWeapons.ToList();
+        member.RangedWeapons = rangedWeapons.ToList();
+        member.Ammunitions = ammunitions.ToList();
+        member.Armors = armors.ToList();
 
         // Auto-equip ammunition
         ammunitions.ForEach(item => item.IsEquipped = true);

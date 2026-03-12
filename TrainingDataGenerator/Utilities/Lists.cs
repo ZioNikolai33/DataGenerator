@@ -28,6 +28,8 @@ public static class Lists
     public readonly static List<BaseEntity> mediumArmors = new Database().GetAllMediumArmors().OrderBy(m => m.Name).ToList();
     public readonly static List<BaseEntity> heavyArmors = new Database().GetAllHeavyArmors().OrderBy(h => h.Name).ToList();
     public readonly static List<BaseEntity> shields = new Database().GetAllShields().OrderBy(s => s.Name).ToList();
+    public readonly static List<BaseEntity> holySymbols = new Database().GetAllHolySymbols().OrderBy(h => h.Name).ToList();
+    public readonly static List<BaseEntity> druidicFocus = new Database().GetAllDruidicFocus().OrderBy(d => d.Name).ToList();
     public readonly static List<EquipmentMapper> equipments = new Database().GetAllEquipments().OrderBy(e => e.Name).ToList();
 
     public static List<BaseEntity> GetEquipmentsList(string index)
@@ -46,6 +48,8 @@ public static class Lists
             "medium-armor" => mediumArmors,
             "heavy-armor" => heavyArmors,
             "shields" => shields,
+            "holy-symbols" => holySymbols,
+            "druidic-focus" => druidicFocus,
             _ => new List<BaseEntity>()
         };
     }

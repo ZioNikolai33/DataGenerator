@@ -143,5 +143,15 @@ public class Database
             .Find(Builders<EquipmentCategoryMapper>.Filter.Eq("index", "martial-ranged-weapons"))
             .FirstOrDefault().Equipment;
 
+    public List<BaseEntity> GetAllHolySymbols() =>
+        _db.GetCollection<EquipmentCategoryMapper>("EquipmentCategories")
+            .Find(Builders<EquipmentCategoryMapper>.Filter.Eq("index", "holy-symbols"))
+            .FirstOrDefault().Equipment;
+
+    public List<BaseEntity> GetAllDruidicFocus() =>
+        _db.GetCollection<EquipmentCategoryMapper>("EquipmentCategories")
+            .Find(Builders<EquipmentCategoryMapper>.Filter.Eq("index", "druidic-focus"))
+            .FirstOrDefault().Equipment;
+
     public IMongoDatabase GetInstance() => _db;
 }

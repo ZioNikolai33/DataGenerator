@@ -136,6 +136,6 @@ public class StartingEquipmentOptionMapper
                 .Take(Choose)
                 .Select(x => new ClassMapper.Equipment(new BaseEntity(x.Index, x.Name), 1)));
         
-        return equipments.Select(x => new ClassMapper.Equipment(new BaseEntity(x.Index, x.Name), 1)).ToList();
+        return selectedEquipments;
     }
 }
