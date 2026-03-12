@@ -63,16 +63,21 @@ public static class UtilityMethods
         int value = 0;
 
         if (!dice.Contains("d"))
-            return int.Parse(dice.Trim()) / 2;
+        {
+            if (int.Parse(dice.Trim()) == 1)
+                return int.Parse(dice.Trim());
+            else
+                return int.Parse(dice.Trim()) / 2;
+        }
 
         var diceParts = dice.Trim().Split("d");
 
         if (dice.Trim().Contains("+ MOD"))
             value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + GetSpellcastingModifierFromFullName(member.SpellcastingAbility, member);
         else if (dice.Contains("+"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + int.Parse(diceParts[1].Split("+")[0]);
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + int.Parse(diceParts[1].Split("+")[1]);
         else if (dice.Trim().Contains("-"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) / 2) - int.Parse(diceParts[1].Split("-")[0]);
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) / 2) - int.Parse(diceParts[1].Split("-")[1]);
         else
             value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
 
@@ -84,16 +89,21 @@ public static class UtilityMethods
         int value = 0;
 
         if (!dice.Contains("d"))
-            return int.Parse(dice.Trim());
+        {
+            if (int.Parse(dice.Trim()) == 1)
+                return int.Parse(dice.Trim());
+            else
+                return int.Parse(dice.Trim()) / 2;
+        }
 
         var diceParts = dice.Trim().Split("d");
 
         if (dice.Trim().Contains("+ MOD"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + GetSpellcastingModifier(monster);
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0]))) + GetSpellcastingModifier(monster);
         else if (dice.Contains("+"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + int.Parse(diceParts[1].Split("+")[0]);
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) / 2) + int.Parse(diceParts[1].Split("+")[1]);
         else if (dice.Trim().Contains("-"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) / 2) - int.Parse(diceParts[1].Split("-")[0]);
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) / 2) - int.Parse(diceParts[1].Split("-")[1]);
         else
             value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
 
@@ -105,16 +115,21 @@ public static class UtilityMethods
         int value = 0;
 
         if (!dice.Contains("d"))
-            return int.Parse(dice.Trim());
+        {
+            if (int.Parse(dice.Trim()) == 1)
+                return int.Parse(dice.Trim());
+            else
+                return int.Parse(dice.Trim()) / 2;
+        }
 
         var diceParts = dice.Trim().Split("d");
 
         if (dice.Contains("+"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0])) + int.Parse(diceParts[1].Split("+")[0]));
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("+")[0]) / 2) + int.Parse(diceParts[1].Split("+")[0]));
         else if (dice.Trim().Contains("-"))
-            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0])) - int.Parse(diceParts[1].Split("-")[0]));
+            value = ((int.Parse(diceParts[0]) * int.Parse(diceParts[1].Split("-")[0]) / 2) - int.Parse(diceParts[1].Split("-")[0]));
         else
-            value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1]));
+            value = (int.Parse(diceParts[0]) * int.Parse(diceParts[1])) / 2;
 
         return value;
     }

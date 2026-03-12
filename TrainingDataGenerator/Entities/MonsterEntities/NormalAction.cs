@@ -1,5 +1,6 @@
 ﻿using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
+using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Entities.MonsterEntities;
 
@@ -27,7 +28,7 @@ public class NormalAction
         Actions = action.Actions?.Select(item => new MultiAction
         {
             ActionName = item.ActionName,
-            Count = (item.Count != null) ? (item.Count is string ? -1 : (int)item.Count) : 0,
+            Count = (item.Count != null && !item.Count.ToString().Contains("Number")) ? (item.Count.ToString().Contains("d") ? UtilityMethods.GetDiceValue(item.Count.ToString() ?? "1") : int.Parse(item.Count.ToString())) : 1,
             Type = item.Type
         }).ToList() ?? new List<MultiAction>();
         AttackBonus = action.AttackBonus != null ? (byte?)action.AttackBonus : null;
@@ -48,7 +49,7 @@ public class NormalAction
                     Actions.AddRange(option.Items.Select(item => new MultiAction
                     {
                         ActionName = item.ActionName,
-                        Count = (item.Count != null) ? (int)item.Count : 0,
+                        Count = (item.Count != null) ? UtilityMethods.GetDiceValue(item.Count.ToString() ?? "1") : 1,
                         Type = item.Type
                     }).ToList());
                 }
@@ -57,11 +58,19 @@ public class NormalAction
                     Actions.Add(new MultiAction
                     {
                         ActionName = option.ActionName,
-                        Count = (option.Count != null) ? (int)option.Count : 0,
+                        Count = (option.Count != null) ? UtilityMethods.GetDiceValue(option.Count.ToString() ?? "1") : 1,
                         Type = option.Type
                     });
                 }
             }
         }
+    }
+
+    public NormalAction() {
+        Name = string.Empty;
+        Desc = string.Empty;
+        Actions = new List<MultiAction>();
+        Damage = new List<Damage>();
+        Dc = null;
     }
 }

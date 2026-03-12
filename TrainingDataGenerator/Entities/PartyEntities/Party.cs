@@ -4,6 +4,7 @@ using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
+using static TrainingDataGenerator.Entities.Mappers.MonsterMapper;
 
 namespace TrainingDataGenerator.Entities.PartyEntities;
 
@@ -125,7 +126,7 @@ public class PartyMember : Creature, ICombatCalculator
 
         var randomSubraceEntity = _random.SelectRandom(race.Subraces);
         var subrace = EntitiesFinder.GetEntityByIndex(
-            Lists.subraces.ToList(),
+            Lists.subraces,
             new BaseEntity(race.Index, race.Name),
             randomSubraceEntity);
 
@@ -139,7 +140,7 @@ public class PartyMember : Creature, ICombatCalculator
     {
         var randomSubclassEntity = _random.SelectRandom(classMapper.Subclasses);
         var subclass = EntitiesFinder.GetEntityByIndex(
-            Lists.subclasses.ToList(),
+            Lists.subclasses,
             new BaseEntity(classMapper.Index, classMapper.Name),
             randomSubclassEntity);
 
@@ -514,7 +515,7 @@ public class PartyMember : Creature, ICombatCalculator
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
 
-        if (totalBaseStats <= 0)
+        if (totalBaseStats < 1)
             totalBaseStats = 1;
 
         _logger.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
@@ -545,7 +546,7 @@ public class PartyMember : Creature, ICombatCalculator
         offensivePower += CalculateWeaponsPower(monsters.Cast<Monster>().ToList());
         offensivePower += CalculateSpellsPower(monsters.Cast<Monster>().ToList(), difficulty);
 
-        if (offensivePower <= 0)
+        if (offensivePower < 1)
             offensivePower = 1;
 
         _logger.Verbose($"Total Offensive Power for {Name}: {offensivePower}");
@@ -559,9 +560,6 @@ public class PartyMember : Creature, ICombatCalculator
         foreach (var spell in Spells)
             if (spell.IsHealingSpell())
                 healingPower += spell.GetHealingPower(SpellSlots, this);
-
-        if (healingPower < 0)
-            healingPower = 1;
 
         _logger.Verbose($"Total Healing Power for {Name}: {healingPower}");
         HealingPower = healingPower;
@@ -582,15 +580,6 @@ public class PartyMember : Creature, ICombatCalculator
             return 1 / (int)difficulty;
 
         var totalAvailableSlots = SpellSlots.GetTotalSlots(spell.Level);
-        var numCompetingSpells = Spells.Count(s => s.Level > 0 && s.Level <= spell.Level && s.Uses == "");
-
-        for (var level = 0; level < DataConstants.MaxSpellLevel; level++)
-            if (level < spell.Level && SpellSlots.GetSlotsLevelAvailable() >= level)
-                numCompetingSpells += Spells.Count(s => s.Level > 0 && s.Level <= level && s.Uses == "");
-
-        if (numCompetingSpells == 0)
-            return 0.0;
-
         var avgSlotsPerSpell = (double)totalAvailableSlots / Math.Max(1, Spells.Count(s => s.Level > 0 && s.Uses == ""));
         var usagePercentage = Math.Min(1.0, avgSlotsPerSpell / (int)difficulty);
 
@@ -645,13 +634,13 @@ public class PartyMember : Creature, ICombatCalculator
         if (Features.Any(f => f.Index.Contains("extra-attack")))
             offensivePower *= 1 + Features.Where(f => f.Index.Contains("extra-attack")).Count();
 
-        _logger.Verbose($"Offensive Power for {Name}: {(int)offensivePower}");
-        return (int)offensivePower;
+        _logger.Verbose($"Offensive Power for {Name}: {(int)Math.Round(offensivePower, MidpointRounding.AwayFromZero)}");
+        return (int)Math.Round(offensivePower, MidpointRounding.AwayFromZero);
     }
 
     private int CalculateSpellsPower(List<Monster> monsters, CRRatios difficulty)
     {
-        var offensivePower = 0;
+        var offensivePower = 0.0;
 
         if (Spells.Count(item => item.IsDamageSpell()) == 0)
             return 0;
@@ -676,19 +665,17 @@ public class PartyMember : Creature, ICombatCalculator
                     spell.Damage?.DamageType ?? "",
                     ref totalPower);
 
-                offensivePower += (int)totalPower;
+                offensivePower += totalPower;
             }
         }
 
-        offensivePower /= Spells.Count(item => item.IsDamageSpell());
-
-        _logger.Verbose($"Spells Power for {Name}: {offensivePower}");
-        return offensivePower;
+        _logger.Verbose($"Spells Power for {Name}: {(int)Math.Round(offensivePower, MidpointRounding.AwayFromZero)}");
+        return (int)Math.Round(offensivePower, MidpointRounding.AwayFromZero);
     }
 
     private bool IsProficient(Weapon weapon)
     {
-        if (Proficiencies.Contains(weapon.Index))
+        if (Proficiencies.Contains(weapon.Index) || Proficiencies.Contains($"{weapon.Index}s"))
             return true;
 
         var categoryRangeProficiency = $"{weapon.WeaponCategory.ToLower()}-{weapon.WeaponRange.ToLower()}-weapons";

@@ -24,6 +24,8 @@ public class SpellMapper: BaseEntity
     public string? AttackType { get; set; }
     [BsonElement("damage")]
     public DamageInfo? Damage { get; set; }
+    [BsonElement("sleep_damage")]
+    public SleepDamageInfo? SleepDamage { get; set; }
     [BsonElement("heal_at_slot_level")]
     public HealInfo? HealAtSlotLevel { get; set; }
     [BsonElement("dc")]
@@ -45,6 +47,11 @@ public class SpellMapper: BaseEntity
         public Dictionary<string, string>? damage_at_slot_level { get; set; }
         [BsonElement("damage_at_character_level")]
         public Dictionary<string, string>? damage_at_character_level { get; set; }
+    }
+    public class SleepDamageInfo
+    {
+        [BsonElement("sleep_damage_at_slot_level")]
+        public Dictionary<string, string>? sleep_damage_at_slot_level { get; set; }
     }
 
     [BsonIgnoreExtraElements]

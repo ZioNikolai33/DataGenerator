@@ -1,5 +1,4 @@
 ﻿using TrainingDataGenerator.Entities;
-using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
 
@@ -47,9 +46,9 @@ public class OutcomeCalculator : IOutcomeCalculator
 
         CombatCalculator.ApplyBaseStatsIncrement(baseStatsParty, baseStatsMonsters, ref totalPartyCombatPower, ref totalMonstersCombatPower);
 
-        totalPartyCombatPower = (int)(totalPartyCombatPower * (1 + encounter.RandomFactorParty / 100.0));
+        totalPartyCombatPower = (int)Math.Round(totalPartyCombatPower * (1.0 + (encounter.RandomFactorParty / 100.0)), MidpointRounding.AwayFromZero);
         _logger.Information($"Total Power for Party after random factor: {totalPartyCombatPower}");
-        totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1 + encounter.RandomFactorMonsters / 100.0));
+        totalMonstersCombatPower = (int)Math.Round(totalMonstersCombatPower * (1.0 + (encounter.RandomFactorMonsters / 100.0)), MidpointRounding.AwayFromZero);
         _logger.Information($"Total Power for Monsters after random factor: {totalMonstersCombatPower}");
 
         if (totalPartyCombatPower <= 0)

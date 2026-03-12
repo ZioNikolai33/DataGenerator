@@ -344,6 +344,8 @@ public class MonsterMapper : BaseEntity
 
         [BsonElement("damage")]
         public List<Damage> Damage { get; set; } = new List<Damage>();
+        [BsonElement("cost")]
+        public byte? Cost { get; set; }
     }
 
     [BsonIgnoreExtraElements]
@@ -372,7 +374,7 @@ public class MonsterMapper : BaseEntity
         public string ActionName { get; set; } = string.Empty;
 
         [BsonElement("count")]
-        public object? Count { get; set; }
+        public object Count { get; set; } = string.Empty;
 
         [BsonElement("type")]
         public string Type { get; set; } = string.Empty;

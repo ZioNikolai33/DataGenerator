@@ -9,6 +9,7 @@ public class LegendaryAction
     public int? AttackBonus { get; set; }
     public MonsterDC? Dc { get; set; }
     public List<Damage>? Damage { get; set; }
+    public byte? Cost { get; set; }
 
     public LegendaryAction(MonsterMapper.LegendaryAction action)
     {
@@ -17,5 +18,6 @@ public class LegendaryAction
         AttackBonus = action.AttackBonus;
         Dc = (action.Dc != null) ? new MonsterDC(action.Dc.DcType.Index, action.Dc.SuccessType, action.Dc.DcValue) : null;
         Damage = (action.Damage != null) ? action.Damage.Select(item => new Damage(item)).ToList() : null;
+        Cost = action.Cost;
     }
 }

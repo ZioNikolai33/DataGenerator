@@ -9,7 +9,8 @@ public static class CombatCalculator
 {
     public static double CalculateRollPercentage(int toReach, int bonus, short diceNumber = 20)
     {
-        var hitPercentage = 0.0;
+        var hitPercentage = 0;
+        var pointPercentage = 100 / diceNumber;
 
         for (var roll = 1; roll <= diceNumber; roll++)
         {
@@ -18,15 +19,15 @@ public static class CombatCalculator
 
             if (roll == diceNumber)
             {
-                hitPercentage += (double)1 / diceNumber;
+                hitPercentage += pointPercentage;
                 continue;
             }
 
             if (roll + bonus >= toReach)
-                hitPercentage += (double)1 / diceNumber;
+                hitPercentage += pointPercentage;
         }
 
-        return (double)hitPercentage;
+        return Math.Round((double)hitPercentage / 100, 2);
     }
 
     public static void ApplyDefenses<T>(List<T> targets,
@@ -98,17 +99,19 @@ public static class CombatCalculator
 
     public static void ApplyBaseStatsIncrement(int baseStatsParty, int baseStatsMonsters, ref int totalPartyCombatPower, ref int totalMonstersCombatPower)
     {
-        var baseStatsDifference = Math.Max(baseStatsParty, baseStatsMonsters) - Math.Min(baseStatsParty, baseStatsMonsters);
+        var higherBaseStats = Math.Max(baseStatsParty, baseStatsMonsters);
 
-        if (baseStatsParty != baseStatsMonsters && baseStatsDifference == baseStatsParty)
+        if (baseStatsParty != baseStatsMonsters && higherBaseStats == baseStatsParty)
         {
-            totalPartyCombatPower = (int)(totalPartyCombatPower * (1.0 + (baseStatsMonsters / baseStatsParty)));
-            totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1.0 - (baseStatsMonsters / baseStatsParty)));
+            var percentage = (double)baseStatsMonsters / (double)baseStatsParty;
+            totalPartyCombatPower = (int)Math.Round(totalPartyCombatPower * (1.0 + percentage), MidpointRounding.AwayFromZero);
+            totalMonstersCombatPower = (int)Math.Round(totalMonstersCombatPower * (1.0 - percentage), MidpointRounding.AwayFromZero);
         }
-        else if (baseStatsParty != baseStatsMonsters && baseStatsDifference == baseStatsMonsters)
+        else if (baseStatsParty != baseStatsMonsters && higherBaseStats == baseStatsMonsters)
         {
-            totalMonstersCombatPower = (int)(totalMonstersCombatPower * (1.0 + (baseStatsParty / baseStatsMonsters)));
-            totalPartyCombatPower = (int)(totalPartyCombatPower * (1.0 - (baseStatsParty / baseStatsMonsters)));
+            var percentage = (double)baseStatsParty / (double)baseStatsMonsters;
+            totalMonstersCombatPower = (int)Math.Round(totalMonstersCombatPower * (1.0 + percentage), MidpointRounding.AwayFromZero);
+            totalPartyCombatPower = (int)Math.Round(totalPartyCombatPower * (1.0 - percentage), MidpointRounding.AwayFromZero);
         }
     }
 

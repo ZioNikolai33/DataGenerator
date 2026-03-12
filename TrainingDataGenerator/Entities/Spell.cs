@@ -19,6 +19,7 @@ public class Spell: BaseEntity
     public Area? AreaEffect { get; set; }
     public DifficultyClass? Dc { get; set; }
     public SpellDamage? Damage { get; set; }
+    public SleepDamage? SleepDamage { get; set; }
     public string? AttackType { get; set; }
     public string? Uses { get; set; }
 
@@ -38,6 +39,7 @@ public class Spell: BaseEntity
         AreaEffect = spell.AreaOfEffect;
         Dc = spell.Dc != null ? new DifficultyClass(spell.Dc.DcType.Index, spell.Dc.DcSuccess) : null;
         Damage = spell.Damage != null ? new SpellDamage(spell.Damage) : null;
+        SleepDamage = spell.SleepDamage != null ? new SleepDamage(spell.SleepDamage) : null;
         AttackType = spell.AttackType;
         Uses = uses;
     }
@@ -168,9 +170,9 @@ public class Spell: BaseEntity
         var healingPower = 0;
 
         if (IsHealingSpell() && HealAtSlotLevel != null && Uses == "")
-            healingPower = (int)HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, member));
+            healingPower = (int)Math.Round(HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, member)), MidpointRounding.AwayFromZero);
         else if (IsHealingSpell() && HealAtSlotLevel != null && Uses != "")
-            healingPower = (int)HealAtSlotLevel.Average(item => UtilityMethods.GetDiceValue(item.Value, member));
+            healingPower = (int)Math.Round(HealAtSlotLevel.Average(item => UtilityMethods.GetDiceValue(item.Value, member)), MidpointRounding.AwayFromZero);
 
         return healingPower;
     }
@@ -179,7 +181,7 @@ public class Spell: BaseEntity
         var healingPower = 0;
 
         if (IsHealingSpell() && HealAtSlotLevel != null)
-            healingPower = (int)HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, monster));
+            healingPower = (int)Math.Round(HealAtSlotLevel.Where(item => spellSlots.GetSlotsLevelAvailable() >= item.Key).Average(x => UtilityMethods.GetDiceValue(x.Value, monster)), MidpointRounding.AwayFromZero);
 
         return healingPower;
     }
@@ -201,5 +203,15 @@ public class SpellDamage
         DamageType = damage.damage_type != null ? damage.damage_type.Index : null;
         DamageSlots = damage.damage_at_slot_level != null ? damage.damage_at_slot_level.Keys.Select(item => new ClassDictionary(short.Parse(item), damage.damage_at_slot_level[item])).ToList() : null;
         DamageAtCharacterLevel = damage.damage_at_character_level != null ? damage.damage_at_character_level.Keys.Select(item => new ClassDictionary(short.Parse(item), damage.damage_at_character_level[item])).ToList() : null;
+    }
+}
+
+public class SleepDamage
+{
+    public List<ClassDictionary>? DamageSlots { get; set; }
+
+    public SleepDamage(SpellMapper.SleepDamageInfo damage)
+    {
+        DamageSlots = damage.sleep_damage_at_slot_level != null ? damage.sleep_damage_at_slot_level.Keys.Select(item => new ClassDictionary(short.Parse(item), damage.sleep_damage_at_slot_level[item])).ToList() : null;
     }
 }

@@ -148,7 +148,7 @@ public class Monster : Creature, ICombatCalculator
         totalBaseStats += CalculateStatsValue();
         totalBaseStats += CalculateSkillsValue();
 
-        if (totalBaseStats <= 0)
+        if (totalBaseStats < 1)
             totalBaseStats = 1;
 
         _logger.Verbose($"Total Base Stats for {Name}: {totalBaseStats}");
@@ -190,8 +190,9 @@ public class Monster : Creature, ICombatCalculator
 
         offensivePower += CalculateAttackPower(party.Cast<PartyMember>().ToList(), difficulty);
         offensivePower += CalculateSpellsPower(party.Cast<PartyMember>().ToList(), difficulty);
+        offensivePower += CalculateLegendaryActions(party.Cast<PartyMember>().ToList(), difficulty);
 
-        if (offensivePower <= 0)
+        if (offensivePower < 1)
             offensivePower = 1;
 
         _logger.Verbose($"Total Offensive Power for {Name}: {offensivePower}");
@@ -201,16 +202,13 @@ public class Monster : Creature, ICombatCalculator
     public void SetHealingPower()
     {
         var healingPower = 0;
-        var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0)?.Spellcast ?? null;
-        var spells = SpecialAbilities.Where(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
+        var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0)?.Spellcast ?? null;
+        var spells = SpecialAbilities.Where(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
 
         foreach (var spell in spells)
             if (spell.IsDamageSpell() && spellcast != null)
                 if (spell.IsHealingSpell())
                     healingPower += spell.GetHealingPower(spellcast.SpellSlots, this);
-
-        if (healingPower < 0)
-            healingPower = 1;
 
         _logger.Verbose($"Total Healing Power for {Name}: {healingPower}");
         HealingPower = healingPower;
@@ -237,16 +235,7 @@ public class Monster : Creature, ICombatCalculator
             return 1 / (int)difficulty;
 
         var totalAvailableSlots = spellSlots.GetTotalSlots(spell.Level);
-        var numCompetingSpells = spells.Count(s => s.Level > 0 && s.Level <= spell.Level && s.Uses == "");
-
-        for (var level = 0; level < DataConstants.MaxSpellLevel; level++)
-            if (level < spell.Level && spellSlots.GetSlotsLevelAvailable() >= level)
-                numCompetingSpells += spells.Count(s => s.Level > 0 && s.Level <= level && s.Uses == "");
-
-        if (numCompetingSpells == 0)
-            return 0.0;
-
-        var avgSlotsPerSpell = (double)totalAvailableSlots / Math.Max(1, spells.Count(s => s.Level > 0 && s.Uses == ""));
+        var avgSlotsPerSpell = (double)totalAvailableSlots / Math.Max(1, spells.Count(s => s.Level > 0 && s.IsDamageSpell() && s.Uses == ""));
         var usagePercentage = Math.Min(1.0, avgSlotsPerSpell / (int)difficulty);
 
         return usagePercentage;
@@ -263,27 +252,96 @@ public class Monster : Creature, ICombatCalculator
         offensivePower += CalculateDcAttacks(party, difficulty);
         offensivePower += CalculateMultiAttacks(party, difficulty);
 
-        _logger.Verbose($"Offensive Power for {Name}: {(int)offensivePower / Actions.Count}");
+        if (offensivePower < 1)
+            offensivePower = 1;
 
-        return (int)(offensivePower / Actions.Count);
+        // The actual number of actions used for calculations
+        var realActionsCount = Actions.Count(a => (a.Dc?.DcValue != 0 && !string.IsNullOrEmpty(a.Dc?.DcType)) || (a.AttackBonus.HasValue && a.Damage.Count > 0) || a.Actions.Count > 0);
+
+        _logger.Verbose($"Offensive Power for {Name}: {(int)Math.Round(offensivePower / realActionsCount, MidpointRounding.AwayFromZero)}");
+        return (int)Math.Round(offensivePower / realActionsCount, MidpointRounding.AwayFromZero);
     }
 
     private int CalculateSpellsPower(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
-        var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0)?.Spellcast ?? null;
-        var spells = SpecialAbilities.Where(sa => sa.Spellcast?.Dc != 0 && sa.Spellcast?.Level != 0).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
+        var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0)?.Spellcast ?? null;
+        var spells = SpecialAbilities.Where(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0).SelectMany(sa => sa.Spellcast?.Spells ?? new List<Spell>()).ToList();
+        var damageSpells = spells.Where(item => item.IsDamageSpell()).ToList();
 
-        if (spells.Count(item => item.IsDamageSpell()) == 0)
+        if (damageSpells.Count() == 0)
             return 0;
 
         if (spellcast != null)
-            foreach (var spell in spells)
+            foreach (var spell in damageSpells)
                 offensivePower += CalculateSpellPower(spellcast, spell, party, difficulty);
         
-        _logger.Verbose($"Spells Power for {Name}: {(int)offensivePower / spells.Count(item => item.IsDamageSpell())}");
+        _logger.Verbose($"Spells Power for {Name}: {(int)Math.Round(offensivePower, MidpointRounding.AwayFromZero)}");
+        return (int)Math.Round(offensivePower, MidpointRounding.AwayFromZero);
+    }
 
-        return (int)(offensivePower / spells.Count(item => item.IsDamageSpell()));
+    private int CalculateLegendaryActions(List<PartyMember> party, CRRatios difficulty)
+    {
+        var offensivePower = 0.0;
+        var legendaryActionsWithAttacks = new List<LegendaryAction>();
+
+        foreach (var legendaryAction in LegendaryActions)
+            if (Actions.Select(a => a.Name).Contains(legendaryAction.Name) || legendaryAction.Damage?.Count() > 0)
+                legendaryActionsWithAttacks.Add(legendaryAction);
+
+        if (legendaryActionsWithAttacks.Count == 0)
+            return 0;
+
+        foreach (var legendaryAction in legendaryActionsWithAttacks)
+        {
+            if (legendaryAction.Name.Equals("Cantrip"))
+            {
+                var cantripChosen = _random.SelectRandom(SpecialAbilities.FirstOrDefault(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0)?
+                    .Spellcast?.Spells.Where(s => s.Level == 0 && s.IsDamageSpell()).ToList() ?? new List<Spell>());
+                var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0)?.Spellcast ?? new SpecialAbility.Spellcasting();
+                offensivePower += CalculateSpellPower(spellcast, cantripChosen, party, difficulty);
+            }
+            else if (legendaryAction.Name.Equals("Cast a Spell"))
+            {
+                var cantripChosen = _random.SelectRandom(SpecialAbilities.FirstOrDefault(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0)?
+                    .Spellcast?.Spells.Where(s => s.Level > 0 && s.IsDamageSpell()).ToList() ?? new List<Spell>());
+                var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0)?.Spellcast ?? new SpecialAbility.Spellcasting();
+                offensivePower += CalculateSpellPower(spellcast, cantripChosen, party, difficulty);
+            }
+            else if (legendaryAction.Damage != null)
+            {
+                var attack = new NormalAction
+                {
+                    Name = legendaryAction.Name,
+                    Damage = legendaryAction.Damage,
+                    Dc = legendaryAction.Dc
+                };
+                
+                if (attack.Damage.Count > 0)
+                    if (attack.AttackBonus != null && attack.AttackBonus > 0)
+                        offensivePower += CalculateSimpleAttack(party, (int)party.Average(m => m.ArmorClass), attack, difficulty);
+                    else if (attack.Dc?.DcValue != 0 && !string.IsNullOrEmpty(attack.Dc?.DcType))
+                        offensivePower += CalculateDcAttack(party, attack, difficulty);
+            }
+            else if (legendaryAction.Name.Equals("Heal Self"))
+            {
+                if (Index.Equals("unicorn"))
+                    offensivePower += 10; // The average healing of the unicorn's Heal Self legendary action
+            }
+            else
+            {
+                var action = Actions.FirstOrDefault(a => a.Name.Equals(legendaryAction.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (action != null)
+                    if (action.Damage.Count > 0)
+                        offensivePower += CalculateSimpleAttack(party, (int)party.Average(m => m.ArmorClass), action, difficulty);
+                    else if (action.Dc?.DcValue != 0 && !string.IsNullOrEmpty(action.Dc?.DcType))
+                        offensivePower += CalculateDcAttack(party, action, difficulty);
+            }
+        }
+
+        _logger.Verbose($"Legendary Actions Power for {Name}: {(int)Math.Round(offensivePower / legendaryActionsWithAttacks.Count, MidpointRounding.AwayFromZero)}");
+        return (int)Math.Round(offensivePower / legendaryActionsWithAttacks.Count, MidpointRounding.AwayFromZero);
     }
 
     private double CalculateSimpleAttacks(List<PartyMember> party, CRRatios difficulty)
@@ -301,7 +359,7 @@ public class Monster : Creature, ICombatCalculator
     private double CalculateDcAttacks(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
-        var actions = Actions.Where(a => a.Dc?.DcValue != 0 && string.IsNullOrEmpty(a.Dc?.DcType)).ToList();
+        var actions = Actions.Where(a => a.Dc?.DcValue != 0 && !string.IsNullOrEmpty(a.Dc?.DcType)).ToList();
 
         foreach (var action in actions)
             offensivePower += CalculateDcAttack(party, action, difficulty);
