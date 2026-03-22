@@ -1,5 +1,7 @@
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System.Data;
+using System.Reflection;
 using TrainingDataGenerator.Analysis.Entities;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
@@ -47,56 +49,45 @@ public class DatasetAnalyzer : IDatasetAnalyzer
 
     private void CreateReportData(AnalysisReport report, IEnumerable<Encounter> encounters)
     {
+        var analysesParty = new List<AnalysisData>();
+        var analysesMonsters = new List<AnalysisData>();
         report.TotalEncounters = encounters.Count();
 
-        var analysisData = CreateDataTables("Class - HP", "Class", "Average HP", encounters);
-        var classGroups = encounters
+        foreach (var encounter in encounters)
+            foreach (var member in encounter.PartyMembers)
+                analysesParty.Add(new AnalysisData(encounter.Difficulty, encounter.Id, member, encounter.Outcome, encounter.PartyMembers.Count()));
+
+        foreach (var encounter in encounters)
+            foreach (var monster in encounter.Monsters)
+                analysesMonsters.Add(new AnalysisData(encounter.Difficulty, encounter.Id, monster, encounter.Outcome, encounter.PartyMembers.Count()));
+
+        report.PartyHealth = ConvertToDataTable(analysesParty.Select(p => new { p.Class, p.Race, p.HitPoints, p.Constitution, p.Level }).ToList());
+        report.PartyAttributes = ConvertToDataTable(analysesParty.Select(p => new { p.Class, p.Strength, p.Dexterity, p.Constitution, p.Intelligence, p.Wisdom, p.Charisma }).ToList());
+        report.PartyStats = ConvertToDataTable(analysesParty.Select(p => new { p.Class, p.Level, p.BaseStatsPower, p.OffensivePower, p.HealingPower }).ToList());
+        report.MonsterStats = ConvertToDataTable(analysesMonsters.Select(p => new { p.Id, p.Name, p.Difficulty, p.ChallengeRating, p.BaseStatsPower, p.OffensivePower, p.HealingPower, p.Result }).ToList());
+        report.Results = ConvertToDataTable(analysesMonsters.Select(e => new { e.Id, e.Difficulty, e.Result, e.Exp, e.PartyMemberCount })
+            .GroupBy(e => e.Id)
+            .Select(g => new { g.Key, g.First().Difficulty, Result = g.First().Result, Exp = g.Sum(x => x.Exp), PartyMemberCount = g.First().PartyMemberCount })
+            .ToList());
+
+        var analysisData = CreateDataTables("Difficulty - Results", "Difficulty", "Wins", "Losses", encounters);
+        var resultsDiffGroups = encounters
+            .Select(e => new { e.Difficulty, e.Outcome.Outcome })
+            .GroupBy(e => e.Difficulty)
+            .Select(g => new { Difficulty = g.Key, Wins = g.Count(x => x.Outcome == Results.Victory), Losses = g.Count(x => x.Outcome == Results.Defeat) })
+            .OrderBy(x => x.Difficulty);
+        foreach (var group in resultsDiffGroups)
+            analysisData.Data.Rows.Add(new object[] { group.Difficulty, group.Wins, group.Losses });
+        report.Analyses.Add(analysisData);
+
+        analysisData = CreateDataTables("Class - Melee - Ranged", "Class", "Melee", "Ranged", encounters);
+        var equipmentGroups = encounters
             .SelectMany(e => e.PartyMembers)
             .GroupBy(c => c.Class)
-            .Select(g => new { Class = g.Key, AverageHP = g.Average(c => c.HitPoints) })
+            .Select(g => new { Class = g.Key, AverageMelee = g.Average(c => c.MeleeWeapons.Count()), AverageRanged = g.Average(c => c.RangedWeapons.Count()) })
             .OrderBy(x => x.Class);
-        foreach (var group in classGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageHP, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Race - HP", "Race", "Average HP", encounters);
-        var raceGroups = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Race)
-            .Select(g => new { Race = g.Key, AverageHP = g.Average(c => c.HitPoints) })
-            .OrderBy(x => x.Race);
-        foreach (var group in raceGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Race, Math.Round(group.AverageHP, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Level - Constitution - HP", "Level", " Average Constitution", "Average HP", encounters);
-        var levelGroups = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Level)
-            .Select(g => new { Level = g.Key, AverageHP = g.Average(c => c.HitPoints), AverageConstitution = g.Average(c => c.Constitution.Value) })
-            .OrderBy(x => x.Level);
-        foreach (var group in levelGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Level, Math.Round(group.AverageConstitution, 0), Math.Round(group.AverageHP, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Class - CA", "Class", "CA", encounters);
-        var caGroups = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Class)
-            .Select(g => new { Class = g.Key, AverageCA = g.Average(c => c.ArmorClass) })
-            .OrderBy(x => x.Class);
-        foreach (var group in caGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageCA, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Class - Skills Proficiency", "Class", "Skills", encounters);
-        var skillsGroups = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Class)
-            .Select(g => new { Class = g.Key, AverageSkills = g.Average(c => c.Skills.Count(s => s.IsProficient)) })
-            .OrderBy(x => x.Class);
-        foreach (var group in skillsGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageSkills, 0) });
+        foreach (var group in equipmentGroups)
+            analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageMelee, 0), Math.Round(group.AverageRanged, 0) });
         report.Analyses.Add(analysisData);
 
         analysisData = CreateDataTables("Class - Spells", "Class", "Spells", encounters);
@@ -107,86 +98,6 @@ public class DatasetAnalyzer : IDatasetAnalyzer
             .OrderBy(x => x.Class);
         foreach (var group in spellsGroups)
             analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageSpells, 0) });
-        report.Analyses.Add(analysisData);             
-
-        analysisData = CreateDataTables("Class - BaseStats", "Class", "BaseStats", encounters);
-        var baseStatsGroups = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Class)
-            .Select(g => new { Class = g.Key, AverageBaseStats = g.Average(c => c.BaseStats) })
-            .OrderBy(x => x.Class);
-        foreach (var group in baseStatsGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageBaseStats, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Class - OffensivePower", "Class", "OffensivePower", encounters);
-        var offensiveStatsGroups = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Class)
-            .Select(g => new { Class = g.Key, AverageOffensivePower = g.Average(c => c.OffensivePower) })
-            .OrderBy(x => x.Class);
-        foreach (var group in offensiveStatsGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageOffensivePower, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Class - HealingPower", "Class", "HealingPower", encounters);
-        var healingGroups = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Class)
-            .Select(g => new { Class = g.Key, AverageHealing = g.Average(c => c.HealingPower) })
-            .OrderBy(x => x.Class);
-        foreach (var group in healingGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Class, Math.Round(group.AverageHealing, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Level - Power Balance", "Level", "Avg Offensive", "Avg Healing", encounters);
-        var levelPowerBalance = encounters
-            .SelectMany(e => e.PartyMembers)
-            .GroupBy(c => c.Level)
-            .Select(g => new { Level = g.Key, AvgOffensive = g.Average(c => c.OffensivePower), AvgHealing = g.Average(c => c.HealingPower) })
-            .OrderBy(x => x.Level);
-        foreach (var group in levelPowerBalance)
-            analysisData.Data.Rows.Add(new object[] { group.Level, Math.Round(group.AvgOffensive, 0), Math.Round(group.AvgHealing, 0) });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Party Size - Results", "Party Size", "Wins", "Losses", encounters);
-        var partySizeGroups = encounters
-            .Select(e => new { PartySize = e.PartyMembers.Count(), e.Outcome.Outcome })
-            .GroupBy(x => x.PartySize)
-            .Select(g => new { PartySize = g.Key, Wins = g.Count(x => x.Outcome == Results.Victory), Losses = g.Count(x => x.Outcome == Results.Defeat) })
-            .OrderBy(x => x.PartySize);
-        foreach (var group in partySizeGroups)
-            analysisData.Data.Rows.Add(new object[] { group.PartySize, group.Wins, group.Losses });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Class - Results", "Class", "Wins", "Losses", encounters);
-        var resultGroups = encounters
-            .SelectMany(e => e.PartyMembers.Select(pm => new { pm.Class, e.Outcome.Outcome }))
-            .GroupBy(x => x.Class)
-            .Select(g => new { Class = g.Key, Wins = g.Count(x => x.Outcome == Results.Victory), Losses = g.Count(x => x.Outcome == Results.Defeat) })
-            .OrderBy(x => x.Class);
-        foreach (var group in resultGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Class, group.Wins, group.Losses });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Level - Results", "Level", "Wins", "Losses", encounters);
-        var levelResultsGroups = encounters
-            .SelectMany(e => e.PartyMembers.Select(pm => new { pm.Level, e.Outcome.Outcome }))
-            .GroupBy(c => c.Level)
-            .Select(g => new { Level = g.Key, Wins = g.Count(x => x.Outcome == Results.Victory), Losses = g.Count(x => x.Outcome == Results.Defeat) })
-            .OrderBy(x => x.Level);
-        foreach (var group in levelResultsGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Level, group.Wins, group.Losses });
-        report.Analyses.Add(analysisData);
-
-        analysisData = CreateDataTables("Difficulty - Results", "Difficulty", "Wins", "Losses", encounters);
-        var resultsDiffGroups = encounters
-            .Select(e => new { e.Difficulty, e.Outcome.Outcome })
-            .GroupBy(e => e.Difficulty)
-            .Select(g => new { Difficulty = g.Key, Wins = g.Count(x => x.Outcome == Results.Victory), Losses = g.Count(x => x.Outcome == Results.Defeat) })
-            .OrderBy(x => x.Difficulty);
-        foreach (var group in resultsDiffGroups)
-            analysisData.Data.Rows.Add(new object[] { group.Difficulty, group.Wins, group.Losses });
         report.Analyses.Add(analysisData);
 
         analysisData = CreateDataTables("Monsters - CR - BaseStats", "Monster", "CR", "BaseStats", encounters);
@@ -220,9 +131,9 @@ public class DatasetAnalyzer : IDatasetAnalyzer
         report.Analyses.Add(analysisData);
     }
 
-    private AnalysisData CreateDataTables(string sheetName, string firstColumn, string secondColumn, IEnumerable<Encounter> encounters)
+    private Entities.Analysis CreateDataTables(string sheetName, string firstColumn, string secondColumn, IEnumerable<Encounter> encounters)
     {
-        var analysisData = new AnalysisData(sheetName, new DataTable());
+        var analysisData = new Entities.Analysis(sheetName, new DataTable());
 
         analysisData.Data.Columns.Add(firstColumn, typeof(string));
         analysisData.Data.Columns.Add(secondColumn, typeof(double));
@@ -230,9 +141,9 @@ public class DatasetAnalyzer : IDatasetAnalyzer
         return analysisData;
     }
 
-    private AnalysisData CreateDataTables(string sheetName, string firstColumn, string secondColumn, string thirdColumn, IEnumerable<Encounter> encounters)
+    private Entities.Analysis CreateDataTables(string sheetName, string firstColumn, string secondColumn, string thirdColumn, IEnumerable<Encounter> encounters)
     {
-        var analysisData = new AnalysisData(sheetName, new DataTable());
+        var analysisData = new Entities.Analysis(sheetName, new DataTable());
 
         analysisData.Data.Columns.Add(firstColumn, typeof(string));
         analysisData.Data.Columns.Add(secondColumn, typeof(double));
@@ -241,11 +152,52 @@ public class DatasetAnalyzer : IDatasetAnalyzer
         return analysisData;
     }
 
+    private DataTable ConvertToDataTable<T>(IEnumerable<T> data)
+    {
+        var dataTable = new DataTable();
+        var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var property in properties)
+        {
+            var propertyType = property.PropertyType;
+            var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
+            dataTable.Columns.Add(property.Name, underlyingType);
+        }
+
+        foreach (var item in data)
+        {
+            var row = dataTable.NewRow();
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(item);
+                row[property.Name] = value ?? DBNull.Value;
+            }
+            dataTable.Rows.Add(row);
+        }
+
+        return dataTable;
+    }
+
     private void CreateExcel(XLWorkbook workbook, AnalysisReport report)
     {
+        var worksheet = workbook.Worksheets.Add("Results");
+        worksheet.Cell(1, 1).InsertTable(report.Results);
+
+        worksheet = workbook.Worksheets.Add("Party Health");
+        worksheet.Cell(1, 1).InsertTable(report.PartyHealth);
+
+        worksheet = workbook.Worksheets.Add("Party Attributes");
+        worksheet.Cell(1, 1).InsertTable(report.PartyAttributes);
+
+        worksheet = workbook.Worksheets.Add("Party Stats");
+        worksheet.Cell(1, 1).InsertTable(report.PartyStats);
+
+        worksheet = workbook.Worksheets.Add("Monster Stats");
+        worksheet.Cell(1, 1).InsertTable(report.MonsterStats);
+
         foreach (var analysis in report.Analyses)
         {
-            var worksheet = workbook.Worksheets.Add(analysis.SheetName);
+            worksheet = workbook.Worksheets.Add(analysis.SheetName);
             worksheet.Cell(1, 1).InsertTable(analysis.Data);
         }
     }
