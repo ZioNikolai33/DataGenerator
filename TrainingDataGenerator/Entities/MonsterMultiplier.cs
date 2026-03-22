@@ -8,4 +8,8 @@ public class MonsterMultiplier
     public int Number { get; set; }
     [JsonPropertyName("multiplier")]
     public double Multiplier { get; set; }
+    [JsonPropertyName("before")]
+    public double BeforeMultiplier { get; set; }
+    [JsonPropertyName("after")]
+    public double AfterMultiplier { get; set; }
 }

@@ -49,7 +49,7 @@ public class NormalAction
                     Actions.AddRange(option.Items.Select(item => new MultiAction
                     {
                         ActionName = item.ActionName,
-                        Count = (item.Count != null) ? UtilityMethods.GetDiceValue(item.Count.ToString() ?? "1") : 1,
+                        Count = (item.Count != null) ? (item.Count.ToString().Contains("d") ? UtilityMethods.GetDiceValue(item.Count.ToString() ?? "1") : int.Parse(item.Count.ToString())) : 1,
                         Type = item.Type
                     }).ToList());
                 }
@@ -58,7 +58,7 @@ public class NormalAction
                     Actions.Add(new MultiAction
                     {
                         ActionName = option.ActionName,
-                        Count = (option.Count != null) ? UtilityMethods.GetDiceValue(option.Count.ToString() ?? "1") : 1,
+                        Count = (option.Count != null) ? (option.Count.ToString().Contains("d") ? UtilityMethods.GetDiceValue(option.Count.ToString() ?? "1") : int.Parse(option.Count.ToString())) : 1,
                         Type = option.Type
                     });
                 }

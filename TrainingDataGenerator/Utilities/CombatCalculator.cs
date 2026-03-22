@@ -99,20 +99,11 @@ public static class CombatCalculator
 
     public static void ApplyBaseStatsIncrement(int baseStatsParty, int baseStatsMonsters, ref int totalPartyCombatPower, ref int totalMonstersCombatPower)
     {
-        var higherBaseStats = Math.Max(baseStatsParty, baseStatsMonsters);
+        var percentageParty = (double)(baseStatsParty) / (double)baseStatsMonsters;
+        var percentageMonsters = (double)(baseStatsMonsters) / (double)baseStatsParty;
 
-        if (baseStatsParty != baseStatsMonsters && higherBaseStats == baseStatsParty)
-        {
-            var percentage = (double)baseStatsMonsters / (double)baseStatsParty;
-            totalPartyCombatPower = (int)Math.Round(totalPartyCombatPower * (1.0 + percentage), MidpointRounding.AwayFromZero);
-            totalMonstersCombatPower = (int)Math.Round(totalMonstersCombatPower * (1.0 - percentage), MidpointRounding.AwayFromZero);
-        }
-        else if (baseStatsParty != baseStatsMonsters && higherBaseStats == baseStatsMonsters)
-        {
-            var percentage = (double)baseStatsParty / (double)baseStatsMonsters;
-            totalMonstersCombatPower = (int)Math.Round(totalMonstersCombatPower * (1.0 + percentage), MidpointRounding.AwayFromZero);
-            totalPartyCombatPower = (int)Math.Round(totalPartyCombatPower * (1.0 - percentage), MidpointRounding.AwayFromZero);
-        }
+        totalPartyCombatPower = (int)Math.Round(totalPartyCombatPower * (percentageParty), MidpointRounding.AwayFromZero);
+        totalMonstersCombatPower = (int)Math.Round(totalMonstersCombatPower * (percentageMonsters), MidpointRounding.AwayFromZero);
     }
 
     public static Result CalculateCombatOutcome(List<PartyMember> party, List<Monster> monsters, int totalPartyCombatPower, int totalMonstersCombatPower, int baseStatsParty, int baseStatsMonsters, ILogger logger)

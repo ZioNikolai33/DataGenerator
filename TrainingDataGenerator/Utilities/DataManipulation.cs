@@ -14,6 +14,7 @@ public static class DataManipulation
             {
                 Index = item.Index,
                 Name = item.Name,
+                HitPoints = item.HitPoints,
                 ChallengeRating = item.ChallengeRating,
                 Xp = item.Xp
             });

@@ -256,7 +256,7 @@ public class Monster : Creature, ICombatCalculator
             offensivePower = 1;
 
         // The actual number of actions used for calculations
-        var realActionsCount = Actions.Count(a => (a.Dc?.DcValue != 0 && !string.IsNullOrEmpty(a.Dc?.DcType)) || (a.AttackBonus.HasValue && a.Damage.Count > 0) || a.Actions.Count > 0);
+        var realActionsCount = Actions.Count(a => (((a.Dc?.DcValue != 0 && !string.IsNullOrEmpty(a.Dc?.DcType)) || (a.AttackBonus.HasValue)) && a.Damage.Count > 0) || a.Actions.Count > 0);
 
         _logger.Verbose($"Offensive Power for {Name}: {(int)Math.Round(offensivePower / realActionsCount, MidpointRounding.AwayFromZero)}");
         return (int)Math.Round(offensivePower / realActionsCount, MidpointRounding.AwayFromZero);
@@ -308,7 +308,7 @@ public class Monster : Creature, ICombatCalculator
                 var spellcast = SpecialAbilities.FirstOrDefault(sa => sa.Spellcast != null && sa.Spellcast.Dc != 0 && sa.Spellcast.Level != 0)?.Spellcast ?? new SpecialAbility.Spellcasting();
                 offensivePower += CalculateSpellPower(spellcast, cantripChosen, party, difficulty);
             }
-            else if (legendaryAction.Damage != null)
+            else if (legendaryAction.Damage != null && legendaryAction.Damage.Count() > 0)
             {
                 var attack = new NormalAction
                 {
@@ -347,7 +347,7 @@ public class Monster : Creature, ICombatCalculator
     private double CalculateSimpleAttacks(List<PartyMember> party, CRRatios difficulty)
     {
         var offensivePower = 0.0;
-        var partyAvgAc = (int)party.Average(m => m.ArmorClass);
+        var partyAvgAc = (int)Math.Round(party.Average(m => m.ArmorClass), MidpointRounding.AwayFromZero);
         var actions = Actions.Where(a => a.AttackBonus.HasValue && a.Damage.Count > 0).ToList();
 
         foreach (var action in actions)
@@ -402,7 +402,7 @@ public class Monster : Creature, ICombatCalculator
             foreach (var damage in action.Damage.Where(item => item.From != null))
                 chooseableDamages.AddRange(_random.Shuffle(damage.From.Options).Take(damage.Choose ?? 0).ToList());
 
-        var partyAvgPercentage = party.Average(m => m.GetSavePercentage(action.Dc?.DcType ?? string.Empty, action.Dc?.DcValue ?? 0));
+        var partyAvgPercentage = (int)Math.Round(party.Average(m => m.GetSavePercentage(action.Dc?.DcType ?? string.Empty, action.Dc?.DcValue ?? 0)), MidpointRounding.AwayFromZero);
         var averageDamage = action.Damage.Any(item => !string.IsNullOrEmpty(item.DamageDice)) ? action.Damage.Where(item => !string.IsNullOrEmpty(item.DamageDice)).Sum(d => UtilityMethods.GetDiceValue(d.DamageDice, this)) : 0;
         averageDamage += (chooseableDamages.Count > 0) ? chooseableDamages.Sum(item => UtilityMethods.GetDiceValue(item.Damage_Dice, this)) : 0;
         var damageTypes = action.Damage.Select(d => d.DamageType).Distinct().ToList();
@@ -464,7 +464,7 @@ public class Monster : Creature, ICombatCalculator
     private double CalculateMultiAttacks(List<PartyMember> party, CRRatios difficulty) 
     {
         var offensivePower = 0.0;
-        var partyAvgAc = (int)party.Average(m => m.ArmorClass);
+        var partyAvgAc = (int)Math.Round(party.Average(m => m.ArmorClass), MidpointRounding.AwayFromZero);
         var multiattackActions = Actions.Where(a => a.Actions.Count > 0).SelectMany(a => a.Actions).ToList();
 
         foreach (var multiattackAction in multiattackActions)
@@ -486,7 +486,8 @@ public class Monster : Creature, ICombatCalculator
                 var action = Actions.First(a => a.Name.Equals(multiattackAction.ActionName, StringComparison.OrdinalIgnoreCase));
                 var actionCount = multiattackAction.Count;
 
-                if (action == null || actionCount == 0) continue;
+                if (action == null || actionCount == 0)
+                    continue;
 
                 if (action.Damage.Count > 0)
                     offensivePower += CalculateSimpleAttack(party, partyAvgAc, action, difficulty) * actionCount;

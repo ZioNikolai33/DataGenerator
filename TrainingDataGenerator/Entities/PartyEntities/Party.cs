@@ -4,7 +4,6 @@ using TrainingDataGenerator.Entities.Equip;
 using TrainingDataGenerator.Entities.Mappers;
 using TrainingDataGenerator.Interfaces;
 using TrainingDataGenerator.Utilities;
-using static TrainingDataGenerator.Entities.Mappers.MonsterMapper;
 
 namespace TrainingDataGenerator.Entities.PartyEntities;
 

@@ -126,7 +126,7 @@ public class Spell: BaseEntity
     public double GetSpellPercentage(SpecialAbility.Spellcasting spellcast, Monster monster, List<PartyMember> party)
     {
         var spellPercentage = 1.0;
-        var averagePartyAc = (int)party.Average(item => item.ArmorClass);
+        var averagePartyAc = (int)Math.Round(party.Average(m => m.ArmorClass), MidpointRounding.AwayFromZero);
         var averagePartySaveBonus = 0;
         var spellAbilityModifier = spellcast.Modifier;
 
