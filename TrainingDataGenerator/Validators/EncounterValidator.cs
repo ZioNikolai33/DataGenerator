@@ -209,12 +209,6 @@ public class EncounterValidator : IEncounterValidator
     {
         var statsSheet = workbook.Worksheets.Add("BaseStatistics");
 
-        CreateSummaryLine(statsSheet, 1, "Total Encounters", datasetStatistics.TotalEncounters); // Summary Statistics: Total Encounters
-        CreateSummaryLine(statsSheet, 2, "Valid Encounters", datasetStatistics.ValidEncounters); // Summary Statistics: Valid Encounters
-        CreateSummaryLine(statsSheet, 3, "Invalid Encounters", datasetStatistics.InvalidEncounters); // Summary Statistics: Invalid Encounters
-        CreateSummaryLine(statsSheet, 4, "Encounters Won (Party)", datasetStatistics.OutcomeDistribution.Where(o => o.Value.Equals(Results.Victory.ToString())).Select(o => o.Count).FirstOrDefault()); // Summary Statistics: Encounter Won (Party)
-        CreateSummaryLine(statsSheet, 5, "Encounters Lost (Party)", datasetStatistics.OutcomeDistribution.Where(o => o.Value.Equals(Results.Defeat.ToString())).Select(o => o.Count).FirstOrDefault());// Summary Statistics: Encounter Lost (Party)
-
         CreateSheet(workbook, nameof(datasetStatistics.OutcomeDistribution), datasetStatistics.OutcomeDistribution);
         CreateSheet(workbook, nameof(datasetStatistics.DifficultyDistribution), datasetStatistics.DifficultyDistribution);
         CreateSheet(workbook, nameof(datasetStatistics.PartyClassDistribution), datasetStatistics.PartyClassDistribution);
@@ -233,13 +227,6 @@ public class EncounterValidator : IEncounterValidator
 
         sheet.Cell(1, 1).InsertTable(data);
         sheet.Columns().AdjustToContents();
-    }
-
-    private void CreateSummaryLine(IXLWorksheet sheet, int row, string label, int value)
-    {
-        sheet.Cell(row, 1).Value = label;
-        sheet.Cell(row, 2).Value = value;
-        sheet.Range(row, 1, row, 2).Style.Font.Bold = true;
     }
 
     #endregion

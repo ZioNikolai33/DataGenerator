@@ -314,7 +314,8 @@ public class Monster : Creature, ICombatCalculator
                 {
                     Name = legendaryAction.Name,
                     Damage = legendaryAction.Damage,
-                    Dc = legendaryAction.Dc
+                    Dc = legendaryAction.Dc,
+                    AttackBonus = (byte)(legendaryAction.AttackBonus ?? 0),
                 };
                 
                 if (attack.Damage.Count > 0)
