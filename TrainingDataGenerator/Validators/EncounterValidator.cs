@@ -207,8 +207,6 @@ public class EncounterValidator : IEncounterValidator
 
     private void CreateExcel(XLWorkbook workbook, DatasetStatistics datasetStatistics)
     {
-        var statsSheet = workbook.Worksheets.Add("BaseStatistics");
-
         CreateSheet(workbook, nameof(datasetStatistics.OutcomeDistribution), datasetStatistics.OutcomeDistribution);
         CreateSheet(workbook, nameof(datasetStatistics.DifficultyDistribution), datasetStatistics.DifficultyDistribution);
         CreateSheet(workbook, nameof(datasetStatistics.PartyClassDistribution), datasetStatistics.PartyClassDistribution);
@@ -218,7 +216,6 @@ public class EncounterValidator : IEncounterValidator
         CreateSheet(workbook, nameof(datasetStatistics.MonsterCRDistribution), datasetStatistics.MonsterCRDistribution);
         CreateSheet(workbook, nameof(datasetStatistics.MonsterCountDistribution), datasetStatistics.MonsterCountDistribution);
         CreateSheet(workbook, nameof(datasetStatistics.CombatDurationDistribution), datasetStatistics.CombatDurationDistribution);
-            
     }
 
     private void CreateSheet(XLWorkbook workbook, string header, IEnumerable<Distribution<string>> data)
