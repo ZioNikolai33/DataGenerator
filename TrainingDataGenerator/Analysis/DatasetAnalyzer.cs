@@ -6,6 +6,7 @@ using TrainingDataGenerator.Analysis.Entities;
 using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Interfaces;
+using TrainingDataGenerator.Utilities;
 
 namespace TrainingDataGenerator.Analysis;
 
@@ -13,11 +14,13 @@ public class DatasetAnalyzer : IDatasetAnalyzer
 {
     private readonly IExporterService _exporterService;
     private readonly ILogger _logger;
+    private readonly Config _config;
 
     public DatasetAnalyzer(IExporterService exporterService, ILogger logger)
     {
         _exporterService = exporterService ?? throw new ArgumentNullException(nameof(exporterService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _config = Config.LoadConfig();
     }
 
     public void AnalyzeDatasetAsync(IEnumerable<Encounter> encounters, string startDate)
@@ -29,9 +32,8 @@ public class DatasetAnalyzer : IDatasetAnalyzer
 
     private void ExportToExcel(AnalysisReport report, string startDate)
     {
-        var baseFolder = Directory.GetCurrentDirectory();
         var fileName = "analysis.xlsx";
-        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}", "analyses");
+        var batchFolderName = Path.Combine(_config.OutputFolder, $"Batch_{startDate}", "analyses");
         var workbook = new XLWorkbook();
 
         CreateExcel(workbook, report);

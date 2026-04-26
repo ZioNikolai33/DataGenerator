@@ -26,7 +26,7 @@ public sealed class Logger : ILogger
         return new LoggerConfiguration()
             .MinimumLevel.ControlledBy(levelSwitch)
             .WriteTo.File(
-                "../../../Generator/logs/app.log",
+                config.LogsFolder,
                 rollingInterval: RollingInterval.Day,
                 fileSizeLimitBytes: 100 * 1024 * 1024,
                 rollOnFileSizeLimit: true,

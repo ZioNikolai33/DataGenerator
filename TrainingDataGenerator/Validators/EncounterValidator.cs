@@ -3,6 +3,7 @@ using TrainingDataGenerator.Entities;
 using TrainingDataGenerator.Entities.Enums;
 using TrainingDataGenerator.Entities.PartyEntities;
 using TrainingDataGenerator.Interfaces;
+using TrainingDataGenerator.Utilities;
 using TrainingDataGenerator.Validators.Entities;
 
 namespace TrainingDataGenerator.Validators;
@@ -11,11 +12,13 @@ public class EncounterValidator : IEncounterValidator
 {
     private readonly ILogger _logger;
     private readonly IExporterService _exporterService;
+    private readonly Config _config;
 
     public EncounterValidator(ILogger logger, IExporterService exporterService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _exporterService = exporterService ?? throw new ArgumentNullException(nameof(exporterService));
+        _config = Config.LoadConfig();
     }
 
     public ValidationResult ValidateEncounter(Encounter encounter)
@@ -168,9 +171,8 @@ public class EncounterValidator : IEncounterValidator
 
     private async Task SaveValidationErrorsAsync(List<string> errors, string startDate)
     {
-        var baseFolder = Directory.GetCurrentDirectory();
         var fileName = "validation_errors.json";
-        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}", "validation");
+        var batchFolderName = Path.Combine(_config.OutputFolder, $"Batch_{startDate}", "validation");
 
         if (!Directory.Exists(batchFolderName))
         {
@@ -185,9 +187,8 @@ public class EncounterValidator : IEncounterValidator
 
     private void SaveValidationStatsAsync(DatasetStatistics validationResult, string startDate)
     {
-        var baseFolder = Directory.GetCurrentDirectory();
         var fileName = "validation.xlsx";
-        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}", "validation");
+        var batchFolderName = Path.Combine(_config.OutputFolder, $"Batch_{startDate}", "validation");
         var workbook = new XLWorkbook();
 
         CreateExcel(workbook, validationResult);

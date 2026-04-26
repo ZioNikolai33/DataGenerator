@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TrainingDataGenerator.Utilities;
 
@@ -12,6 +13,10 @@ public class Config
     public LogLevel Logging { get; set; } = new LogLevel();
     [JsonPropertyName("RandomSeed")]
     public int RandomSeed { get; set; } = 0;
+    [JsonPropertyName("LogsFolder")]
+    public string LogsFolder { get; set; } = "..\\..\\..\\Generator\\logs";
+    [JsonPropertyName("OutputFolder")]
+    public string OutputFolder { get; set; } = "..\\..\\..\\Generator\\output";
 
     public class Database
     {
@@ -27,5 +32,19 @@ public class Config
         public string Default { get; set; } = "Information";
         [JsonPropertyName("Microsoft.AspNetCore")]
         public string Microsoft { get; set; } = "Warning";
+    }
+
+    public static Config LoadConfig()
+    {
+        try
+        {
+            var configText = File.ReadAllText("appsettings.json");
+            return JsonSerializer.Deserialize<Config>(configText) ?? new Config();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading configuration: {ex.Message}");
+            return new Config();
+        }
     }
 }

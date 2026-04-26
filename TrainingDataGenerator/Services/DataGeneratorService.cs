@@ -34,7 +34,7 @@ public class DataGeneratorService : IDataGenerator
         _outcomeCalculator = outcomeCalculator ?? throw new ArgumentNullException(nameof(outcomeCalculator));
         _exporterService = exporterService ?? throw new ArgumentNullException(nameof(exporterService));
         _encounterValidator = encounterValidator ?? throw new ArgumentNullException(nameof(encounterValidator));
-        _config = LoadConfig();
+        _config = Config.LoadConfig();
     }
 
     public async Task GenerateAsync(Database database, List<Encounter> encountersDataset, string startDate)
@@ -89,9 +89,8 @@ public class DataGeneratorService : IDataGenerator
 
     private async Task SaveEncounterAsync(Encounter encounter, string startDate)
     {
-        var baseFolder = Directory.GetCurrentDirectory();
         var fileName = $"{encounter.Id}.json";
-        var batchFolderName = Path.Combine(baseFolder, "..", "..", "..", "Generator", "output", $"Batch_{startDate}", "encounters");
+        var batchFolderName = Path.Combine(_config.OutputFolder, $"Batch_{startDate}", "encounters");
 
         if (!Directory.Exists(batchFolderName))
         {
@@ -103,19 +102,5 @@ public class DataGeneratorService : IDataGenerator
 
         await _exporterService.ExportToJsonAsync(encounter, filePath);
         _logger.Information($"Encounter {encounter.Id} saved to {fileName}\n");
-    }
-
-    private static Config LoadConfig()
-    {
-        try
-        {
-            var configText = File.ReadAllText("appsettings.json");
-            return JsonSerializer.Deserialize<Config>(configText) ?? new Config();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading configuration: {ex.Message}");
-            return new Config();
-        }
     }
 }
