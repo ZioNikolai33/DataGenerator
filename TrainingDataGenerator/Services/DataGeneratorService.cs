@@ -89,7 +89,7 @@ public class DataGeneratorService : IDataGenerator
 
     private async Task SaveEncounterAsync(Encounter encounter, string startDate)
     {
-        var fileName = $"{encounter.Id}.json";
+        var fileName = $"{startDate}-{encounter.Id}.json";
         var batchFolderName = Path.Combine(_config.OutputFolder, $"Batch_{startDate}", "encounters");
 
         if (!Directory.Exists(batchFolderName))
