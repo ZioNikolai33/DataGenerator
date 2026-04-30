@@ -57,10 +57,12 @@ public class DataGeneratorService : IDataGenerator
                 var monsters = _monsterGenerator.GenerateRandomMonsters(difficulty, party.Select(p => p.Level).ToList(), monstersList.Where(m => m.ChallengeRating > 0).ToList());
                 var encounter = new Encounter(i, difficulty, party, monsters);
                 var encounterWithOutcome = _outcomeCalculator.CalculateOutcome(encounter);
+                var encounterXgBoost = new EncounterXgBoost(encounterWithOutcome);
 
                 encountersDataset.Add(encounterWithOutcome);
 
                 await SaveEncounterAsync(encounterWithOutcome, startDate);
+                await SaveEncounterAsync(encounterXgBoost, startDate);
             }
 
             _logger.Information("Data generation completed successfully.");
@@ -101,6 +103,23 @@ public class DataGeneratorService : IDataGenerator
         var filePath = Path.Combine(batchFolderName, fileName);
 
         await _exporterService.ExportToJsonAsync(encounter, filePath);
-        _logger.Information($"Encounter {encounter.Id} saved to {fileName}\n");
+        _logger.Information($"Encounter {encounter.Id} saved to {fileName}");
+    }
+
+    private async Task SaveEncounterAsync(EncounterXgBoost encounter, string startDate)
+    {
+        var fileName = $"{startDate}-{encounter.Id}.json";
+        var batchFolderName = Path.Combine(_config.OutputFolder, $"Batch_{startDate}", "encounters_xgboost");
+
+        if (!Directory.Exists(batchFolderName))
+        {
+            Directory.CreateDirectory(batchFolderName);
+            _logger.Verbose("Created batch folder");
+        }
+
+        var filePath = Path.Combine(batchFolderName, fileName);
+
+        await _exporterService.ExportToJsonAsync(encounter, filePath);
+        _logger.Information($"Encounter {encounter.Id} for XgBoost saved to {fileName}\n");
     }
 }
