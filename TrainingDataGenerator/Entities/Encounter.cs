@@ -37,4 +37,11 @@ public sealed class Encounter
         Monsters = monsters;
         Difficulty = difficulty;
     }
+
+    public double CalculateHpRatio() => 
+        (double)Monsters.Sum(m => m.HitPoints) / PartyMembers.Sum(p => p.HitPoints);
+    public double CalculateAcRatio() => 
+        (double)Monsters.Average(m => m.ArmorClass) / PartyMembers.Average(p => p.ArmorClass);
+    public double CalculateSizeRatio() => 
+        (double)Monsters.Count() / PartyMembers.Count();
 }

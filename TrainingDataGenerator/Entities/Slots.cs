@@ -105,6 +105,20 @@ namespace TrainingDataGenerator.Entities
             return total;
         }
 
+        public Dictionary<string, int> GetSpellSlotCounts()
+        {
+            var dict = new Dictionary<string, int>();
+            if (First > 0) dict["1st Level"] = First;
+            if (Second > 0) dict["2nd Level"] = Second;
+            if (Third > 0) dict["3rd Level"] = Third;
+            if (Fourth > 0) dict["4th Level"] = Fourth;
+            if (Fifth > 0) dict["5th Level"] = Fifth;
+            if (Sixth > 0) dict["6th Level"] = Sixth;
+            if (Seventh > 0) dict["7th Level"] = Seventh;
+            if (Eighth > 0) dict["8th Level"] = Eighth;
+            if (Ninth > 0) dict["9th Level"] = Ninth;
+            return dict;
+        }
         public override string ToString()
         {
             var str = "Spell Slots:\n";
